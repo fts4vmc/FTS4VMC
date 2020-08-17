@@ -1,0 +1,32 @@
+aside {
+    padding: 5px;
+    display: flex;
+    background-color: yellowgreen;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+aside > * {
+    margin: 5px;
+}
+
+main {
+    flex-grow: 9;
+    padding: 5px;
+}
+
+main > textarea {
+    width: 90%;
+    height: 90%;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+    margin: 0px;
+    display: flex;
+    flex-direction: row;
+    min-height: 100%;
+}
