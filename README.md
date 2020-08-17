@@ -3,7 +3,8 @@
 Prototype for FTS4VMC user interface.
 
 ## Depency
-Python 3
+Python 3.
+
 To prevent damaging user libraries it is suggested to install the required packages under a virtual environment
 
 ```bash
@@ -12,10 +13,10 @@ $ pip install z3-solver pydot lrparsing Flask
 
 ## Structure
 
-    - *fts.py* this file contains the definitions of functions used to upload files and execute analysis also includes bindings between functions and URLs
-    - *analyser.py* this file implements the ambiguities analyser
-    - *templates* under this folder are contained the html files used
-    - *static* under this folder are contained static resources such as javascript and CSS files.
+fts.py: this file contains the definitions of functions used to upload files and execute analysis also includes bindings between functions and URLs
+analyser.py: this file implements the ambiguities analyser
+templates: under this folder are contained the html files used
+static: under this folder are contained static resources such as javascript and CSS files.
 
 ## Usage
 
