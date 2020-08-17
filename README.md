@@ -1,6 +1,4 @@
-###################################################################
 # FTS4VMC
-###################################################################
 
 Prototype for FTS4VMC user interface.
 
@@ -19,9 +17,7 @@ $ pip install z3-solver pydot lrparsing Flask
     - *templates* under this folder are contained the html files used
     - *static* under this folder are contained static resources such as javascript and CSS files.
 
-###################################################################
 ## Usage
-###################################################################
 
 WARNING: Currently it is used the flask web server to deploy the application and it should be used only on localhost.
 
