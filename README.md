@@ -8,7 +8,7 @@ Python 3.
 To prevent damaging user's libraries it is suggested to install the required packages under a virtual environment.
 
 ```bash
-$ pip install z3-solver pydot lrparsing Flask
+$ pip install -r requirements.txt
 ```
 
 ## Structure
@@ -42,4 +42,25 @@ $ export FLASK_APP=fts.py
 $ export FLASK_ENV=development
 $ flask run
  * Running on http://127.0.0.1:5000/
+```
+
+## Building docker image
+
+From root of the repository execute the following command:
+
+```bash
+$ docker build -t fts4vmc -f docker/Dockerfile .
+```
+
+## Running the docker container
+
+For manually built image:
+
+```bash
+$ docker run -p <host port>:5000 fts4vmc
+```
+For running image hosted on docker hub:
+
+```bash
+$ docker run -p <host port>:5000 gior26/fts4vmc
 ```
