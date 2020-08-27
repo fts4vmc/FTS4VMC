@@ -1,5 +1,5 @@
 import os
-import analyser
+import src.analyser
 import subprocess
 from flask import send_from_directory
 
