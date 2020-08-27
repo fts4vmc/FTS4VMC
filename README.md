@@ -43,6 +43,7 @@ $ export FLASK_ENV=development
 $ flask run
  * Running on http://127.0.0.1:5000/
 ```
+<<<<<<< HEAD
 
 ## Building docker image
 
@@ -64,3 +65,6 @@ For running image hosted on docker hub:
 ```bash
 $ docker run -p <host port>:5000 gior26/fts4vmc
 ```
+=======
+## Testing
+In order to run the unit tests, refer to tests/README.md.
