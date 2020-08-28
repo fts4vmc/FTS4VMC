@@ -45,7 +45,7 @@ def full_analyser():
     filename = secure_filename(request.form['name'])
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     if os.path.isfile(file_path):
-        result = subprocess.getoutput('python3 analyser.py '+ file_path)
+        result = subprocess.getoutput('python3 src/analyser.py '+ file_path)
         return result
     return 'File not found'
 
@@ -54,7 +54,7 @@ def hdead_analyser():
     filename = secure_filename(request.form['name'])
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     if os.path.isfile(file_path):
-        result = subprocess.getoutput('python3 analyser.py --hdead '+ file_path)
+        result = subprocess.getoutput('python3 src/analyser.py --hdead '+ file_path)
         return result
     return 'File not found'
 
