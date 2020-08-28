@@ -50,7 +50,7 @@ import sys
 
 def main():
     t = Translator()
-    t.load_model('../../VMC/FTS-vendingnew.dot')
+    t.load_model(sys.argv[1])
     t.translate()
     print(t.get_mtsv())
 
