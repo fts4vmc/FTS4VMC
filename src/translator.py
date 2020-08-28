@@ -76,21 +76,4 @@ class Translator:
                 delta_diamod.add(self.__fts._initial,sym,sink_state)
 
         #Variability constraints - part two
-        #Define a parser for the feature model
-        from lark import Lark as lk
-        fm_parser = lk(r"""
-            formula: symbol op formula
-                   | symbol
-            op: and
-              | or
-              | =>
-              | <=>
-              | xor
-
-            symbol: WORD
-
-            %import common.WORD
-
-            """, start = 'formula'
-        )
-        tree = fm_parser.parse(self.__fts._fm)#Parse the feature model
+        analyser.z3_analyse_full()
