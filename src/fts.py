@@ -1,8 +1,8 @@
 import os
 import sys
 import time
-import analyser
-from process_manager import ProcessManager
+from src.analyser import z3_analyse_hdead, z3_analyse_full, load_dot
+from src.process_manager import ProcessManager
 import multiprocessing
 from flask import make_response, session
 
@@ -12,8 +12,6 @@ from werkzeug.utils import secure_filename
 UPLOAD_FOLDER = './uploads'
 ALLOWED_EXTENSIONS = {'dot'}
 
-process = {}
-
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.secret_key = b'\xb1\xa8\xc0W\x0c\xb3M\xd6\xa0\xf4\xabSmz=\x83'
@@ -21,16 +19,16 @@ app.secret_key = b'\xb1\xa8\xc0W\x0c\xb3M\xd6\xa0\xf4\xabSmz=\x83'
 def full_analysis_worker(fts_file, out_file):
     fts_source = open(fts_file, 'r')
     sys.stdout = open(out_file, 'w')
-    fts = analyser.load_dot(fts_source)
-    analyser.z3_analyse_full(fts)
+    fts = load_dot(fts_source)
+    z3_analyse_full(fts)
     fts.report()
     sys.stdout.close()
 
 def hdead_analysis_worker(fts_file, out_file):
     fts_source = open(fts_file, 'r')
     sys.stdout = open(out_file, 'w')
-    fts = analyser.load_dot(fts_source)
-    analyser.z3_analyse_hdead(fts)
+    fts = load_dot(fts_source)
+    z3_analyse_hdead(fts)
     fts.report()
     sys.stdout.close()
 
