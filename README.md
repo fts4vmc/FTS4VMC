@@ -38,7 +38,7 @@ $ . venv/bin/activate
 
 Launch app on Flask web server:
 ```bash
-$ export FLASK_APP=fts.py
+$ export FLASK_APP=src/fts.py
 $ export FLASK_ENV=development
 $ flask run
  * Running on http://127.0.0.1:5000/
