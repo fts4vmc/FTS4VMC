@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import analyser
+from process_manager import ProcessManager
 import multiprocessing
 from flask import make_response, session
 
@@ -34,8 +35,8 @@ def hdead_analysis_worker(fts_file, out_file):
     sys.stdout.close()
 
 def check_session():
-    global process
-    if 'timeout' in session and session['timeout'] is not None and session['id'] in process:
+    pm = ProcessManager.get_instance()
+    if 'timeout' in session and session['timeout'] is not None and pm.process_exists(session['id']):
         if session['timeout'] > time.time():
             return True
     return False
@@ -47,18 +48,11 @@ def new_session():
     session['output'] = '/tmp/' + str(now) + '-output'
 
 def close_session():
-    global process
+    pm = ProcessManager.get_instance()
     session.pop('timeout', None)
     session.pop('position', None)
-    if 'id' in session and session['id'] and session['id'] in process:
-        process[session['id']].terminate()
-        process[session['id']].join(1)
-        # Subprocess won't end or exited on error
-        if(process[session['id']].is_alive() or 
-                process[session['id']].exitcode != 0):
-            process[session['id']].kill()
-        process[session['id']].close()
-        process.pop(session['id'], None)
+    if 'id' in session and session['id']:
+        pm.end_process(session['id'])
     if 'output' in session:
         try:
             os.remove(session['output'])
@@ -75,12 +69,12 @@ def allowed_file(filename):
 def get_output():
     if not check_session():
         return make_response(('\nSession timed-out', "200"))
-    global process
-    if process[session['id']] is None:
+    pm = ProcessManager.get_instance()
+    if not pm.process_exists(session['id']):
         return make_response(('', "200"))
     else:
         with open(session['output']) as out:
-            if process[session['id']].is_alive():
+            if pm.is_alive(session['id']):
                 out.seek(session['position'])
                 result = out.read(4096)
                 session['position'] = out.tell()
@@ -118,7 +112,7 @@ def index():
 
 @app.route('/full_analysis', methods=['POST'])
 def full_analyser():
-    global process
+    pm = ProcessManager.get_instance()
     close_session()
     new_session()
     filename = secure_filename(request.form['name'])
@@ -126,15 +120,15 @@ def full_analyser():
     if os.path.isfile(file_path):
         thread = multiprocessing.Process(target=full_analysis_worker,
                 args=[file_path, session['output']])
-        session['id'] = thread.name
-        process[session['id']] = thread
-        thread.start()
+        session['id'] = str(thread.name)
+        pm.add_process(session['id'], thread)
+        pm.start_process(session['id'])
         return "Processing data..."
     return 'File not found'
 
 @app.route('/hdead_analysis', methods=['POST'])
 def hdead_analyser():
-    global process
+    pm = ProcessManager.get_instance()
     close_session()
     new_session()
     filename = secure_filename(request.form['name'])
@@ -142,9 +136,9 @@ def hdead_analyser():
     if os.path.isfile(file_path):
         thread = multiprocessing.Process(target=hdead_analysis_worker,
                 args=[file_path, session['output']])
-        session['id'] = thread.name
-        process[session['id']] = thread
-        thread.start()
+        session['id'] = str(thread.name)
+        pm.add_process(key=session['id'], process=thread)
+        pm.start_process(session['id'])
         return "Processing data..."
     return 'File not found'
 
