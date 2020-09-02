@@ -65,4 +65,8 @@ For running image hosted on docker hub:
 $ docker run -p <host port>:5000 gior26/fts4vmc
 ```
 ## Testing
-In order to run the unit tests, refer to tests/README.md.
+```bash
+$ pip install pytest
+$ pytest 
+```
+
