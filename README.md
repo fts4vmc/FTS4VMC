@@ -65,11 +65,7 @@ For running image hosted on docker hub:
 $ docker run -p <host port>:5000 gior26/fts4vmc
 ```
 ## Testing
-In order to run the unit tests, refer to tests/README.md.
-
-## Translator
-A first working version of the translator is available (src/translator.py). At the moment it is not included
-in any other module. To run:
 ```bash
-$ python3 src/translator.py <path_to_file>
+$ pip install pytest
+$ pytest 
 ```
