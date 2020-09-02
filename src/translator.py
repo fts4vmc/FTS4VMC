@@ -1,12 +1,12 @@
-####################################
-#             MTSv                 #
-####################################
+#########################################################
+#             Translate to VMC's format                 #
+#########################################################
 
 import sys
 import pydot
 import traceback
 
-import analyser
+import src.analyser as analyser
 #From analyser we use:
 #   function load_dot(path)
 
