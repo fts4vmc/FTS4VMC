@@ -38,12 +38,11 @@ $ . venv/bin/activate
 
 Launch app on Flask web server:
 ```bash
-$ export FLASK_APP=fts.py
+$ export FLASK_APP=src/fts.py
 $ export FLASK_ENV=development
 $ flask run
  * Running on http://127.0.0.1:5000/
 ```
-<<<<<<< HEAD
 
 ## Building docker image
 
@@ -65,7 +64,6 @@ For running image hosted on docker hub:
 ```bash
 $ docker run -p <host port>:5000 gior26/fts4vmc
 ```
-=======
 ## Testing
 In order to run the unit tests, refer to tests/README.md.
 

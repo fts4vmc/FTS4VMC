@@ -2,9 +2,7 @@ FROM debian:bullseye-slim
 
 WORKDIR /app
 
-COPY *.py ./
-COPY static ./static
-COPY templates ./templates
+COPY src ./src
 COPY requirements.txt ./
 COPY docker ./docker
 
@@ -16,5 +14,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 5000
 
-ENV FLASK_APP=fts.py
+ENV FLASK_APP=src/fts.py
 ENTRYPOINT ["flask", "run", "--host=0.0.0.0"]

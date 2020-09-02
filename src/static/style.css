@@ -17,7 +17,11 @@ main {
 
 main > textarea {
     width: 90%;
-    height: 90%;
+    height: 80%;
+    background-color: black;
+    color: white;
+    border-radius: 5px;
+    resize: none;
 }
 
 html {
