@@ -1,19 +1,25 @@
 import os
 import sys
 import time
+import subprocess
 from src.analyser import z3_analyse_hdead, z3_analyse_full, load_dot
 from src.process_manager import ProcessManager
+from src.translator import Translator
 import multiprocessing
 from flask import make_response, session
 
 from flask import Flask, flash, request, redirect, url_for, render_template
 from werkzeug.utils import secure_filename
 
+PATH_TO_VMC = './src/vmc.linux-executable'
 UPLOAD_FOLDER = './uploads'
+UPLOAD_FOLDER_VMC = UPLOAD_FOLDER + '/vmc'
 ALLOWED_EXTENSIONS = {'dot'}
+ALLOWED_PROP_EXTENSIONS = ('.txt')
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['UPLOAD_FOLDER_VMC'] = UPLOAD_FOLDER_VMC
 app.secret_key = b'\xb1\xa8\xc0W\x0c\xb3M\xd6\xa0\xf4\xabSmz=\x83'
 
 def full_analysis_worker(fts_file, out_file):
@@ -31,6 +37,20 @@ def hdead_analysis_worker(fts_file, out_file):
     z3_analyse_hdead(fts)
     fts.report()
     sys.stdout.close()
+
+def vmc_worker(fts_file, properties_file, out_file):
+    sys.stdout = open(out_file, 'w')
+    translator = Translator()
+    translator.load_model(fts_file)
+    translator.translate()
+    mtsv = translator.get_mtsv()
+    file_path = os.path.join(app.config['UPLOAD_FOLDER_VMC'], 'mtsv.txt')
+    with open(file_path , "w") as file:
+        file.write(mtsv)
+        file.close()
+    print(subprocess.getoutput([PATH_TO_VMC, file_path, properties_file])) 
+    sys.stdout.close()
+    
 
 def check_session():
     pm = ProcessManager.get_instance()
@@ -62,6 +82,9 @@ def close_session():
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def allowed_prop_file(filename):
+    return filename.lower().endswith(ALLOWED_PROP_EXTENSIONS)
 
 @app.route('/yield')
 def get_output():
@@ -157,3 +180,55 @@ def delete_model():
 def stop_process():
     close_session()
     return 'Stopped process'
+
+##########################################
+#                   VMC                  #
+##########################################
+
+@app.route('/vmc_upload', methods=['POST'])
+def properties_upload():
+    new_session()
+    if not os.path.exists(UPLOAD_FOLDER_VMC):
+        os.makedirs(UPLOAD_FOLDER_VMC);
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            return 'No file part'
+        file = request.files['file']
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        if file.filename == '':
+            return 'No selected file'
+        if file and allowed_prop_file(file.filename):
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER_VMC'], filename)
+            file.save(file_path)
+            return "File loaded"
+    return "Invalid request"
+   
+    
+@app.route('/vmc', methods=['POST'])
+def run_vmc():
+    pm = ProcessManager.get_instance()
+    close_session()
+    new_session()
+    filename = secure_filename(request.form['name'])
+    properties_filename = secure_filename(request.form['prop_name'])
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    properties_file_path = os.path.join(app.config['UPLOAD_FOLDER_VMC'], properties_filename)
+    if os.path.isfile(file_path) and os.path.isfile(properties_file_path):
+        translator = Translator()
+        translator.load_model(file_path)
+        translator.translate()
+        mtsv = translator.get_mtsv()
+        file_path = os.path.join(app.config['UPLOAD_FOLDER_VMC'], 'mtsv.txt')
+        with open(file_path , "w") as file:
+            file.write(mtsv)
+            file.close()
+            print('prova')
+            result = (subprocess.getoutput(PATH_TO_VMC+ ' ' + file_path + ' ' + properties_file_path)) 
+            print(result)
+            return result
+
+    return 'File not found'
+
