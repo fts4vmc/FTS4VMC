@@ -13,6 +13,10 @@ import src.analyser as analyser
 class Translator:
     __slots__= '__fts', '__mtsv'
 
+
+    def __init__(self):
+        self.__mtsv = ''
+
     def load_model(self,path):
         #path := path to DOT file
         try:
@@ -26,11 +30,9 @@ class Translator:
             raise Exception('No model loaded!')
             return None
         self.__mtsv = ''
-        start = 'SYS = C'
+        start = 'SYS = C' + str(self.__fts._initial._id)
         adj = {}#Dictionary used to register the adjacencies  
         for t in self.__fts._transitions:
-            if(t._in._id == self.__fts._initial):
-                start += str(t._in._id)
             id = str(t._in._id)
             if id not in adj:
                 tmp = 'C' + id + ' = ' + str(t._label) + '(may).' + 'C' + str(t._out._id)
@@ -42,9 +44,9 @@ class Translator:
         self.__mtsv += '\n' + start + '\n\nConstraints{ LIVE }'
 
     def get_mtsv(self):
-        if self.__mtsv != None:
+        if self.__mtsv != '':
             return self.__mtsv
-        else: return 'No model loaded'
+        else: return 'No mtsv to return'
 ###########################FOR TESTING PURPOSES ONLY#################
 import sys
 
