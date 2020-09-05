@@ -2,7 +2,6 @@ import multiprocessing
 
 class ProcessManager:
     __instance = None
-    proc = None
 
     @staticmethod
     def get_instance():
