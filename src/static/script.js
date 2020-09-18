@@ -1,9 +1,15 @@
 $(function(){
     $("aside").on("click", "#load", upload_file);
-    $("aside").on("click", "#full", {url: '/full_analysis', success:timed_update_textarea}, command);
-    $("aside").on("click", "#hdead", {url: '/hdead_analysis', success:timed_update_textarea}, command);
-    $("aside").on("click", "#delete", {url: '/delete_model', success:update_textarea}, command);
-    $("aside").on("click", "#stop", {url: '/stop', success:update_textarea}, command);
+    $("aside").on("click", "#full", 
+      {url: '/full_analysis', success:timed_update_textarea}, command);
+    $("aside").on("click", "#hdead", 
+      {url: '/hdead_analysis', success:timed_update_textarea}, command);
+    $("aside").on("click", "#delete", 
+      {url: '/delete_model', success:update_textarea}, command);
+    $("aside").on("click", "#stop", 
+      {url: '/stop', success:update_textarea}, command);
+    $("aside").on("click", "#disambiguate", 
+      {url: '/remove_ambiguities', success:update_textarea}, command);
 }); 
 
 //Updates the main's textarea with the response value.
