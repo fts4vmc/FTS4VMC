@@ -16,6 +16,7 @@ class ProcessManager:
         else:
             ProcessManager.__instance = self
             self.proc = {}
+            self.queue = {}
 
     def add_process(self, key, process):
         self.proc[key] = process
@@ -38,3 +39,15 @@ class ProcessManager:
                 self.proc[key].kill()
             self.proc[key].close()
             self.proc.pop(key, None)
+
+    def add_queue(self, key, queue):
+        self.queue[key] = queue
+
+    def get_queue(self, key):
+        if key in self.queue:
+            return self.queue[key]
+        else:
+            return None
+
+    def delete_queue(self, key):
+            self.queue.pop(key, None)
