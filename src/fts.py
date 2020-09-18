@@ -57,6 +57,7 @@ def new_session():
     session['position'] = 0
     session['timeout'] = now+60*60
     session['output'] = '/tmp/' + str(now) + '-output'
+    session['ambiguities'] = {}
 
 def close_session():
     pm = ProcessManager.get_instance()
@@ -67,13 +68,11 @@ def close_session():
     if 'output' in session:
         try:
             os.remove(session['output'])
-            os.remove(session['output']+"-dead")
-            os.remove(session['output']+"-false")
-            os.remove(session['output']+"-hidden")
         except FileNotFoundError:
             pass
     session.pop('id', None)
     session.pop('output', None)
+    session.pop('ambiguities', None)
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -179,18 +178,60 @@ def disambiguate():
     pm = ProcessManager.get_instance()
     if not check_session():
         return "No ambiguities data available execute a full analysis first"
-    queue = pm.get_queue(session['id'])
-    if not queue:
-        return "No ambiguities data available execute a full analysis first"
+    if not session['ambiguities']:
+        queue = pm.get_queue(session['id'])
+        if not queue:
+            return "No ambiguities data available execute a full analysis first"
+        else: 
+            session['ambiguities'] = queue.get()
     filename = secure_filename(request.form['name'])
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     if os.path.isfile(file_path):
         dis = Disambiguator(file_path)
-        tmp = queue.get()
-        print(tmp['dead'])
-        dis.remove_transitions(tmp['dead'])
-        dis.set_true_list(tmp['false'])
-        dis.solve_hidden_deadlocks(tmp['hidden'])
+        dis.remove_transitions(session['ambiguities']['dead'])
+        dis.set_true_list(session['ambiguities']['false'])
+        dis.solve_hidden_deadlocks(session['ambiguities']['hidden'])
+        pm.delete_queue(session['id'])
+        return "FTS without ambiguities\n"+dis.get_graph()
+    return 'File not found'
+
+@app.route('/remove_false_opt', methods=['POST'])
+def solve_fopt():
+    pm = ProcessManager.get_instance()
+    if not check_session():
+        return "No ambiguities data available execute a full analysis first"
+    if not session['ambiguities']:
+        queue = pm.get_queue(session['id'])
+        if not queue:
+            return "No ambiguities data available execute a full analysis first"
+        else: 
+            session['ambiguities'] = queue.get()
+    filename = secure_filename(request.form['name'])
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    if os.path.isfile(file_path):
+        dis = Disambiguator(file_path)
+        dis.set_true_list(session['ambiguities']['false'])
+        pm.delete_queue(session['id'])
+        return "FTS without ambiguities\n"+dis.get_graph()
+    return 'File not found'
+
+@app.route('/remove_dead_hidden', methods=['POST'])
+def solve_hdd():
+    pm = ProcessManager.get_instance()
+    if not check_session():
+        return "No ambiguities data available execute a full analysis first"
+    if not session['ambiguities']:
+        queue = pm.get_queue(session['id'])
+        if not queue:
+            return "No ambiguities data available execute a full analysis first"
+        else: 
+            session['ambiguities'] = queue.get()
+    filename = secure_filename(request.form['name'])
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    if os.path.isfile(file_path):
+        dis = Disambiguator(file_path)
+        dis.remove_transitions(session['ambiguities']['dead'])
+        dis.solve_hidden_deadlocks(session['ambiguities']['hidden'])
         pm.delete_queue(session['id'])
         return "FTS without ambiguities\n"+dis.get_graph()
     return 'File not found'
