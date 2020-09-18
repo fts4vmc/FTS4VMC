@@ -43,10 +43,10 @@ def vmc_worker(fts_file, properties_file, out_file):
     translator = Translator()
     translator.load_model(fts_file)
     translator.translate()
-    mtsv = translator.get_mtsv()
-    file_path = os.path.join(app.config['UPLOAD_FOLDER_VMC'], 'mtsv.txt')
+    out = translator.get_output()
+    file_path = os.path.join(app.config['UPLOAD_FOLDER_VMC'], 'vmc_input.txt')
     with open(file_path , "w") as file:
-        file.write(mtsv)
+        file.write(out)
         file.close()
     print(subprocess.getoutput([PATH_TO_VMC, file_path, properties_file])) 
     sys.stdout.close()
