@@ -10,6 +10,10 @@ $(function(){
       {url: '/stop', success:update_textarea}, command);
     $("aside").on("click", "#disambiguate", 
       {url: '/remove_ambiguities', success:update_textarea}, command);
+    $("aside").on("click", "#fopt", 
+      {url: '/remove_false_opt', success:update_textarea}, command);
+    $("aside").on("click", "#hdd", 
+      {url: '/remove_dead_hidden', success:update_textarea}, command);
 }); 
 
 //Updates the main's textarea with the response value.
