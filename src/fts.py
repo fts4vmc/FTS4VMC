@@ -177,7 +177,11 @@ def stop_process():
 @app.route('/remove_ambiguities', methods=['POST'])
 def disambiguate():
     pm = ProcessManager.get_instance()
+    if not check_session():
+        return "No ambiguities data available execute a full analysis first"
     queue = pm.get_queue(session['id'])
+    if not queue:
+        return "No ambiguities data available execute a full analysis first"
     filename = secure_filename(request.form['name'])
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     if os.path.isfile(file_path):
@@ -188,5 +192,5 @@ def disambiguate():
         dis.set_true_list(tmp['false'])
         dis.solve_hidden_deadlocks(tmp['hidden'])
         pm.delete_queue(session['id'])
-        return dis.get_graph()
+        return "FTS without ambiguities\n"+dis.get_graph()
     return 'File not found'
