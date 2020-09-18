@@ -1,7 +1,7 @@
 import pydot
 import string
 import random
-from analyser import c_translator
+from src.analyser import c_translator, Transition, State
 
 class Disambiguator(object):
     """
@@ -37,11 +37,16 @@ class Disambiguator(object):
 
         Arguments:
         transition_list -- list of transition to be removed expressed using the
-            format compatible with remove_transition
+            format compatible with remove_transition or instance of 
+            analyser.Transition
         """
         for transition in transition_list:
-            self.remove_transition(transition['src'], transition['dst'],
-                    transition['label'], transition['constraint'])
+            if isinstance(transition, Transition):
+                self.remove_transition(transition._in._id, transition._out._id,
+                        str(transition._label), str(transition._constraint))
+            else:
+                self.remove_transition(transition['src'], transition['dst'],
+                        transition['label'], transition['constraint'])
 
     def set_true(self, src, dst, label, constraint):
         """Set the transition's constraint formula to true
@@ -67,8 +72,12 @@ class Disambiguator(object):
             compatible with set_true
         """
         for transition in transition_list:
-            self.set_true(transition['src'], transition['dst'],
-                    transition['label'], transition['constraint'])
+            if isinstance(transition, Transition):
+                self.set_true(transition._in._id, transition._out._id,
+                        str(transition._label), str(transition._constraint))
+            else:
+                self.set_true(transition['src'], transition['dst'],
+                        transition['label'], transition['constraint'])
 
     def solve_hidden_deadlock(self, state, dead_state):
         """Make hidden deadlock explicit
@@ -95,7 +104,10 @@ class Disambiguator(object):
         """
         if state_list:
             for state in state_list:
-                self.solve_hidden_deadlock(state, self.__dead_name)
+                if isinstance(state, State):
+                    self.solve_hidden_deadlock(state._id, self.__dead_name)
+                else:
+                    self.solve_hidden_deadlock(state, self.__dead_name)
 
     def _is_hidden_deadlock(self, state):
         """Return True if state is the source of any transitions False otherwise"""
