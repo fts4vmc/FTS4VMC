@@ -1,9 +1,10 @@
 import os
 import sys
 import time
+from multiprocessing import Process, Queue
+from src.disambiguator import Disambiguator
 from src.analyser import z3_analyse_hdead, z3_analyse_full, load_dot
 from src.process_manager import ProcessManager
-import multiprocessing
 from flask import make_response, session
 
 from flask import Flask, flash, request, redirect, url_for, render_template
@@ -16,11 +17,23 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.secret_key = b'\xb1\xa8\xc0W\x0c\xb3M\xd6\xa0\xf4\xabSmz=\x83'
 
-def full_analysis_worker(fts_file, out_file):
+def full_analysis_worker(fts_file, out_file, queue):
+    dead = [] 
+    false = [] 
+    hidden = []
     fts_source = open(fts_file, 'r')
     sys.stdout = open(out_file, 'w')
     fts = load_dot(fts_source)
     z3_analyse_full(fts)
+    for transition in fts._set_dead:
+        dead.append({'src':transition._in._id, 'dst':transition._out._id,
+            'label':str(transition._label), 'constraint':str(transition._constraint)})
+    for transition in fts._set_false_optional:
+        false.append({'src':transition._in._id, 'dst':transition._out._id,
+            'label':str(transition._label), 'constraint':str(transition._constraint)})
+    for state in fts._set_hidden_deadlock:
+        hidden.append(state._id)
+    queue.put({'dead': dead, 'false': false, 'hidden': hidden})
     fts.report()
     sys.stdout.close()
 
@@ -54,6 +67,9 @@ def close_session():
     if 'output' in session:
         try:
             os.remove(session['output'])
+            os.remove(session['output']+"-dead")
+            os.remove(session['output']+"-false")
+            os.remove(session['output']+"-hidden")
         except FileNotFoundError:
             pass
     session.pop('id', None)
@@ -80,7 +96,6 @@ def get_output():
             else:
                 out.seek(session['position'])
                 result = out.read()
-                close_session()
                 return make_response((result, "200"))
 
 @app.route('/upload', methods=['POST'])
@@ -111,15 +126,16 @@ def index():
 @app.route('/full_analysis', methods=['POST'])
 def full_analyser():
     pm = ProcessManager.get_instance()
+    queue = Queue()
     close_session()
     new_session()
     filename = secure_filename(request.form['name'])
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     if os.path.isfile(file_path):
-        thread = multiprocessing.Process(target=full_analysis_worker,
-                args=[file_path, session['output']])
+        thread = Process(target=full_analysis_worker, args=[file_path, session['output'], queue])
         session['id'] = str(thread.name)
         pm.add_process(session['id'], thread)
+        pm.add_queue(session['id'], queue)
         pm.start_process(session['id'])
         return "Processing data..."
     return 'File not found'
@@ -132,7 +148,7 @@ def hdead_analyser():
     filename = secure_filename(request.form['name'])
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     if os.path.isfile(file_path):
-        thread = multiprocessing.Process(target=hdead_analysis_worker,
+        thread = Process(target=hdead_analysis_worker,
                 args=[file_path, session['output']])
         session['id'] = str(thread.name)
         pm.add_process(key=session['id'], process=thread)
@@ -157,3 +173,20 @@ def delete_model():
 def stop_process():
     close_session()
     return 'Stopped process'
+
+@app.route('/remove_ambiguities', methods=['POST'])
+def disambiguate():
+    pm = ProcessManager.get_instance()
+    queue = pm.get_queue(session['id'])
+    filename = secure_filename(request.form['name'])
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    if os.path.isfile(file_path):
+        dis = Disambiguator(file_path)
+        tmp = queue.get()
+        print(tmp['dead'])
+        dis.remove_transitions(tmp['dead'])
+        dis.set_true_list(tmp['false'])
+        dis.solve_hidden_deadlocks(tmp['hidden'])
+        pm.delete_queue(session['id'])
+        return dis.get_graph()
+    return 'File not found'
