@@ -10,7 +10,7 @@ from flask import make_response, session
 from flask import Flask, flash, request, redirect, url_for, render_template
 from werkzeug.utils import secure_filename
 
-UPLOAD_FOLDER = './uploads'
+UPLOAD_FOLDER = os.path.relpath("uploads")
 ALLOWED_EXTENSIONS = {'dot'}
 
 app = Flask(__name__)
@@ -56,7 +56,7 @@ def new_session():
     now = time.time()
     session['position'] = 0
     session['timeout'] = now+60*60
-    session['output'] = '/tmp/' + str(now) + '-output'
+    session['output'] = os.path.join('tmp', str(now)+'-output')
     session['ambiguities'] = {}
 
 def close_session():
@@ -102,6 +102,8 @@ def upload_file():
     new_session()
     if not os.path.exists(UPLOAD_FOLDER):
         os.makedirs(UPLOAD_FOLDER);
+    if not os.path.exists(os.path.dirname(session['output'])):
+        os.makedirs(os.path.dirname(session['output']))
     if request.method == 'POST':
         # check if the post request has the file part
         if 'file' not in request.files:
@@ -212,7 +214,7 @@ def solve_fopt():
         dis = Disambiguator(file_path)
         dis.set_true_list(session['ambiguities']['false'])
         pm.delete_queue(session['id'])
-        return "FTS without ambiguities\n"+dis.get_graph()
+        return dis.get_graph()
     return 'File not found'
 
 @app.route('/remove_dead_hidden', methods=['POST'])
@@ -233,5 +235,5 @@ def solve_hdd():
         dis.remove_transitions(session['ambiguities']['dead'])
         dis.solve_hidden_deadlocks(session['ambiguities']['hidden'])
         pm.delete_queue(session['id'])
-        return "FTS without ambiguities\n"+dis.get_graph()
+        return dis.get_graph()
     return 'File not found'
