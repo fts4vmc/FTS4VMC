@@ -13,6 +13,7 @@ aside > * {
 main {
     flex-grow: 9;
     padding: 5px;
+    background-color: seashell;
 }
 
 main > textarea {
@@ -26,6 +27,7 @@ main > textarea {
 
 html {
   height: 100%;
+  font-family: sans-serif;
 }
 
 body {
@@ -33,4 +35,32 @@ body {
     display: flex;
     flex-direction: row;
     min-height: 100%;
+}
+
+.command {
+  background-color:green;
+  border-style: hidden;
+  border-width: 3px;
+  border-left-width: 5px;
+  border-left-style: solid;
+  border-left-color: black;
+  color: white;
+  padding: 5px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow:black 3px 3px;
+}
+
+.command:hover {
+  background-color:yellow;
+  color: black;
+}
+
+input[type="file"] {
+  display: none;
+}
+
+label {
+  text-align: center;
 }
