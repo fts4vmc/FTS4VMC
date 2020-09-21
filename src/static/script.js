@@ -1,4 +1,5 @@
 $(function(){
+    $("aside").on("change", "#fts", alter_title);
     $("aside").on("click", "#load", upload_file);
     $("aside").on("click", "#full", 
       {url: '/full_analysis', success:timed_update_textarea}, command);
@@ -15,6 +16,13 @@ $(function(){
     $("aside").on("click", "#hdd", 
       {url: '/remove_dead_hidden', success:update_textarea}, command);
 }); 
+
+function alter_title() {
+  let name = $("#fts").val().replace(/.*[\/\\]/, '');
+  $("main > h2").text("Analysis of "+name);
+  $("main > textarea").text(name+" selected, click load model to"+
+    " upload the file");
+}
 
 //Updates the main's textarea with the response value.
 function update_textarea(response)
