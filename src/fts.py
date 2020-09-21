@@ -17,6 +17,13 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.secret_key = b'\xb1\xa8\xc0W\x0c\xb3M\xd6\xa0\xf4\xabSmz=\x83'
 
+def delete_output_file():
+    if 'output' in session:
+        try:
+            os.remove(session['output'])
+        except FileNotFoundError:
+            pass
+
 def full_analysis_worker(fts_file, out_file, queue):
     dead = [] 
     false = [] 
@@ -65,11 +72,7 @@ def close_session():
     session.pop('position', None)
     if 'id' in session and session['id']:
         pm.end_process(session['id'])
-    if 'output' in session:
-        try:
-            os.remove(session['output'])
-        except FileNotFoundError:
-            pass
+    delete_output_file()
     session.pop('id', None)
     session.pop('output', None)
     session.pop('ambiguities', None)
@@ -81,9 +84,11 @@ def allowed_file(filename):
 @app.route('/yield')
 def get_output():
     if not check_session():
+        delete_output_file()
         return make_response(('\nSession timed-out', "200"))
     pm = ProcessManager.get_instance()
     if not pm.process_exists(session['id']):
+        delete_output_file()
         return make_response(('', "200"))
     else:
         with open(session['output']) as out:
@@ -95,6 +100,7 @@ def get_output():
             else:
                 out.seek(session['position'])
                 result = out.read()
+                os.remove(session['output'])
                 return make_response((result, "200"))
 
 @app.route('/upload', methods=['POST'])
@@ -194,7 +200,7 @@ def disambiguate():
         dis.set_true_list(session['ambiguities']['false'])
         dis.solve_hidden_deadlocks(session['ambiguities']['hidden'])
         pm.delete_queue(session['id'])
-        return "FTS without ambiguities\n"+dis.get_graph()
+        return dis.get_graph()
     return 'File not found'
 
 @app.route('/remove_false_opt', methods=['POST'])
