@@ -7,9 +7,9 @@ import shutil
 import src
 from flask import request
 
-UPLOAD_FOLDER = './uploads'
+UPLOAD_FOLDER = os.path.relpath("uploads")
 EXAMPLE_FILE_NAME = 'example.dot'
-EXAMPLE_FILE_PATH = './tests/' + EXAMPLE_FILE_NAME
+EXAMPLE_FILE_PATH = os.path.join('tests', EXAMPLE_FILE_NAME)
 #test index
 def test_index(test_client):
     ans = test_client.get('/')
@@ -41,7 +41,7 @@ def test_upload_delete_model(test_client):
     assert os.path.exists(UPLOAD_FOLDER)
     ans = delete_m(test_client)
     assert ans.status_code == 200
-    assert not os.path.exists(UPLOAD_FOLDER + '/' + EXAMPLE_FILE_NAME)
+    assert not os.path.exists(os.path.join(UPLOAD_FOLDER, EXAMPLE_FILE_NAME))
 
 #full analyser
 def test_full_analyser(test_client):

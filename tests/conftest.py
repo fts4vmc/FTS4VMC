@@ -2,10 +2,11 @@
 #Configuration file containing fixtures #
 # # # # # # # # # # # # # # # # # # # # #
 import pytest
+import os
 from flask import Flask
 from src import fts
 
-UPLOAD_FOLDER = './uploads'
+UPLOAD_FOLDER = os.path.relpath("uploads")
 
 """@pytest.fixture
 def test_app():
