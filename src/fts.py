@@ -47,7 +47,8 @@ def hdead_analysis_worker(fts_file, out_file):
 
 def check_session():
     pm = ProcessManager.get_instance()
-    if 'timeout' in session and session['timeout'] is not None and pm.process_exists(session['id']):
+    if ('timeout' in session and session['timeout'] is not None 
+            and 'id' in session and pm.process_exists(session['id'])):
         if session['timeout'] > time.time():
             return True
     return False
