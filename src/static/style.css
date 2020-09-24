@@ -4,6 +4,8 @@ aside {
     background-color: yellowgreen;
     flex-direction: column;
     flex-grow: 1;
+    max-width: 300px;
+    min-width: 300px;
 }
 
 aside > * {
@@ -50,6 +52,16 @@ body {
   font-size: 14px;
   cursor: pointer;
   box-shadow:black 3px 3px;
+  display: none;
+}
+
+#fts-label {
+  display: block;
+}
+
+#stop {
+  background-color: red;
+  color: black;
 }
 
 .command:hover {
