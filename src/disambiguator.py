@@ -1,6 +1,4 @@
 import pydot
-import string
-import random
 from src.analyser import c_translator, Transition, State
 
 class Disambiguator(object):
