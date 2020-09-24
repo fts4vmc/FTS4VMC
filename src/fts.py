@@ -86,11 +86,11 @@ def allowed_file(filename):
 def get_output():
     if not check_session():
         delete_output_file()
-        return make_response(('\nSession timed-out', "200"))
+        return make_response(('\nSession timed-out', "404"))
     pm = ProcessManager.get_instance()
     if not pm.process_exists(session['id']):
         delete_output_file()
-        return make_response(('', "200"))
+        return make_response(('', "404"))
     else:
         with open(session['output']) as out:
             if pm.is_alive(session['id']):
