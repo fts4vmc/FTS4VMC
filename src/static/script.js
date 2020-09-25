@@ -137,6 +137,7 @@ function process_update(show, wait)
             200: function(response) {
                 $("main > textarea").append(response);
                 show_command(show);
+                $("#stop").hide();
             }
         },
         complete: function(response) {
