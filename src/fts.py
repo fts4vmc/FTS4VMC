@@ -136,6 +136,7 @@ def upload_file():
                 file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 file.save(file_path)
                 if(not is_fts(file_path)):
+                    os.remove(file_path)
                     return make_response( "The given file is not a FTS or contains errors", "400")
                 return make_response( "Model loaded", "200")
         else:
