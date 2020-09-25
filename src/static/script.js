@@ -72,7 +72,7 @@ function upload_file(event)
                 $("main > textarea").text(response);
                 $("#full").slideDown();
                 $("#hdead").slideDown();
-                $("#delete_model").slideDown();
+                $("#delete").slideDown();
             }
         });
     } else {
