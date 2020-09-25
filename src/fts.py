@@ -54,11 +54,15 @@ def full_analysis_worker(fts_file, out_file, queue):
     fts.report()
     sys.stdout.close()
 
-def hdead_analysis_worker(fts_file, out_file):
+def hdead_analysis_worker(fts_file, out_file, queue):
+    hidden = []
     fts_source = open(fts_file, 'r')
     sys.stdout = open(out_file, 'w')
     fts = load_dot(fts_source)
     z3_analyse_hdead(fts)
+    for state in fts._set_hidden_deadlock:
+        hidden.append(state._id)
+    queue.put({'hidden': hidden})
     fts.report()
     sys.stdout.close()
 
@@ -112,6 +116,9 @@ def get_output():
                 out.seek(session['position'])
                 result = out.read()
                 os.remove(session['output'])
+                queue = ProcessManager.get_instance().get_queue(session['id'])
+                if(queue):
+                    session['ambiguities'] = queue.get()
                 return make_response((result, "200"))
 
 @app.route('/upload', methods=['POST'])
@@ -167,15 +174,17 @@ def full_analyser():
 @app.route('/hdead_analysis', methods=['POST'])
 def hdead_analyser():
     pm = ProcessManager.get_instance()
+    queue = Queue()
     close_session()
     new_session()
     filename = secure_filename(request.form['name'])
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     if os.path.isfile(file_path):
         thread = Process(target=hdead_analysis_worker,
-                args=[file_path, session['output']])
+                args=[file_path, session['output'], queue])
         session['id'] = str(thread.name)
         pm.add_process(key=session['id'], process=thread)
+        pm.add_queue(session['id'], queue)
         pm.start_process(session['id'])
         return "Processing data..."
     return make_response( 'File not found', "400")
