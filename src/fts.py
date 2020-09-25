@@ -17,6 +17,16 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.secret_key = b'\xb1\xa8\xc0W\x0c\xb3M\xd6\xa0\xf4\xabSmz=\x83'
 
+def is_fts(file_path):
+    """Check if the given file_path refers to an dot file containing an FTS.
+    Return True on success, False otherwise"""
+    with open(file_path, 'r') as source:
+        try:
+            load_dot(source)
+            return True
+        except:
+            return False
+
 def delete_output_file():
     if 'output' in session:
         try:
@@ -114,18 +124,23 @@ def upload_file():
     if request.method == 'POST':
         # check if the post request has the file part
         if 'file' not in request.files:
-            return 'No file part'
+            return make_response( 'No file part', "400")
         file = request.files['file']
         # if user does not select file, browser also
         # submit an empty part without filename
         if file.filename == '':
-            return 'No selected file'
+            return make_response( 'No selected file', "400")
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(file_path)
-            return "Model loaded"
-    return "Invalid request"
+            if(filename.split(".")[-1].lower() == "dot"):
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(file_path)
+                if(not is_fts(file_path)):
+                    return make_response( "The given file is not a FTS or contains errors", "400")
+                return make_response( "Model loaded", "200")
+        else:
+            return make_response( "Incompatible file format", "400")
+    return make_response( "Invalid request", "400")
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -146,7 +161,7 @@ def full_analyser():
         pm.add_queue(session['id'], queue)
         pm.start_process(session['id'])
         return "Processing data..."
-    return 'File not found'
+    return make_response( 'File not found', "400")
 
 @app.route('/hdead_analysis', methods=['POST'])
 def hdead_analyser():
@@ -162,7 +177,7 @@ def hdead_analyser():
         pm.add_process(key=session['id'], process=thread)
         pm.start_process(session['id'])
         return "Processing data..."
-    return 'File not found'
+    return make_response( 'File not found', "400")
 
 @app.route('/delete_model', methods=['POST'])
 def delete_model():
@@ -173,7 +188,7 @@ def delete_model():
         os.remove(file_path)
     except OSError as e:  ## if failed, report it back to the user ##
         print ("Error: %s - %s." % (e.filename, e.strerror))
-        return "An error occured while deleting the file model"
+        return make_response( "An error occured while deleting the file model", "400")
     else:
         return "Model file deleted"
 
@@ -186,11 +201,11 @@ def stop_process():
 def disambiguate():
     pm = ProcessManager.get_instance()
     if not check_session():
-        return "No ambiguities data available execute a full analysis first"
+        return make_response( "No ambiguities data available execute a full analysis first", "400")
     if not session['ambiguities']:
         queue = pm.get_queue(session['id'])
         if not queue:
-            return "No ambiguities data available execute a full analysis first"
+            return make_response( "No ambiguities data available execute a full analysis first", "400")
         else: 
             session['ambiguities'] = queue.get()
     filename = secure_filename(request.form['name'])
@@ -202,17 +217,17 @@ def disambiguate():
         dis.solve_hidden_deadlocks(session['ambiguities']['hidden'])
         pm.delete_queue(session['id'])
         return dis.get_graph()
-    return 'File not found'
+    return make_response( 'File not found', "400")
 
 @app.route('/remove_false_opt', methods=['POST'])
 def solve_fopt():
     pm = ProcessManager.get_instance()
     if not check_session():
-        return "No ambiguities data available execute a full analysis first"
+        return make_response( "No ambiguities data available execute a full analysis first", "400")
     if not session['ambiguities']:
         queue = pm.get_queue(session['id'])
         if not queue:
-            return "No ambiguities data available execute a full analysis first"
+            return make_response( "No ambiguities data available execute a full analysis first", "400")
         else: 
             session['ambiguities'] = queue.get()
     filename = secure_filename(request.form['name'])
@@ -222,17 +237,17 @@ def solve_fopt():
         dis.set_true_list(session['ambiguities']['false'])
         pm.delete_queue(session['id'])
         return dis.get_graph()
-    return 'File not found'
+    return make_response( 'File not found', "400")
 
 @app.route('/remove_dead_hidden', methods=['POST'])
 def solve_hdd():
     pm = ProcessManager.get_instance()
     if not check_session():
-        return "No ambiguities data available execute a full analysis first"
+        return make_response( "No ambiguities data available execute a full analysis first", "400")
     if not session['ambiguities']:
         queue = pm.get_queue(session['id'])
         if not queue:
-            return "No ambiguities data available execute a full analysis first"
+            return make_response( "No ambiguities data available execute a full analysis first", "400")
         else: 
             session['ambiguities'] = queue.get()
     filename = secure_filename(request.form['name'])
@@ -243,4 +258,4 @@ def solve_hdd():
         dis.solve_hidden_deadlocks(session['ambiguities']['hidden'])
         pm.delete_queue(session['id'])
         return dis.get_graph()
-    return 'File not found'
+    return make_response( 'File not found', "400")
