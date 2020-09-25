@@ -35,16 +35,21 @@ function alter_title() {
   $("#load").slideDown();
 }
 
-//Updates the main's textarea with the response value.
-function update_textarea(show, response)
+function show_command(show)
 {
-  $("main > textarea").text(response);
   if(show) {
     $(".command").hide();
     for (element of show) {
       element.slideDown();
     }
   }
+}
+
+//Updates the main's textarea with the response value.
+function update_textarea(show, response)
+{
+  $("main > textarea").text(response);
+  show_command(show);
 }
 
 //Updates the main's textarea with the response value,
@@ -73,6 +78,13 @@ function upload_file(event)
                 $("#full").slideDown();
                 $("#hdead").slideDown();
                 $("#delete").slideDown();
+            },
+            error: function(response) {
+                $("main > textarea").text(response.responseText);
+            },
+            beforeSend: function() {
+              $("main > textarea")
+                .text("Checking if the provided dot file contains a FTS...");
             }
         });
     } else {
@@ -92,6 +104,9 @@ function command(event)
             },
             beforeSend: function(response) {
                 $("main > textarea").text("Processing data...");
+            },
+            error: function(response) {
+                $("main > textarea").text(response.responseText);
             }
         });
     } else {
@@ -121,13 +136,7 @@ function process_update(show, wait)
             },
             200: function(response) {
                 $("main > textarea").append(response);
-                if(show) {
-                    $(".command").hide();
-                    for (element of show) {
-                      element.slideDown();
-                    }
-                }
-                $("#stop").hide();
+                show_command(show);
             }
         },
         complete: function(response) {
