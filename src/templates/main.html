@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <title>FTS4VMC</title>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script src="static/script.js"></script>
         <link rel="stylesheet" href="static/style.css">
+        <link rel="stylesheet" href="static/tab.css">
     </head>
     <body>
         <aside>
@@ -20,8 +22,13 @@
             <button class="command" id="hdd" type="button">Remove dead transition and hidden deadlock</button>
         </aside>
         <main>
-            <h2>Prototype of UI for FTS4MVC tool</h2>
-            <textarea readonly></textarea>
+            <h2>FTS4VMC</h2>
+            <div class="tab">
+                <button type="button">Terminal</button>
+                <button type="button">Graph</button>
+                <p id="message"></p>
+            </div>
+            <textarea id="terminal" readonly></textarea>
         </main>
     </body>
 </html>

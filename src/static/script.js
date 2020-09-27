@@ -30,7 +30,7 @@ $(function(){
 function alter_title() {
   let name = $("#fts").val().replace(/.*[\/\\]/, '');
   $("main > h2").text("Analysis of "+name);
-  $("main > textarea").text(name+" selected, click load model to"+
+  $("#terminal").text(name+" selected, click load model to"+
     " upload the file");
   $("#load").slideDown();
 }
@@ -48,7 +48,7 @@ function show_command(show)
 //Updates the main's textarea with the response value.
 function update_textarea(show, response)
 {
-  $("main > textarea").text(response);
+  $("#terminal").text(response);
   show_command(show);
 }
 
@@ -56,7 +56,7 @@ function update_textarea(show, response)
 //and initiates the polling of process output.
 function timed_update_textarea(show, response)
 {
-    $("main > textarea").text(response);
+    $("#terminal").text(response);
     $(".command").hide();
     $("#stop").slideDown();
     process_update(show, 1000);
@@ -74,21 +74,21 @@ function upload_file(event)
             contentType: false,
             type: 'POST',
             success: function(response) {
-                $("main > textarea").text(response);
+                $("#terminal").text(response);
                 $("#full").slideDown();
                 $("#hdead").slideDown();
                 $("#delete").slideDown();
             },
             error: function(response) {
-                $("main > textarea").text(response.responseText);
+                $("#terminal").text(response.responseText);
             },
             beforeSend: function() {
-              $("main > textarea")
+              $("#terminal")
                 .text("Checking if the provided dot file contains a FTS...");
             }
         });
     } else {
-        $("main > textarea").text("Model file is missing.");
+        $("#terminal").text("Model file is missing.");
     }
 }
 
@@ -101,16 +101,18 @@ function command(event)
             type: 'POST',
             success: function(response){
                 event.data.success(event.data.show, response);
+                $("#message").text("");
             },
             beforeSend: function(response) {
-                $("main > textarea").text("Processing data...");
+                $("#terminal").text("Processing data...");
             },
             error: function(response) {
-                $("main > textarea").text(response.responseText);
+                $("#terminal").text(response.responseText);
+                $("#message").text("");
             }
         });
     } else {
-        $("main > textarea").text("Invalid file");
+        $("#terminal").text("Invalid file");
     }
 }
 
@@ -127,23 +129,25 @@ function process_update(show, wait)
         url: '/yield', 
         statusCode: {
             206: function(response) {
-                $("main > textarea").append(response);
+                $("#terminal").append(response);
                 if(response)
                     wait = 1000;
                 else
                     wait = wait * 2;
+                $("#message").text("Next update in "+wait/1000+" seconds.");
                 setTimeout(process_update.bind(null, show, wait), wait);
             },
             200: function(response) {
-                $("main > textarea").append(response);
+                $("#terminal").append(response);
+                $("#message").text("");
                 show_command(show);
                 $("#stop").hide();
             }
         },
         complete: function(response) {
             if(response) {
-                $('main > textarea').scrollTop(
-                    $('main > textarea')[0].scrollHeight
+                $('#terminal').scrollTop(
+                    $('#terminal')[0].scrollHeight
                 );
             }
         }
