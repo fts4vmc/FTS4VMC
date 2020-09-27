@@ -55,6 +55,7 @@ class ProcessManager:
             # Subprocess won't end or exited on error
             if(self.proc[key].is_alive() or self.proc[key].exitcode != 0):
                 self.proc[key].kill()
+                self.proc[key].join()
             self.proc[key].close()
             self.proc.pop(key, None)
 
