@@ -72,4 +72,4 @@ class ProcessManager:
 
     def delete_queue(self, key):
         """Given a string key removes the associated queue"""
-            self.queue.pop(key, None)
+        self.queue.pop(key, None)
