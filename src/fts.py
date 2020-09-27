@@ -119,6 +119,7 @@ def get_output():
                 queue = ProcessManager.get_instance().get_queue(session['id'])
                 if(queue):
                     session['ambiguities'] = queue.get()
+                    ProcessManager.get_instance().delete_queue(session['id'])
                 return make_response((result, "200"))
 
 @app.route('/upload', methods=['POST'])
