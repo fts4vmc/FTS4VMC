@@ -100,10 +100,6 @@ function upload_file(event)
 
 function command(event)
 {
-    if(event.data.url.equals('/delete_model')){    
-        $("#property_text_area").slideUp();
-    }
- 
     if($("#fts")[0].files[0]) {
         $.ajax({
             url: event.data.url,

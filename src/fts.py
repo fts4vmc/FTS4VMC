@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import subprocess
+import shutil
 from multiprocessing import Process, Queue
 from src.disambiguator import Disambiguator
 from src.analyser import z3_analyse_hdead, z3_analyse_full, load_dot
@@ -298,16 +299,22 @@ def verify_property():
         t = Translator()
         t.load_model(fpath)
         t.translate()
+
         vmc_string = t.get_output()
-        vmc_file = open("tmp.txt","w+")
+        
+        session_tmp_folder = str(session['id']) + '_tmp'
+        os.mkdir(session_tmp_folder)
+
+        session_tmp_model = session_tmp_folder + '/model.txt'
+        session_tmp_properties = session_tmp_folder + '/properties.txt'
+
+        vmc_file = open(session_tmp_model,"w+")
         vmc_file.write(vmc_string)
         vmc_file.close()
-        prop_file = open("tmp_prop.txt","w+")
+        prop_file = open(session_tmp_properties,"w+")
         prop_file.write(actl_property)
         prop_file.close()
-        print(PATH_TO_VMC + ' ' + "tmp.txt" + ' '+ "tmp_prop.txt") 
-        result = subprocess.check_output(PATH_TO_VMC + ' ' + "tmp.txt" + ' '+ "tmp_prop.txt",shell=True)
-        print('debug_')
-        print(result)
+        result = subprocess.check_output(PATH_TO_VMC + ' ' + session_tmp_model + ' '+ session_tmp_properties, shell=True)
+        shutil.rmtree(session_tmp_folder)
         return result
     return make_response( 'File not found', "400")
