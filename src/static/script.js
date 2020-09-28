@@ -1,6 +1,6 @@
 $(function(){
     $("aside").on("change", "#fts", alter_title);
-    $("aside").on("click", "#load", upload_file);
+    $("aside").on("click", "#load" ,upload_file);
     $("aside").on("click", "#full", 
       {url: '/full_analysis', success:timed_update_textarea, 
         show:[
@@ -23,8 +23,12 @@ $(function(){
       {url: '/remove_ambiguities', success:update_textarea}, command);
     $("aside").on("click", "#fopt", 
       {url: '/remove_false_opt', success:update_textarea}, command);
-    $("aside").on("click", "#hdd", 
-      {url: '/remove_dead_hidden', success:update_textarea}, command);
+    $("aside").on("click", "#hdd",
+      {url: '/remove_dead_hidden', success:update_textarea,show:[
+        $("#disambiguate"), $("#fopt"), $("#hdd"), 
+          $("#full"), $("#fts"), $("#hdead"), $("#delete"), $("#load"),
+$("#verify_properties"), $("#property_text_area")]}, command);
+    $("aside").on("click", "#verify_properties", verify_property);
 }); 
 
 function alter_title() {
@@ -78,6 +82,7 @@ function upload_file(event)
                 $("#full").slideDown();
                 $("#hdead").slideDown();
                 $("#delete").slideDown();
+                $("#verify_properties").slideUp();
             },
             error: function(response) {
                 $("main > textarea").text(response.responseText);
@@ -92,8 +97,13 @@ function upload_file(event)
     }
 }
 
+
 function command(event)
 {
+    if(event.data.url.equals('/delete_model')){    
+        $("#property_text_area").slideUp();
+    }
+ 
     if($("#fts")[0].files[0]) {
         $.ajax({
             url: event.data.url,
@@ -149,3 +159,29 @@ function process_update(show, wait)
         }
     });
 }
+
+function verify_property()
+{
+    
+    var prop = $("#property_text_area").val();
+    if($("#fts")[0].files[0]) {
+        $.ajax({
+            url: '/verify_property',
+            data: {name: $("#fts")[0].files[0].name, property: prop},
+            type: 'POST',
+            success: function(response){
+                $("main > textarea").text(response);
+                //event.data.success(event.data.show, response);
+            },
+            beforeSend: function(response) {
+                $("main > textarea").text("Processing data...");
+            },
+            error: function(response) {
+                $("main > textarea").text(response);
+            }
+        });
+    } else {
+        $("main > textarea").text("Invalid file");
+    }
+}
+

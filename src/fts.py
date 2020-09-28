@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import subprocess
 from multiprocessing import Process, Queue
 from src.disambiguator import Disambiguator
 from src.analyser import z3_analyse_hdead, z3_analyse_full, load_dot
@@ -10,8 +11,11 @@ from flask import make_response, session
 from flask import Flask, flash, request, redirect, url_for, render_template
 from werkzeug.utils import secure_filename
 
+from src.translator import Translator
+
 UPLOAD_FOLDER = os.path.relpath("uploads")
 ALLOWED_EXTENSIONS = {'dot'}
+PATH_TO_VMC = './vmc.linux-executable'
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -269,4 +273,41 @@ def solve_hdd():
         dis.solve_hidden_deadlocks(session['ambiguities']['hidden'])
         pm.delete_queue(session['id'])
         return dis.get_graph()
+    return make_response( 'File not found', "400")
+
+
+
+@app.route('/verify_property', methods=['POST'])
+def verify_property():
+    pm = ProcessManager.get_instance()
+    if not session['ambiguities']:
+        queue = pm.get_queue(session['id'])
+        if not queue:
+            return make_response( "No ambiguities data available execute a full analysis first", "400")
+    if not (len(session['ambiguities']['hidden']) == 0):
+        return make_response("Hidden deadlocks detected. It is necessary to remove them before checking the property", "400")
+
+    fname = secure_filename(request.form['name'])
+    fpath = os.path.join(app.config['UPLOAD_FOLDER'], fname)
+
+    actl_property = request.form['property']
+    if (len(actl_property) == 0):
+        return make_response('Missing property to be verified', "400")
+
+    if os.path.isfile(fpath):
+        t = Translator()
+        t.load_model(fpath)
+        t.translate()
+        vmc_string = t.get_output()
+        vmc_file = open("tmp.txt","w+")
+        vmc_file.write(vmc_string)
+        vmc_file.close()
+        prop_file = open("tmp_prop.txt","w+")
+        prop_file.write(actl_property)
+        prop_file.close()
+        print(PATH_TO_VMC + ' ' + "tmp.txt" + ' '+ "tmp_prop.txt") 
+        result = subprocess.check_output(PATH_TO_VMC + ' ' + "tmp.txt" + ' '+ "tmp_prop.txt",shell=True)
+        print('debug_')
+        print(result)
+        return result
     return make_response( 'File not found', "400")

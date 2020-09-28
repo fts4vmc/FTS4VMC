@@ -70,7 +70,7 @@ body {
 }
 
 input[type="file"] {
-  display: none;
+  display:none;
 }
 
 label {
