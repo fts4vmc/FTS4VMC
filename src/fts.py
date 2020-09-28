@@ -270,3 +270,9 @@ def solve_hdd():
         pm.delete_queue(session['id'])
         return dis.get_graph()
     return make_response( 'File not found', "400")
+
+@app.route('/graph')
+def draw_graph():
+    source = ""
+    graph = pydot.graph_from_data(source)
+    return graph.create_png()
