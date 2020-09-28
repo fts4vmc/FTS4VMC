@@ -110,14 +110,14 @@ function command(event)
     if($("#fts")[0].files[0]) {
         request = {url: event.data.url, data: {name: $("#fts")[0].files[0].name},
             type: 'POST'};
-        request['success']: function(response){
+        request['success'] = function(response){
             event.data.success(event.data.show, response);
             $("#message").text("");
         };
-        request['beforeSend']: function(response) {
+        request['beforeSend'] = function(response) {
             $("#terminal").text("Processing data...");
         };
-        request['error']: function(response) {
+        request['error'] = function(response) {
             $("#terminal").text(response.responseText);
             $("#message").text("");
         };
