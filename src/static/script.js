@@ -134,6 +134,8 @@ function process_update(show, wait)
                     wait = 1000;
                 else
                     wait = wait * 2;
+                if(wait > 16000)
+                    wait = 4000;
                 $("#message").text("Next update in "+wait/1000+" seconds.");
                 setTimeout(process_update.bind(null, show, wait), wait);
             },
