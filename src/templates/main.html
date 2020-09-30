@@ -9,23 +9,44 @@
     </head>
     <body>
         <aside>
+            <!-- File handling -->
             <label class="command" for="fts" id="fts-label">Select FTS Model
-                <input type="file" name="fts" id="fts">
+                <input type="file" name="fts" id="fts" class="command">
             </label>
-            <button class="command" id="load" type="button">Upload model</button>
-            <button class="command" id="full" type="button">Full ambiguities analysis</button>
-            <button class="command" id="hdead" type="button">Liveness analysis</button>
-            <button class="command" id="delete" type="button">Delete model and close</button>
-            <button class="command" id="stop" type="button">Stop processing</button>
-            <button class="command" id="disambiguate" type="button">Remove all ambiguities</button>
-            <button class="command" id="fopt" type="button">Remove false optional</button>
-            <button class="command" id="hdd" type="button">Remove dead transition and hidden deadlock</button>
+            <button class="command" id="load" type="button" disabled>
+              Upload model
+            </button>
+            <button class="command" id="delete" type="button" disabled>
+              Delete model and close
+            </button>
+            <!-- Analisys handling -->
+            <hr>
+            <button class="command" id="full" type="button" disabled>
+              Full ambiguities analysis
+            </button>
+            <button class="command" id="hdead" type="button" disabled>
+              Liveness analysis
+            </button>
+            <button class="command" id="stop" type="button" disabled>
+              Stop processing
+            </button>
+            <!-- Disambiguation handling -->
+            <hr>
+            <button class="command" id="disambiguate" type="button" disabled>
+              Remove all ambiguities
+            </button>
+            <button class="command" id="fopt" type="button" disabled>
+              Remove false optional
+            </button>
+            <button class="command" id="hdd" type="button" disabled>
+              Remove dead transition and hidden deadlock
+            </button>
         </aside>
         <main>
             <h2>FTS4VMC</h2>
             <div class="tab">
-                <button type="button">Terminal</button>
-                <button type="button">Graph</button>
+                <button type="button" id="terminal_tab">Terminal</button>
+                <button type="button" id="graph_tab">Graph</button>
                 <p id="message"></p>
             </div>
             <textarea id="terminal" readonly></textarea>
