@@ -1,24 +1,35 @@
 $(function(){
+    $("#fts").prop("disabled", false);
+    $("#load").prop("disabled", false);
+    $("main").on("click", "#graph_tab", show_graph);
+    $("main").on("click", "#terminal_tab", show_terminal);
     $("aside").on("change", "#fts", alter_title);
     $("aside").on("click", "#load", upload_file);
     $("aside").on("click", "#full", 
         {url: '/full_analysis', success:timed_update_textarea, 
             show:[
                 $("#disambiguate"), $("#fopt"), $("#hdd"), 
-                $("#full"), $("#hdead"), $("#delete"), $("#stop")
+                $("#full"), $("#hdead"), $("#delete"), $("#stop"),
+                $("#fts")
             ]
         }, command);
 
     $("aside").on("click", "#hdead", 
         {url: '/hdead_analysis', success:timed_update_textarea, 
-            show:[$("#full"), $("#hdead"), $("#delete"), $("#stop")] 
+            show:[$("#full"), $("#hdead"), $("#delete"),
+              $("#stop"), $("#load"), $("#fts")] 
         }, command);
 
     $("aside").on("click", "#delete", 
-        {url: '/delete_model', success:update_textarea, show: [$("#fts-label")]}, command);
+        {url: '/delete_model', success:update_textarea,
+          show: [$("#load"), $("#fts")]}, command);
     $("aside").on("click", "#stop", 
         {url: '/stop', success:update_textarea, 
-            show:[$("#full"), $("#hdead"), $("#delete")]}, command);
+            show:[
+              $("#full"), $("#hdead"), 
+              $("#delete"), $("#load"), $("#fts")
+            ]
+        }, command);
     $("aside").on("click", "#disambiguate", 
         {url: '/remove_ambiguities', success:update_textarea}, command);
     $("aside").on("click", "#fopt", 
@@ -27,20 +38,45 @@ $(function(){
         {url: '/remove_dead_hidden', success:update_textarea}, command);
 }); 
 
-function alter_title() {
+function show_terminal()
+{
+    $("#image").hide();
+    $("#terminal").slideDown();
+}
+
+function show_graph()
+{
+    request = {url:'/graph', type:'POST'};
+    request['success'] = function(response)
+    {
+        $("#image").attr('src', '/img/'+response);
+    };
+    request['error'] = function(response)
+    {
+        $("#message").text(response);
+    };
+    $.ajax(request);
+    $("#terminal").hide();
+    $("#image").slideDown();
+}
+
+function alter_title() 
+{
     let name = $("#fts").val().replace(/.*[\/\\]/, '');
     $("main > h2").text("Analysis of "+name);
     $("#terminal").text(name+" selected, click load model to"+
         " upload the file");
-    $("#load").slideDown();
+    $(".command").prop("disabled", true);
+    $("#fts").prop("disabled", false);
+    $("#load").prop("disabled", false);
 }
 
 function show_command(show)
 {
     if(show) {
-        $(".command").hide();
+        $(".command").prop("disabled", true);
         for (element of show) {
-            element.slideDown();
+            element.prop("disabled", false);
         }
     }
 }
@@ -53,20 +89,8 @@ function update_textarea(show, response)
 }
 
 //Updates the main's textarea with the response value.
-function update_textarea_graph(show, response)
+function update_textarea_graph()
 {
-    $("#terminal").text(response);
-    show_command(show);
-    request = {url: '/graph', data: $("#terminal").val(), type: 'GET'};
-    xhr.responseType = "blob";
-    response['success'] = test;
-    xhr.send();
-}
-
-function test(e) {
-    var urlCreator = window.URL || window.webkitURL;
-    var imageUrl = urlCreator.createObjectURL(this.response);
-    document.querySelector("#image").src = imageUrl;
 }
 
 //Updates the main's textarea with the response value,
@@ -74,8 +98,8 @@ function test(e) {
 function timed_update_textarea(show, response)
 {
     $("#terminal").text(response);
-    $(".command").hide();
-    $("#stop").slideDown();
+    $(".command").prop("disabled", true);
+    $("#stop").prop("disabled", false);
     process_update(show, 1000);
 }
 
@@ -88,9 +112,9 @@ function upload_file(event)
             contentType: false, type: 'POST'};
         request['success'] = function(response) {
             $("#terminal").text(response);
-            $("#full").slideDown();
-            $("#hdead").slideDown();
-            $("#delete").slideDown();
+            $("#full").prop("disabled", false);
+            $("#hdead").prop("disabled", false);
+            $("#delete").prop("disabled", false);
         };
         request['error'] = function(response) {
             $("#terminal").text(response.responseText);
@@ -160,7 +184,7 @@ function process_update(show, wait)
         $("#terminal").append(response);
         $("#message").text("");
         show_command(show);
-        $("#stop").hide();
+        $("#stop").prop("disabled", true);
     };
     request['statusCode'] = statusCode;
     $.ajax(request);
