@@ -1,12 +1,12 @@
 import os
 import sys
 import time
+import pydot
 from multiprocessing import Process, Queue
 from src.disambiguator import Disambiguator
 from src.analyser import z3_analyse_hdead, z3_analyse_full, load_dot
 from src.process_manager import ProcessManager
-from flask import make_response, session
-
+from flask import make_response, session, send_from_directory
 from flask import Flask, flash, request, redirect, url_for, render_template
 from werkzeug.utils import secure_filename
 
@@ -30,7 +30,7 @@ def is_fts(file_path):
 def delete_output_file():
     if 'output' in session:
         try:
-            os.remove(session['output'])
+            os.remove(session['output']+"-output")
         except FileNotFoundError:
             pass
 
@@ -78,7 +78,7 @@ def new_session():
     now = time.time()
     session['position'] = 0
     session['timeout'] = now+60*60
-    session['output'] = os.path.join('tmp', str(now)+'-output')
+    session['output'] = os.path.join('tmp', str(now))
     session['ambiguities'] = {}
 
 def close_session():
@@ -106,7 +106,7 @@ def get_output():
         delete_output_file()
         return make_response(('', "404"))
     else:
-        with open(session['output']) as out:
+        with open(session['output']+"-output") as out:
             if pm.is_alive(session['id']):
                 out.seek(session['position'])
                 result = out.read(4096)
@@ -115,7 +115,7 @@ def get_output():
             else:
                 out.seek(session['position'])
                 result = out.read()
-                os.remove(session['output'])
+                os.remove(session['output']+"-output")
                 queue = ProcessManager.get_instance().get_queue(session['id'])
                 if(queue):
                     session['ambiguities'] = queue.get()
@@ -127,8 +127,8 @@ def upload_file():
     new_session()
     if not os.path.exists(UPLOAD_FOLDER):
         os.makedirs(UPLOAD_FOLDER);
-    if not os.path.exists(os.path.dirname(session['output'])):
-        os.makedirs(os.path.dirname(session['output']))
+    if not os.path.exists(os.path.dirname(session['output']+"-output")):
+        os.makedirs(os.path.dirname(session['output']+"-output"))
     if request.method == 'POST':
         # check if the post request has the file part
         if 'file' not in request.files:
@@ -146,6 +146,8 @@ def upload_file():
                 if(not is_fts(file_path)):
                     os.remove(file_path)
                     return make_response( "The given file is not a FTS or contains errors", "400")
+                with open(file_path, 'r') as graph:
+                    draw_graph(graph.read())
                 return make_response( "Model loaded", "200")
         else:
             return make_response( "Incompatible file format", "400")
@@ -164,7 +166,8 @@ def full_analyser():
     filename = secure_filename(request.form['name'])
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     if os.path.isfile(file_path):
-        thread = Process(target=full_analysis_worker, args=[file_path, session['output'], queue])
+        thread = Process(target=full_analysis_worker,
+                args=[file_path, session['output']+"-output", queue])
         session['id'] = str(thread.name)
         pm.add_process(session['id'], thread)
         pm.add_queue(session['id'], queue)
@@ -182,7 +185,7 @@ def hdead_analyser():
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     if os.path.isfile(file_path):
         thread = Process(target=hdead_analysis_worker,
-                args=[file_path, session['output'], queue])
+                args=[file_path, session['output']+"-output", queue])
         session['id'] = str(thread.name)
         pm.add_process(key=session['id'], process=thread)
         pm.add_queue(session['id'], queue)
@@ -192,10 +195,13 @@ def hdead_analyser():
 
 @app.route('/delete_model', methods=['POST'])
 def delete_model():
+    graph_path = session['output']+'.jpg'
     close_session()
     filename = secure_filename(request.form['name'])
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     try:
+        if os.path.isfile(graph_path):
+            os.remove(graph_path)
         os.remove(file_path)
     except OSError as e:  ## if failed, report it back to the user ##
         print ("Error: %s - %s." % (e.filename, e.strerror))
@@ -227,7 +233,9 @@ def disambiguate():
         dis.set_true_list(session['ambiguities']['false'])
         dis.solve_hidden_deadlocks(session['ambiguities']['hidden'])
         pm.delete_queue(session['id'])
-        return dis.get_graph()
+        graph = dis.get_graph()
+        draw_graph(graph)
+        return graph
     return make_response( 'File not found', "400")
 
 @app.route('/remove_false_opt', methods=['POST'])
@@ -247,7 +255,9 @@ def solve_fopt():
         dis = Disambiguator(file_path)
         dis.set_true_list(session['ambiguities']['false'])
         pm.delete_queue(session['id'])
-        return dis.get_graph()
+        graph = dis.get_graph()
+        draw_graph(graph)
+        return graph
     return make_response( 'File not found', "400")
 
 @app.route('/remove_dead_hidden', methods=['POST'])
@@ -268,11 +278,29 @@ def solve_hdd():
         dis.remove_transitions(session['ambiguities']['dead'])
         dis.solve_hidden_deadlocks(session['ambiguities']['hidden'])
         pm.delete_queue(session['id'])
-        return dis.get_graph()
+        graph = dis.get_graph()
+        draw_graph(graph)
+        return graph
     return make_response( 'File not found', "400")
 
-@app.route('/graph')
-def draw_graph():
-    source = ""
-    graph = pydot.graph_from_data(source)
-    return graph.create_png()
+def draw_graph(source):
+    try:
+        graph = pydot.graph_from_dot_data(source)[0]
+    except:
+        return
+    if(len(graph.get_edges()) <= 300):
+        jpg = graph.create_jpg()
+        with open((session['output'])+'.jpg','wb') as output:
+            output.write(jpg)
+
+@app.route('/graph', methods=['POST'])
+def get_graph():
+    if check_session():
+        return session['output']+'.jpg'
+    else:
+        make_response("No graph data available", 400)
+
+@app.route('/img/<path:filename>')
+def send_file(filename):
+    print (filename)
+    return send_from_directory('tmp', filename)
