@@ -49,11 +49,11 @@ function show_graph()
     request = {url:'/graph', type:'POST'};
     request['success'] = function(response)
     {
-        $("#image").attr('src', '/img/'+response);
+        $("#image").attr('src', response['source']);
     };
     request['error'] = function(response)
     {
-        $("#message").text(response);
+        $("#message").text(response['text']);
     };
     $.ajax(request);
     $("#terminal").hide();
@@ -84,7 +84,7 @@ function show_command(show)
 //Updates the main's textarea with the response value.
 function update_textarea(show, response)
 {
-    $("#terminal").text(response);
+    $("#terminal").text(response['text']);
     show_command(show);
 }
 
@@ -97,7 +97,7 @@ function update_textarea_graph()
 //and initiates the polling of process output.
 function timed_update_textarea(show, response)
 {
-    $("#terminal").text(response);
+    $("#terminal").text(response['text']);
     $(".command").prop("disabled", true);
     $("#stop").prop("disabled", false);
     process_update(show, 1000);
@@ -111,13 +111,13 @@ function upload_file(event)
         request = {url: '/upload', data: file, processData: false,
             contentType: false, type: 'POST'};
         request['success'] = function(response) {
-            $("#terminal").text(response);
+            $("#terminal").text(response['text']);
             $("#full").prop("disabled", false);
             $("#hdead").prop("disabled", false);
             $("#delete").prop("disabled", false);
         };
         request['error'] = function(response) {
-            $("#terminal").text(response.responseText);
+            $("#terminal").text(response['text']);
         };
         request['beforeSend'] = function() {
             $("#terminal")
@@ -142,7 +142,7 @@ function command(event)
             $("#terminal").text("Processing data...");
         };
         request['error'] = function(response) {
-            $("#terminal").text(response.responseText);
+            $("#terminal").text(response['text']);
             $("#message").text("");
         };
         $.ajax(request);
@@ -170,7 +170,7 @@ function process_update(show, wait)
     };
     statusCode = {};
     statusCode['206'] = function(response) {
-        $("#terminal").append(response);
+        $("#terminal").append(response['text']);
         if(response)
             wait = 1000;
         else
@@ -181,7 +181,7 @@ function process_update(show, wait)
         setTimeout(process_update.bind(null, show, wait), wait);
     };
     statusCode['200'] = function(response) {
-        $("#terminal").append(response);
+        $("#terminal").append(response['text']);
         $("#message").text("");
         show_command(show);
         $("#stop").prop("disabled", true);
