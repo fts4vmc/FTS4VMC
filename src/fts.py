@@ -3,10 +3,12 @@ import sys
 import time
 import subprocess
 import shutil
+
 from multiprocessing import Process, Queue
 from src.disambiguator import Disambiguator
 from src.analyser import z3_analyse_hdead, z3_analyse_full, load_dot
 from src.process_manager import ProcessManager
+from src.vmc_controller import vmc_controller
 from flask import make_response, session
 
 from flask import Flask, flash, request, redirect, url_for, render_template
@@ -18,8 +20,14 @@ UPLOAD_FOLDER = os.path.relpath("uploads")
 ALLOWED_EXTENSIONS = {'dot'}
 PATH_TO_VMC = './vmc.linux-executable'
 
+
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+#Setting up parameters used along with vmc
+app.config['vmc'] = None
+app.config['translation_performed'] = False
+
 app.secret_key = b'\xb1\xa8\xc0W\x0c\xb3M\xd6\xa0\xf4\xabSmz=\x83'
 
 def is_fts(file_path):
@@ -129,7 +137,14 @@ def get_output():
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
+
     new_session()
+
+    app.config['translation_performed'] = False
+    if app.config['vmc'] != None:
+        del app.config['vmc'] 
+
+
     if not os.path.exists(UPLOAD_FOLDER):
         os.makedirs(UPLOAD_FOLDER);
     if not os.path.exists(os.path.dirname(session['output'])):
@@ -311,10 +326,30 @@ def verify_property():
         vmc_file = open(session_tmp_model,"w+")
         vmc_file.write(vmc_string)
         vmc_file.close()
-        prop_file = open(session_tmp_properties,"w+")
-        prop_file.write(actl_property)
-        prop_file.close()
-        result = subprocess.check_output(PATH_TO_VMC + ' ' + session_tmp_model + ' '+ session_tmp_properties, shell=True)
+        #prop_file = open(session_tmp_properties,"w+")
+        #prop_file.write(actl_property)
+        #prop_file.close()
+        #result = subprocess.check_output(PATH_TO_VMC + ' ' + session_tmp_model + ' '+ session_tmp_properties, shell=True)
+        app.config['vmc'] = vmc_controller(PATH_TO_VMC)
+        
+        loading_outcome = app.config['vmc'].load_model(session_tmp_model)
+        #TODO check the loading outcome
+        result = app.config['vmc'].check(actl_property)
         shutil.rmtree(session_tmp_folder)
+        app.config['translation_performed'] = True
         return result
     return make_response( 'File not found', "400")
+
+@app.route('/counterexample', methods=['POST'])
+def counterexample():
+        
+        pm = ProcessManager.get_instance()
+
+        try:
+            if not app.config['translation_performed']:
+                return 'No property has been verified yet: nothing to show.'
+        except:
+            return 'No property has been verified yet: nothing to show.'
+
+
+        return app.config['vmc'].get_counterexample()

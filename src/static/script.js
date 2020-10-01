@@ -29,6 +29,11 @@ $(function(){
           $("#full"), $("#fts"), $("#hdead"), $("#delete"), $("#load"),
 $("#verify_properties"), $("#property_text_area")]}, command);
     $("aside").on("click", "#verify_properties", verify_property);
+    $("aside").on("click", "#get_counterexample",
+      {url: '/counterexample', success:update_textarea,show:[
+        $("#disambiguate"), $("#fopt"), $("#hdd"), 
+          $("#full"), $("#fts"), $("#hdead"), $("#delete"), $("#load"),
+$("#verify_properties"), $("#property_text_area")]}, command);
 }); 
 
 function alter_title() {
@@ -167,6 +172,7 @@ function verify_property()
             type: 'POST',
             success: function(response){
                 $("main > textarea").text(response);
+                $("#get_counterexample").slideDown();
                 //event.data.success(event.data.show, response);
             },
             beforeSend: function(response) {
