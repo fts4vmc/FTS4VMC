@@ -32,13 +32,12 @@ def is_fts(file_path):
 def delete_output_file():
     if 'output' in session:
         try:
-            os.remove(session['output']+"-output")
-        except FileNotFoundError:
+            os.remove(session['output'])
+        except:
             pass
         try:
-            os.remove(os.path.join('src', 'static', 
-                os.path.basename(session['output'])+'.jpg'))
-        except FileNotFoundError:
+            os.remove(session['graph'])
+        except:
             pass
 
 def full_analysis_worker(fts_file, out_file, out_graph, queue):
@@ -46,7 +45,7 @@ def full_analysis_worker(fts_file, out_file, out_graph, queue):
     false = [] 
     hidden = []
     fts_source = open(fts_file, 'r')
-    sys.stdout = open(out_file+'-output', 'w')
+    sys.stdout = open(out_file, 'w')
     fts = load_dot(fts_source)
     z3_analyse_full(fts)
     for transition in fts._set_dead:
@@ -67,7 +66,7 @@ def full_analysis_worker(fts_file, out_file, out_graph, queue):
 def hdead_analysis_worker(fts_file, out_file, out_graph, queue):
     hidden = []
     fts_source = open(fts_file, 'r')
-    sys.stdout = open(out_file+'-output', 'w')
+    sys.stdout = open(out_file, 'w')
     fts = load_dot(fts_source)
     z3_analyse_hdead(fts)
     for state in fts._set_hidden_deadlock:
@@ -85,19 +84,28 @@ def check_session():
         return True
     return False
 
+@app.route('/keep_alive', methods=['POST'])
 def update_session_timeout():
     if check_session():
-        session['timeout'] = time.time()+60*60
+        session['timeout'] = time.time()+600
+        if 'output' in session and os.path.isfile(session['output']):
+            pathlib.Path(session['output']).touch()
+        if 'graph' in session and os.path.isfile(session['graph']):
+            pathlib.Path(session['graph']).touch()
+        if 'model' in session and os.path.isfile(session['model']):
+            pathlib.Path(session['model']).touch()
 
 def new_session():
     if 'output' in session and session['output']:
         delete_output_file()
     now = time.time()
     session['position'] = 0
-    session['timeout'] = now+60*60
-    session['output'] = os.path.join('tmp', 
-            ''.join(random.SystemRandom().choice(
-                string.ascii_uppercase + string.digits) for _ in range(32)))
+    session['timeout'] = now+600
+    session['output'] = ''.join(random.SystemRandom().choice(
+                string.ascii_uppercase + string.digits) for _ in range(32))
+    session['graph'] = os.path.join('src', 'static', session['output']+'.jpg')
+    session['model'] = os.path.join(UPLOAD_FOLDER, session['output']+'.dot')
+    session['output'] = os.path.join('tmp', session['output']+'-output')
     session['ambiguities'] = {}
 
 def close_session():
@@ -121,11 +129,11 @@ def get_output():
     if not check_session():
         delete_output_file()
         return {"text":'\nSession timed-out'}, 404
-    elif not pm.process_exists(session['id']):
+    elif not 'id' in sessio or not pm.process_exists(session['id']):
         delete_output_file()
         return {"text":''}, 404
     else:
-        with open(session['output']+"-output") as out:
+        with open(session['output']) as out:
             if pm.is_alive(session['id']):
                 out.seek(session['position'])
                 result = out.read(4096)
@@ -134,7 +142,7 @@ def get_output():
             else:
                 out.seek(session['position'])
                 result = out.read()
-                os.remove(session['output']+"-output")
+                os.remove(session['output'])
                 queue = ProcessManager.get_instance().get_queue(session['id'])
                 if(queue):
                     tmp = queue.get()
@@ -145,6 +153,7 @@ def get_output():
                             tmp['ambiguities']['hidden'])
                     draw_graph(dis.get_graph())
                     ProcessManager.get_instance().delete_queue(session['id'])
+                    return{"text":result, "value":dis.get_graph()}, 200
                 return {"text":result}, 200
 
 @app.route('/upload', methods=['POST'])
@@ -153,8 +162,8 @@ def upload_file():
     new_session()
     if not os.path.exists(UPLOAD_FOLDER):
         os.makedirs(UPLOAD_FOLDER);
-    if not os.path.exists(os.path.dirname(session['output']+"-output")):
-        os.makedirs(os.path.dirname(session['output']+"-output"))
+    if not os.path.exists(os.path.dirname(session['output'])):
+        os.makedirs(os.path.dirname(session['output']))
     if request.method == 'POST':
         # check if the post request has the file part
         if 'file' not in request.files:
@@ -167,7 +176,7 @@ def upload_file():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             if(filename.split(".")[-1].lower() == "dot"):
-                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file_path = session['model']
                 file.save(file_path)
                 if(not is_fts(file_path)):
                     os.remove(file_path)
@@ -188,12 +197,10 @@ def full_analyser():
     pm = ProcessManager.get_instance()
     queue = Queue()
     update_session_timeout()
-    filename = secure_filename(request.form['name'])
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file_path = session['model']
     if os.path.isfile(file_path):
         thread = Process(target=full_analysis_worker,
-                args=[file_path, session['output'],
-                    os.path.basename(session['output']), queue])
+                args=[file_path, session['output'], session['graph'], queue])
         session['id'] = str(thread.name)
         pm.add_process(session['id'], thread)
         pm.add_queue(session['id'], queue)
@@ -207,12 +214,10 @@ def hdead_analyser():
     pm = ProcessManager.get_instance()
     queue = Queue()
     update_session_timeout()
-    filename = secure_filename(request.form['name'])
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file_path = session['model']
     if os.path.isfile(file_path):
         thread = Process(target=hdead_analysis_worker,
-                args=[file_path, session['output'], 
-                    os.path.basename(session['output']), queue])
+                args=[file_path, session['output'], session['graph'], queue])
         session['id'] = str(thread.name)
         pm.add_process(key=session['id'], process=thread)
         pm.add_queue(session['id'], queue)
@@ -224,8 +229,7 @@ def hdead_analyser():
 @app.route('/delete_model', methods=['POST'])
 def delete_model():
     close_session()
-    filename = secure_filename(request.form['name'])
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file_path = session['model']
     try:
         os.remove(file_path)
     except OSError as e:  ## if failed, report it back to the user ##
@@ -243,6 +247,7 @@ def stop_process():
     delete_output_file()
     session.pop('id', None)
     session.pop('ambiguities', None)
+    session.pop('ambiguities', None)
     return {"text":'Stopped process'}, 200
 
 @app.route('/remove_ambiguities', methods=['POST'])
@@ -256,8 +261,7 @@ def disambiguate():
             return {"text": "No ambiguities data available execute a full analysis first"}, 400
         else: 
             session['ambiguities'] = queue.get()
-    filename = secure_filename(request.form['name'])
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file_path = session['model']
     if os.path.isfile(file_path):
         dis = Disambiguator.from_file(file_path)
         dis.remove_transitions(session['ambiguities']['dead'])
@@ -280,8 +284,7 @@ def solve_fopt():
             return {"text": "No ambiguities data available execute a full analysis first"}, 400
         else: 
             session['ambiguities'] = queue.get()
-    filename = secure_filename(request.form['name'])
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file_path = session['model']
     if os.path.isfile(file_path):
         dis = Disambiguator.from_file(file_path)
         dis.set_true_list(session['ambiguities']['false'])
@@ -302,8 +305,7 @@ def solve_hdd():
             return {"text": "No ambiguities data available execute a full analysis first"}, 400
         else: 
             session['ambiguities'] = queue.get()
-    filename = secure_filename(request.form['name'])
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file_path = session['model']
     if os.path.isfile(file_path):
         dis = Disambiguator.from_file(file_path)
         dis.remove_transitions(session['ambiguities']['dead'])
@@ -326,8 +328,7 @@ def draw_graph(source, target=None):
                 out.write(jpg)
                 return True
         else:
-            with open(os.path.join('src','static',
-                os.path.basename(session['output'])+'.jpg'),'wb') as out:
+            with open(session['graph'],'wb') as out:
                 out.write(jpg)
                 return True
     return False
@@ -335,7 +336,30 @@ def draw_graph(source, target=None):
 @app.route('/graph', methods=['POST'])
 def get_graph():
     if check_session(): 
-        if os.path.isfile(os.path.join('src', 'static', os.path.basename(session['output'])+'.jpg')):
-            return {"source":os.path.join('static',
-                os.path.basename(session['output'])+'.jpg')}, 200
+        if os.path.isfile(session['graph']):
+            return {"source":os.path.join('static', os.path.basename(session['graph']))}, 200
     return {"text":"No graph data available"}, 400
+
+def delete_old_file(fmt, timeout, path):
+    for f in os.listdir(path):
+        f = os.path.join(path, f)
+        if f.split('.')[-1] == fmt:
+            try:
+                if os.stat(f).st_mtime + timeout < time.time():
+                    os.remove(f)
+            except:
+                pass
+
+def deleter():
+    while True:
+        time.sleep(900)
+        delete_old_file('jpg', 900, os.path.join('src', 'static'))
+        delete_old_file('dot', 900, os.path.join('uploads'))
+
+def start_deleter():
+    pm = ProcessManager.get_instance()
+    thread = Process(target=deleter)
+    pm.add_process('deleter', thread)
+    pm.start_process('deleter')
+
+app.before_first_request(start_deleter)
