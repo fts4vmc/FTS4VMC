@@ -73,7 +73,8 @@ def hdead_analysis_worker(fts_file, out_file, out_graph, queue):
     for state in fts._set_hidden_deadlock:
         hidden.append(state._id)
     fts_source.seek(0,0)
-    queue.put({'ambiguities':{'hidden': hidden}, 'graph':fts_source.read()})
+    queue.put({'ambiguities':{'dead':[], 'false':[], 'hidden': hidden},
+        'graph':fts_source.read()})
     fts.report()
     sys.stdout.close()
     fts_source.close()
@@ -137,8 +138,12 @@ def get_output():
                 queue = ProcessManager.get_instance().get_queue(session['id'])
                 if(queue):
                     tmp = queue.get()
+                    dis = Disambiguator(tmp['graph'])
                     session['ambiguities'] = tmp['ambiguities']
-                    draw_graph(tmp['graph'])
+                    dis.highlight_ambiguities(tmp['ambiguities']['dead'], 
+                            tmp['ambiguities']['false'], 
+                            tmp['ambiguities']['hidden'])
+                    draw_graph(dis.get_graph())
                     ProcessManager.get_instance().delete_queue(session['id'])
                 return {"text":result}, 200
 
@@ -254,7 +259,7 @@ def disambiguate():
     filename = secure_filename(request.form['name'])
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     if os.path.isfile(file_path):
-        dis = Disambiguator(file_path)
+        dis = Disambiguator.from_file(file_path)
         dis.remove_transitions(session['ambiguities']['dead'])
         dis.set_true_list(session['ambiguities']['false'])
         dis.solve_hidden_deadlocks(session['ambiguities']['hidden'])
@@ -278,7 +283,7 @@ def solve_fopt():
     filename = secure_filename(request.form['name'])
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     if os.path.isfile(file_path):
-        dis = Disambiguator(file_path)
+        dis = Disambiguator.from_file(file_path)
         dis.set_true_list(session['ambiguities']['false'])
         pm.delete_queue(session['id'])
         graph = dis.get_graph()
@@ -300,7 +305,7 @@ def solve_hdd():
     filename = secure_filename(request.form['name'])
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     if os.path.isfile(file_path):
-        dis = Disambiguator(file_path)
+        dis = Disambiguator.from_file(file_path)
         dis.remove_transitions(session['ambiguities']['dead'])
         dis.solve_hidden_deadlocks(session['ambiguities']['hidden'])
         pm.delete_queue(session['id'])
