@@ -131,6 +131,8 @@ class Disambiguator(object):
                 if (transition['label'] == tmp[0] and 
                         transition['constraint'] == str(self.__ctran.c_translate(tmp[-1]))):
                     edge.obj_dict['attributes']['color'] = color
+                    edge.obj_dict['attributes']['style'] = 'bold'
+                    edge.obj_dict['attributes']['fontcolor'] = color 
 
 
     def highlight_ambiguities(self, dead =[], false =[], hidden=[]):
@@ -138,7 +140,7 @@ class Disambiguator(object):
         self.__set_color(false, "green")
 
         for state in hidden:
-            self.__fts.add_node(pydot.Node(name=state, color = 'red'))
+            self.__fts.add_node(pydot.Node(name=state, style = 'filled', fillcolor = 'red', fontcolor = 'white'))
 
     def get_graph(self):
         return self.__fts.to_string()
