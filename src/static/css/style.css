@@ -76,3 +76,7 @@ input[type="file"] {
 label {
   text-align: center;
 }
+
+img {
+  width:90%;
+}
