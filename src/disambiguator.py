@@ -9,10 +9,16 @@ class Disambiguator(object):
 
     __slots__ = '__fts', '__ctran', '__dead_name'
 
-    def __init__(self, filename, name = 'DEAD'):
-        self.__fts = pydot.graph_from_dot_file(filename)[0]
+    def __init__(self, data, name = 'DEAD'):
+        self.__fts = pydot.graph_from_dot_data(data)[0]
         self.__ctran = c_translator()
         self.__dead_name = name
+
+    @classmethod
+    def from_file(self, filename, name = 'DEAD'):
+        with open(filename, 'r') as source:
+            data = source.read()
+            return self(data, name)
 
     def remove_transition(self, src, dst, label, constraint):
         """Remove the specified transition from the loaded fts model
