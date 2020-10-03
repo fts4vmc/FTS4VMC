@@ -1,4 +1,6 @@
 $(function(){
+    $(window).on("beforeunload", {url: '/delete_model', success:update_textarea,
+          show: [$("#load"), $("#fts")]}, command);
     $("#fts").prop("disabled", false);
     $("#load").prop("disabled", false);
     $("main").on("click", "#graph_tab", show_graph);
@@ -31,33 +33,51 @@ $(function(){
             ]
         }, command);
     $("aside").on("click", "#disambiguate", 
-        {url: '/remove_ambiguities', success:update_textarea}, command);
+        {url: '/remove_ambiguities', success:update_textarea_graph}, command);
     $("aside").on("click", "#fopt", 
-        {url: '/remove_false_opt', success:update_textarea}, command);
+        {url: '/remove_false_opt', success:update_textarea_graph}, command);
     $("aside").on("click", "#hdd", 
-        {url: '/remove_dead_hidden', success:update_textarea}, command);
+        {url: '/remove_dead_hidden', success:update_textarea_graph}, command);
 }); 
 
 function show_terminal()
 {
     $("#image").hide();
-    $("#terminal").slideDown();
+    $("#terminal").show();
 }
 
+function update_textarea_graph(show, response)
+{
+    $("#terminal").text(response['text']);
+    show_command(show);
+    request = {url:'/graph', type:'POST'};
+    request['success'] = load_graph;
+    request['error'] = function(response)
+    {
+        $("#message").text(response.responseJSON['text']).show();
+        $("#image").attr('src', '');
+    };
+    $.ajax(request);
+}
+
+function load_graph(response)
+{
+    $("#image").attr('src', '');
+    $("#image").attr('src', response['source']+"?random="+new Date().getTime());
+    $("#message").text('').hide();
+}
 function show_graph()
 {
     request = {url:'/graph', type:'POST'};
-    request['success'] = function(response)
-    {
-        $("#image").attr('src', response['source']);
-    };
+    request['success'] = load_graph;
     request['error'] = function(response)
     {
-        $("#message").text(response['text']);
+        $("#message").text(response.responseJSON['text']).show();
+        $("#image").attr('src', '');
     };
     $.ajax(request);
     $("#terminal").hide();
-    $("#image").slideDown();
+    $("#image").show();
 }
 
 function alter_title() 
@@ -88,11 +108,6 @@ function update_textarea(show, response)
     show_command(show);
 }
 
-//Updates the main's textarea with the response value.
-function update_textarea_graph()
-{
-}
-
 //Updates the main's textarea with the response value,
 //and initiates the polling of process output.
 function timed_update_textarea(show, response)
@@ -117,7 +132,7 @@ function upload_file(event)
             $("#delete").prop("disabled", false);
         };
         request['error'] = function(response) {
-            $("#terminal").text(response['text']);
+            $("#terminal").text(response.responseJSON['text']);
         };
         request['beforeSend'] = function() {
             $("#terminal")
@@ -142,7 +157,7 @@ function command(event)
             $("#terminal").text("Processing data...");
         };
         request['error'] = function(response) {
-            $("#terminal").text(response['text']);
+            $("#terminal").text(response.responseJSON['text']);
             $("#message").text("");
         };
         $.ajax(request);
