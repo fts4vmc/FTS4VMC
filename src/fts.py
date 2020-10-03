@@ -2,6 +2,8 @@ import os
 import sys
 import time
 import pydot
+import string
+import random
 from multiprocessing import Process, Queue
 from src.disambiguator import Disambiguator
 from src.analyser import z3_analyse_hdead, z3_analyse_full, load_dot
@@ -33,13 +35,18 @@ def delete_output_file():
             os.remove(session['output']+"-output")
         except FileNotFoundError:
             pass
+        try:
+            os.remove(os.path.join('src', 'static', 
+                os.path.basename(session['output'])+'.jpg'))
+        except FileNotFoundError:
+            pass
 
-def full_analysis_worker(fts_file, out_file, queue):
+def full_analysis_worker(fts_file, out_file, out_graph, queue):
     dead = [] 
     false = [] 
     hidden = []
     fts_source = open(fts_file, 'r')
-    sys.stdout = open(out_file, 'w')
+    sys.stdout = open(out_file+'-output', 'w')
     fts = load_dot(fts_source)
     z3_analyse_full(fts)
     for transition in fts._set_dead:
@@ -50,35 +57,46 @@ def full_analysis_worker(fts_file, out_file, queue):
             'label':str(transition._label), 'constraint':str(transition._constraint)})
     for state in fts._set_hidden_deadlock:
         hidden.append(state._id)
-    queue.put({'dead': dead, 'false': false, 'hidden': hidden})
+    fts_source.seek(0,0)
+    queue.put({'ambiguities':{'dead': dead, 'false': false, 'hidden': hidden},
+        'graph':fts_source.read()})
     fts.report()
     sys.stdout.close()
+    fts_source.close()
 
-def hdead_analysis_worker(fts_file, out_file, queue):
+def hdead_analysis_worker(fts_file, out_file, out_graph, queue):
     hidden = []
     fts_source = open(fts_file, 'r')
-    sys.stdout = open(out_file, 'w')
+    sys.stdout = open(out_file+'-output', 'w')
     fts = load_dot(fts_source)
     z3_analyse_hdead(fts)
     for state in fts._set_hidden_deadlock:
         hidden.append(state._id)
-    queue.put({'hidden': hidden})
+    fts_source.seek(0,0)
+    queue.put({'ambiguities':{'hidden': hidden}, 'graph':fts_source.read()})
     fts.report()
     sys.stdout.close()
+    fts_source.close()
 
 def check_session():
-    pm = ProcessManager.get_instance()
     if ('timeout' in session and session['timeout'] is not None 
-            and 'id' in session and pm.process_exists(session['id'])):
-        if session['timeout'] > time.time():
-            return True
+            and session['timeout'] > time.time()):
+        return True
     return False
 
+def update_session_timeout():
+    if check_session():
+        session['timeout'] = time.time()+60*60
+
 def new_session():
+    if 'output' in session and session['output']:
+        delete_output_file()
     now = time.time()
     session['position'] = 0
     session['timeout'] = now+60*60
-    session['output'] = os.path.join('tmp', str(now))
+    session['output'] = os.path.join('tmp', 
+            ''.join(random.SystemRandom().choice(
+                string.ascii_uppercase + string.digits) for _ in range(32)))
     session['ambiguities'] = {}
 
 def close_session():
@@ -98,11 +116,11 @@ def allowed_file(filename):
 
 @app.route('/yield')
 def get_output():
+    pm = ProcessManager.get_instance()
     if not check_session():
         delete_output_file()
         return {"text":'\nSession timed-out'}, 404
-    pm = ProcessManager.get_instance()
-    if not pm.process_exists(session['id']):
+    elif not pm.process_exists(session['id']):
         delete_output_file()
         return {"text":''}, 404
     else:
@@ -118,15 +136,17 @@ def get_output():
                 os.remove(session['output']+"-output")
                 queue = ProcessManager.get_instance().get_queue(session['id'])
                 if(queue):
-                    session['ambiguities'] = queue.get()
+                    tmp = queue.get()
+                    session['ambiguities'] = tmp['ambiguities']
+                    draw_graph(tmp['graph'])
                     ProcessManager.get_instance().delete_queue(session['id'])
                 return {"text":result}, 200
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
+    close_session()
     new_session()
     if not os.path.exists(UPLOAD_FOLDER):
-        print (os.getcwd())
         os.makedirs(UPLOAD_FOLDER);
     if not os.path.exists(os.path.dirname(session['output']+"-output")):
         os.makedirs(os.path.dirname(session['output']+"-output"))
@@ -162,17 +182,18 @@ def index():
 def full_analyser():
     pm = ProcessManager.get_instance()
     queue = Queue()
-    close_session()
-    new_session()
+    update_session_timeout()
     filename = secure_filename(request.form['name'])
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     if os.path.isfile(file_path):
         thread = Process(target=full_analysis_worker,
-                args=[file_path, session['output']+"-output", queue])
+                args=[file_path, session['output'],
+                    os.path.basename(session['output']), queue])
         session['id'] = str(thread.name)
         pm.add_process(session['id'], thread)
         pm.add_queue(session['id'], queue)
         pm.start_process(session['id'])
+        session['position'] = 0
         return "Processing data..."
     return {"text": 'File not found'}, 400
 
@@ -180,29 +201,27 @@ def full_analyser():
 def hdead_analyser():
     pm = ProcessManager.get_instance()
     queue = Queue()
-    close_session()
-    new_session()
+    update_session_timeout()
     filename = secure_filename(request.form['name'])
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     if os.path.isfile(file_path):
         thread = Process(target=hdead_analysis_worker,
-                args=[file_path, session['output']+"-output", queue])
+                args=[file_path, session['output'], 
+                    os.path.basename(session['output']), queue])
         session['id'] = str(thread.name)
         pm.add_process(key=session['id'], process=thread)
         pm.add_queue(session['id'], queue)
         pm.start_process(session['id'])
+        session['position'] = 0
         return "Processing data..."
     return {"text": 'File not found'}, 400
 
 @app.route('/delete_model', methods=['POST'])
 def delete_model():
-    graph_path = session['output']+'.jpg'
     close_session()
     filename = secure_filename(request.form['name'])
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     try:
-        if os.path.isfile(graph_path):
-            os.remove(graph_path)
         os.remove(file_path)
     except OSError as e:  ## if failed, report it back to the user ##
         print ("Error: %s - %s." % (e.filename, e.strerror))
@@ -212,7 +231,13 @@ def delete_model():
 
 @app.route('/stop', methods=['POST'])
 def stop_process():
-    close_session()
+    pm = ProcessManager.get_instance()
+    session.pop('position', None)
+    if 'id' in session and session['id']:
+        pm.end_process(session['id'])
+    delete_output_file()
+    session.pop('id', None)
+    session.pop('ambiguities', None)
     return {"text":'Stopped process'}, 200
 
 @app.route('/remove_ambiguities', methods=['POST'])
@@ -284,19 +309,28 @@ def solve_hdd():
         return {"text":graph}, 200
     return {"text": 'File not found'}, 400
 
-def draw_graph(source):
+def draw_graph(source, target=None):
     try:
         graph = pydot.graph_from_dot_data(source)[0]
     except:
-        return
+        return False
     if(len(graph.get_edges()) <= 300):
         jpg = graph.create_jpg()
-        with open((session['output'])+'.jpg','wb') as output:
-            output.write(jpg)
+        if target:
+            with open(os.path.join('src','static', target)+'.jpg','wb') as out:
+                out.write(jpg)
+                return True
+        else:
+            with open(os.path.join('src','static',
+                os.path.basename(session['output'])+'.jpg'),'wb') as out:
+                out.write(jpg)
+                return True
+    return False
 
 @app.route('/graph', methods=['POST'])
 def get_graph():
-    if check_session():
-        return {"source":url_for(session['output']+'.jpg')}, 200
-    else:
-        return {"text":"No graph data available"}, 400
+    if check_session(): 
+        if os.path.isfile(os.path.join('src', 'static', os.path.basename(session['output'])+'.jpg')):
+            return {"source":os.path.join('static',
+                os.path.basename(session['output'])+'.jpg')}, 200
+    return {"text":"No graph data available"}, 400
