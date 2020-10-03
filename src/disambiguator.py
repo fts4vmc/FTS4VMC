@@ -11,6 +11,8 @@ class Disambiguator(object):
 
     def __init__(self, data, name = 'DEAD'):
         self.__fts = pydot.graph_from_dot_data(data)[0]
+        #Force Tob to Bottom view to improve readbility on browser page
+        #self.__fts.obj_dict['attributes']['rankdir'] = 'TB'
         self.__ctran = c_translator()
         self.__dead_name = name
 
@@ -120,6 +122,23 @@ class Disambiguator(object):
             if transition.get_source() == state:
                 return True
         return False
+
+    def __set_color(self, transition_list, color):
+        for transition in transition_list:
+            edge_list = self.__fts.get_edge(transition['src'], transition['dst'])
+            for edge in edge_list:
+                tmp = edge.obj_dict['attributes']['label'][1:-1].split('|')
+                if (transition['label'] == tmp[0] and 
+                        transition['constraint'] == str(self.__ctran.c_translate(tmp[-1]))):
+                    edge.obj_dict['attributes']['color'] = color
+
+
+    def highlight_ambiguities(self, dead =[], false =[], hidden=[]):
+        self.__set_color(dead, "blue")
+        self.__set_color(false, "green")
+
+        for state in hidden:
+            self.__fts.add_node(pydot.Node(name=state, color = 'red'))
 
     def get_graph(self):
         return self.__fts.to_string()
