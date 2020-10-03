@@ -199,8 +199,17 @@ function process_update(show, wait)
         $("#terminal").append(response['text']);
         $("#message").text("");
         show_command(show);
+        $("#image-src").val(response['value']);
+        request = {url:'/graph', type:'POST'};
+        request['success'] = load_graph;
+        request['error'] = function(response)
+        {
+          $("#message").text(response.responseJSON['text']).show();
+          $("#image").attr('src', '');
+        };
+        $.ajax(request);
         $("#stop").prop("disabled", true);
-    };
-    request['statusCode'] = statusCode;
-    $.ajax(request);
+      };
+      request['statusCode'] = statusCode;
+      $.ajax(request);
 }
