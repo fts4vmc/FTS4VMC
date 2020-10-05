@@ -5,6 +5,7 @@ $(function(){
     $("#load").prop("disabled", false);
     $("main").on("click", "#graph_tab", show_graph);
     $("main").on("click", "#terminal_tab", show_terminal);
+    $("main").on("click", "#summary_tab", show_summary);
     $("aside").on("change", "#fts", alter_title);
     $("aside").on("click", "#load", upload_file);
     $("aside").on("click", "#full", 
@@ -45,6 +46,14 @@ function show_terminal()
 {
     $("#image").hide();
     $("#terminal").show();
+    $("#summary").hide();
+}
+
+function show_summary()
+{
+    $("#image").hide();
+    $("#terminal").hide();
+    $("#summary").show();
 }
 
 function update_textarea_graph(show, response)
@@ -56,7 +65,7 @@ function update_textarea_graph(show, response)
     request['error'] = function(resp)
     {
         if(resp.responseJSON) {
-            $("#message").text(resp.responseJSON['text']).show();
+            $("#message").text(resp.responseJSON['text']).show().fadeOut(1000);
         }
         $("#image").attr('src', '');
     };
@@ -76,11 +85,12 @@ function show_graph()
     request['success'] = load_graph;
     request['error'] = function(response)
     {
-        $("#message").text(response.responseJSON['text']).show();
+        $("#message").text(response.responseJSON['text']).show().fadeOut(1000);
         $("#image").attr('src', '');
     };
     $.ajax(request);
     $("#terminal").hide();
+    $("#summary").hide();
     $("#image").show();
 }
 
@@ -158,6 +168,7 @@ function command(event)
             $("#message").text("");
         };
         request['beforeSend'] = function(response) {
+            show_terminal();
             $("#terminal").text("Processing data...");
         };
         request['error'] = function(response) {
@@ -198,11 +209,12 @@ function process_update(show, wait)
             wait = wait * 2;
         if(wait > 16000)
             wait = 4000;
-        $("#message").text("Next update in "+wait/1000+" seconds.");
+        $("#message").text("Next update in "+wait/1000+" seconds.").show().fadeOut(1000);
         setTimeout(process_update.bind(null, show, wait), wait);
     };
     statusCode['200'] = function(resp) {
         $("#terminal").append(resp['text']);
+        create_summary($("#summary"), resp)
         $("#message").text("");
         show_command(show);
         $("#image-src").val(resp['value']);
@@ -210,7 +222,7 @@ function process_update(show, wait)
         req['success'] = load_graph;
         req['error'] = function(resp)
         {
-          $("#message").text(resp.responseJSON['text']).show();
+          $("#message").text(resp.responseJSON['text']).show().fadeOut(1000);
           $("#image").attr('src', '');
         };
         $.ajax(req);
@@ -225,4 +237,46 @@ function keep_alive()
     request = {url: '/keep_alive', type:'POST'};
     $.ajax(request);
     setTimeout(keep_alive.bind(null), 300000);
+}
+
+function create_summary(target, data)
+{
+  target.empty();
+  main = $("<div></div>");
+  target.append(main);
+  if(data['nodes']){
+    main.append("<p>Number of nodes: "+data['nodes']+"</p>");
+  }
+  if(data['edges']){
+    main.append("<p>Number of edges: "+data['edges']+"</p>");
+  }
+  if(data['ambiguities']){
+    main.append("<h3>Ambiguities found</h3>");
+    if(data['ambiguities']['dead']){
+      main.append("<h4>Dead transition</h4>");
+      list = $("<ul></ul>");
+      main.append(list);
+      for (transition of data['ambiguities']['dead']) {
+        list.append("<li>("+transition.src+", "+transition.dst+"): "+
+          transition.label+" | "+transition.constraint+"</li>");
+      }
+    }
+    if(data['ambiguities']['false']){
+      main.append("<h4>False optional</h4>");
+      list = $("<ul></ul>");
+      main.append(list);
+      for (transition of data['ambiguities']['false']) {
+        list.append("<li>("+transition.src+", "+transition.dst+"): "+
+          transition.label+" | "+transition.constraint+"</li>");
+      }
+    }
+    if(data['ambiguities']['hidden']){
+      main.append("<h4>Hidden deadlock</h4>");
+      list = $("<ul></ul>");
+      main.append(list);
+      for (state of data['ambiguities']['hidden']) {
+        list.append("<li>"+state+"</li>");
+      }
+    }
+  }
 }
