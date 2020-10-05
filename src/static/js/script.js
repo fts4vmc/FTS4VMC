@@ -38,6 +38,7 @@ $(function(){
         {url: '/remove_false_opt', success:update_textarea_graph}, command);
     $("aside").on("click", "#hdd", 
         {url: '/remove_dead_hidden', success:update_textarea_graph}, command);
+    keep_alive();
 }); 
 
 function show_terminal()
@@ -68,6 +69,7 @@ function load_graph(response)
     $("#image").attr('src', response['source']+"?random="+new Date().getTime());
     $("#message").text('').hide();
 }
+
 function show_graph()
 {
     request = {url:'/graph', type:'POST'};
@@ -216,4 +218,11 @@ function process_update(show, wait)
     };
     request['statusCode'] = statusCode;
     $.ajax(request);
+}
+
+function keep_alive()
+{
+    request = {url: '/keep_alive', type:'POST'};
+    $.ajax(request);
+    setTimeout(keep_alive.bind(null), 300000);
 }
