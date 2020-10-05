@@ -79,4 +79,14 @@ label {
 
 img {
   max-width:90%;
+  overflow: auto;
+  display: none;
+}
+
+#summary {
+  display: none;
+}
+
+#message, .tab > button {
+  font-size:14pt;
 }
