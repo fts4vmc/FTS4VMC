@@ -52,9 +52,11 @@ function update_textarea_graph(show, response)
     show_command(show);
     request = {url:'/graph', type:'POST'};
     request['success'] = load_graph;
-    request['error'] = function(response)
+    request['error'] = function(resp)
     {
-        $("#message").text(response.responseJSON['text']).show();
+        if(resp.responseJSON) {
+            $("#message").text(resp.responseJSON['text']).show();
+        }
         $("#image").attr('src', '');
     };
     $.ajax(request);
@@ -157,7 +159,9 @@ function command(event)
             $("#terminal").text("Processing data...");
         };
         request['error'] = function(response) {
-            $("#terminal").text(response.responseJSON['text']);
+            if(response.responseJSON) {
+                $("#terminal").text(response.responseJSON['text']);
+            }
             $("#message").text("");
         };
         $.ajax(request);
