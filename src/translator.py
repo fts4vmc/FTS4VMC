@@ -37,12 +37,12 @@ class Translator:
             id = str(t._in._id)
             if id not in adj:
                 if len(self.__fts._states[id]._out) > 1:
-                    tmp = 'C' + id + ' = ' + str(t._label) + '(may).' + 'C' + str(t._out._id)
+                    tmp = 'C' + id + ' = ' + str(t._label) + '(may).C' + str(t._out._id)
                 else:
-                    tmp = 'C' + id + ' = ' + str(t._label) + '.C' + str(t._out._id)
+                    tmp = 'C' + id + ' = ' + str(t._label) + '(must).C' + str(t._out._id)
                 adj.update([(id,tmp)])
             else:
-                adj[id] += ' + ' + str(t._label) + '(may).' + 'C' + str(t._out._id)
+                adj[id] += ' + ' + str(t._label) + '(may).C' + str(t._out._id)
         for a in adj:
             self.output += adj[a] + '\n'
         self.output += '\n' + initial_state + '\n\nConstraints{ LIVE }'
