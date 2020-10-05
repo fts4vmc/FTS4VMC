@@ -9,10 +9,18 @@ class Disambiguator(object):
 
     __slots__ = '__fts', '__ctran', '__dead_name'
 
-    def __init__(self, filename, name = 'DEAD'):
-        self.__fts = pydot.graph_from_dot_file(filename)[0]
+    def __init__(self, data, name = 'DEAD'):
+        self.__fts = pydot.graph_from_dot_data(data)[0]
+        #Force Tob to Bottom view to improve readbility on browser page
+        self.__fts.obj_dict['attributes']['rankdir'] = 'TB'
         self.__ctran = c_translator()
         self.__dead_name = name
+
+    @classmethod
+    def from_file(self, filename, name = 'DEAD'):
+        with open(filename, 'r') as source:
+            data = source.read()
+            return self(data, name)
 
     def remove_transition(self, src, dst, label, constraint):
         """Remove the specified transition from the loaded fts model
@@ -114,6 +122,25 @@ class Disambiguator(object):
             if transition.get_source() == state:
                 return True
         return False
+
+    def __set_color(self, transition_list, color):
+        for transition in transition_list:
+            edge_list = self.__fts.get_edge(transition['src'], transition['dst'])
+            for edge in edge_list:
+                tmp = edge.obj_dict['attributes']['label'][1:-1].split('|')
+                if (transition['label'] == tmp[0] and 
+                        transition['constraint'] == str(self.__ctran.c_translate(tmp[-1]))):
+                    edge.obj_dict['attributes']['color'] = color
+                    edge.obj_dict['attributes']['style'] = 'bold'
+                    edge.obj_dict['attributes']['fontcolor'] = color 
+
+
+    def highlight_ambiguities(self, dead =[], false =[], hidden=[]):
+        self.__set_color(dead, "blue")
+        self.__set_color(false, "green")
+
+        for state in hidden:
+            self.__fts.add_node(pydot.Node(name=state, style = 'filled', fillcolor = 'red', fontcolor = 'white'))
 
     def get_graph(self):
         return self.__fts.to_string()

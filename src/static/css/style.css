@@ -52,11 +52,11 @@ body {
   font-size: 14px;
   cursor: pointer;
   box-shadow:black 3px 3px;
-  display: none;
 }
 
-#fts-label {
-  display: block;
+#stop:disabled, .command:disabled {
+  background-color: aliceblue;
+  color: grey;
 }
 
 #stop {
@@ -64,7 +64,7 @@ body {
   color: black;
 }
 
-.command:hover {
+#stop:hover, .command:hover {
   background-color:yellow;
   color: black;
 }
@@ -75,4 +75,18 @@ input[type="file"] {
 
 label {
   text-align: center;
+}
+
+img {
+  max-width:90%;
+  overflow: auto;
+  display: none;
+}
+
+#summary {
+  display: none;
+}
+
+#message, .tab > button {
+  font-size:14pt;
 }
