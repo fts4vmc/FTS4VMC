@@ -87,14 +87,16 @@ def check_session():
 
 @app.route('/keep_alive', methods=['POST'])
 def update_session_timeout():
+    tmp = ['output', 'graph', 'model']
     if check_session():
         session['timeout'] = time.time()+600
-        if 'output' in session and os.path.isfile(session['output']):
-            pathlib.Path(session['output']).touch()
-        if 'graph' in session and os.path.isfile(session['graph']):
-            pathlib.Path(session['graph']).touch()
-        if 'model' in session and os.path.isfile(session['model']):
-            pathlib.Path(session['model']).touch()
+        for target in tmp:
+            if target in session and os.path.isfile(session[target]):
+                try:
+                    pathlib.Path(session[target]).touch()
+                except:
+                    pass
+    return {'text':'ok'}, 200
 
 def new_session():
     if 'output' in session and session['output']:
