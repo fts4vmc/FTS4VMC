@@ -272,6 +272,7 @@ def disambiguate():
             return {"text": "No ambiguities data available execute a full analysis first"}, 400
         else: 
             session['ambiguities'] = queue.get()
+    payload = {}
     file_path = session['model']
     if os.path.isfile(file_path):
         dis = Disambiguator.from_file(file_path)
@@ -280,8 +281,10 @@ def disambiguate():
         dis.solve_hidden_deadlocks(session['ambiguities']['hidden'])
         pm.delete_queue(session['id'])
         graph = dis.get_graph()
+        payload['text'] = graph
+        payload['edges'], payload['nodes'] = get_string_graph_number(graph)
         draw_graph(graph)
-        return {"text":graph}, 200
+        return payload, 200
     return {"text": 'File not found'}, 400
 
 @app.route('/remove_false_opt', methods=['POST'])
@@ -295,14 +298,17 @@ def solve_fopt():
             return {"text": "No ambiguities data available execute a full analysis first"}, 400
         else: 
             session['ambiguities'] = queue.get()
+    payload = {}
     file_path = session['model']
     if os.path.isfile(file_path):
         dis = Disambiguator.from_file(file_path)
         dis.set_true_list(session['ambiguities']['false'])
         pm.delete_queue(session['id'])
         graph = dis.get_graph()
+        payload['text'] = graph
+        payload['edges'], payload['nodes'] = get_string_graph_number(graph)
         draw_graph(graph)
-        return {"text":graph}, 200
+        return payload, 200
     return {"text": 'File not found'}, 400
 
 @app.route('/remove_dead_hidden', methods=['POST'])
@@ -316,6 +322,7 @@ def solve_hdd():
             return {"text": "No ambiguities data available execute a full analysis first"}, 400
         else: 
             session['ambiguities'] = queue.get()
+    payload = {}
     file_path = session['model']
     if os.path.isfile(file_path):
         dis = Disambiguator.from_file(file_path)
@@ -323,8 +330,10 @@ def solve_hdd():
         dis.solve_hidden_deadlocks(session['ambiguities']['hidden'])
         pm.delete_queue(session['id'])
         graph = dis.get_graph()
+        payload['text'] = graph
+        payload['edges'], payload['nodes'] = get_string_graph_number(graph)
         draw_graph(graph)
-        return {"text":graph}, 200
+        return payload, 200
     return {"text": 'File not found'}, 400
 
 def draw_graph(source, target=None):
@@ -378,7 +387,21 @@ def get_graph_number(graph_source):
     try:
         graph = pydot.graph_from_dot_file(graph_source)[0]
     except:
-        return 0
+        return 0, 0
+
+    for edge in graph.get_edges():
+        if edge.get_source() not in node:
+            node.append(edge.get_source())
+        if edge.get_destination() not in node:
+            node.append(edge.get_destination())
+    return len(graph.get_edges()), len(node)
+
+def get_string_graph_number(graph_source):
+    node = list()
+    try:
+        graph = pydot.graph_from_dot_data(graph_source)[0]
+    except:
+        return 0, 0
 
     for edge in graph.get_edges():
         if edge.get_source() not in node:
