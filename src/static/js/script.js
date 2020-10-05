@@ -186,7 +186,7 @@ function process_update(show, wait)
     statusCode = {};
     statusCode['206'] = function(response) {
         $("#terminal").append(response['text']);
-        if(response)
+        if(response['text'])
             wait = 1000;
         else
             wait = wait * 2;
@@ -195,21 +195,21 @@ function process_update(show, wait)
         $("#message").text("Next update in "+wait/1000+" seconds.");
         setTimeout(process_update.bind(null, show, wait), wait);
     };
-    statusCode['200'] = function(response) {
-        $("#terminal").append(response['text']);
+    statusCode['200'] = function(resp) {
+        $("#terminal").append(resp['text']);
         $("#message").text("");
         show_command(show);
-        $("#image-src").val(response['value']);
-        request = {url:'/graph', type:'POST'};
-        request['success'] = load_graph;
-        request['error'] = function(response)
+        $("#image-src").val(resp['value']);
+        req = {url:'/graph', type:'POST'};
+        req['success'] = load_graph;
+        req['error'] = function(resp)
         {
-          $("#message").text(response.responseJSON['text']).show();
+          $("#message").text(resp.responseJSON['text']).show();
           $("#image").attr('src', '');
         };
-        $.ajax(request);
+        $.ajax(req);
         $("#stop").prop("disabled", true);
-      };
-      request['statusCode'] = statusCode;
-      $.ajax(request);
+    };
+    request['statusCode'] = statusCode;
+    $.ajax(request);
 }
