@@ -60,6 +60,7 @@ function update_textarea_graph(show, response)
 {
     $("#terminal").text(response['text']);
     show_command(show);
+    create_summary($("#summary"), response)
     request = {url:'/graph', type:'POST'};
     request['success'] = load_graph;
     request['error'] = function(resp)
@@ -120,6 +121,7 @@ function update_textarea(show, response)
 {
     $("#terminal").text(response['text']);
     show_command(show);
+    create_summary($("#summary"), response)
 }
 
 //Updates the main's textarea with the response value,
