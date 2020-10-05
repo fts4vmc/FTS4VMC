@@ -368,4 +368,3 @@ def start_deleter():
     pm.add_process('deleter', thread)
     pm.start_process('deleter')
 
-app.before_first_request(start_deleter)
