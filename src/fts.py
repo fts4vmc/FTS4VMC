@@ -1,9 +1,12 @@
 import os
+import pdb
 import sys
 import time
 import pydot
 import string
 import random
+import pathlib
+import time
 from multiprocessing import Process, Queue
 from src.disambiguator import Disambiguator
 from src.analyser import z3_analyse_hdead, z3_analyse_full, load_dot
@@ -57,8 +60,7 @@ def full_analysis_worker(fts_file, out_file, out_graph, queue):
     for state in fts._set_hidden_deadlock:
         hidden.append(state._id)
     fts_source.seek(0,0)
-    queue.put({'ambiguities':{'dead': dead, 'false': false, 'hidden': hidden},
-        'graph':fts_source.read()})
+    queue.put({'ambiguities':{'dead': dead, 'false': false, 'hidden': hidden}})
     fts.report()
     sys.stdout.close()
     fts_source.close()
@@ -72,8 +74,7 @@ def hdead_analysis_worker(fts_file, out_file, out_graph, queue):
     for state in fts._set_hidden_deadlock:
         hidden.append(state._id)
     fts_source.seek(0,0)
-    queue.put({'ambiguities':{'dead':[], 'false':[], 'hidden': hidden},
-        'graph':fts_source.read()})
+    queue.put({'ambiguities':{'dead':[], 'false':[], 'hidden': hidden}})
     fts.report()
     sys.stdout.close()
     fts_source.close()
@@ -129,7 +130,7 @@ def get_output():
     if not check_session():
         delete_output_file()
         return {"text":'\nSession timed-out'}, 404
-    elif not 'id' in sessio or not pm.process_exists(session['id']):
+    elif not 'id' in session or not pm.process_exists(session['id']):
         delete_output_file()
         return {"text":''}, 404
     else:
@@ -146,14 +147,17 @@ def get_output():
                 queue = ProcessManager.get_instance().get_queue(session['id'])
                 if(queue):
                     tmp = queue.get()
-                    dis = Disambiguator(tmp['graph'])
                     session['ambiguities'] = tmp['ambiguities']
-                    dis.highlight_ambiguities(tmp['ambiguities']['dead'], 
-                            tmp['ambiguities']['false'], 
-                            tmp['ambiguities']['hidden'])
-                    draw_graph(dis.get_graph())
                     ProcessManager.get_instance().delete_queue(session['id'])
-                    return{"text":result, "value":dis.get_graph()}, 200
+                    try:
+                        dis = Disambiguator.from_file(session['model'])
+                        dis.highlight_ambiguities(tmp['ambiguities']['dead'], 
+                                tmp['ambiguities']['false'], 
+                                tmp['ambiguities']['hidden'])
+                        draw_graph(dis.get_graph())
+                        return{"text":result, "value":dis.get_graph()}, 200
+                    except:
+                        return {"text":result}, 200
                 return {"text":result}, 200
 
 @app.route('/upload', methods=['POST'])
