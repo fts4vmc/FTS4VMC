@@ -147,20 +147,25 @@ def get_output():
                 result = out.read()
                 os.remove(session['output'])
                 queue = ProcessManager.get_instance().get_queue(session['id'])
+                payload = {}
+                payload['text'] = result
+                payload['edges'], payload['nodes'] = get_graph_number(session['model'])
                 if(queue):
                     tmp = queue.get()
                     session['ambiguities'] = tmp['ambiguities']
+                    payload['ambiguities'] = tmp['ambiguities']
                     ProcessManager.get_instance().delete_queue(session['id'])
                     try:
                         dis = Disambiguator.from_file(session['model'])
+                        payload['value'] = dis.get_graph()
                         dis.highlight_ambiguities(tmp['ambiguities']['dead'], 
                                 tmp['ambiguities']['false'], 
                                 tmp['ambiguities']['hidden'])
                         draw_graph(dis.get_graph())
-                        return{"text":result, "value":dis.get_graph()}, 200
+                        return payload, 200
                     except:
-                        return {"text":result}, 200
-                return {"text":result}, 200
+                        return payload, 200
+                return payload, 200
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -368,3 +373,16 @@ def start_deleter():
     pm.add_process('deleter', thread)
     pm.start_process('deleter')
 
+def get_graph_number(graph_source):
+    node = list()
+    try:
+        graph = pydot.graph_from_dot_file(graph_source)[0]
+    except:
+        return 0
+
+    for edge in graph.get_edges():
+        if edge.get_source() not in node:
+            node.append(edge.get_source())
+        if edge.get_destination() not in node:
+            node.append(edge.get_destination())
+    return len(graph.get_edges()), len(node)
