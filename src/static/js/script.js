@@ -13,14 +13,14 @@ $(function(){
             show:[
                 $("#disambiguate"), $("#fopt"), $("#hdd"), 
                 $("#full"), $("#hdead"), $("#delete"), $("#stop"),
-                $("#fts")
+                $("#fts"), $("#verify_properties")
             ]
         }, command);
 
     $("aside").on("click", "#hdead", 
         {url: '/hdead_analysis', success:timed_update_textarea, 
             show:[$("#full"), $("#hdead"), $("#delete"),
-              $("#stop"), $("#load"), $("#fts")] 
+              $("#stop"), $("#load"), $("#fts"), $("verify_properties")] 
         }, command);
 
     $("aside").on("click", "#delete", 
