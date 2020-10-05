@@ -12,7 +12,7 @@ class Disambiguator(object):
     def __init__(self, data, name = 'DEAD'):
         self.__fts = pydot.graph_from_dot_data(data)[0]
         #Force Tob to Bottom view to improve readbility on browser page
-        #self.__fts.obj_dict['attributes']['rankdir'] = 'TB'
+        self.__fts.obj_dict['attributes']['rankdir'] = 'TB'
         self.__ctran = c_translator()
         self.__dead_name = name
 
