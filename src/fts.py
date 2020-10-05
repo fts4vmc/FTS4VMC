@@ -234,8 +234,8 @@ def hdead_analyser():
 
 @app.route('/delete_model', methods=['POST'])
 def delete_model():
-    close_session()
     file_path = session['model']
+    close_session()
     try:
         os.remove(file_path)
     except OSError as e:  ## if failed, report it back to the user ##
