@@ -83,7 +83,7 @@ img {
   display: none;
 }
 
-#summary {
+#source, #summary, #legend {
   display: none;
 }
 
@@ -108,5 +108,4 @@ img {
 #legend {
   margin-left: auto;
   margin-right: auto;
-  display: none;
 }
