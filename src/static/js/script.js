@@ -299,14 +299,14 @@ function verify_property()
             data: {name: $("#fts")[0].files[0].name, property: prop},
             type: 'POST',
             success: function(response){
-                $("main > textarea").text(response);
+                $("main > textarea").text(response['text']);
                 //event.data.success(event.data.show, response);
             },
             beforeSend: function(response) {
                 $("main > textarea").text("Processing data...");
             },
             error: function(response) {
-                $("main > textarea").text(response);
+                $("main > textarea").text(response['text']);
             }
         });
     } else {

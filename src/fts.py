@@ -13,7 +13,7 @@ from multiprocessing import Process, Queue
 from src.disambiguator import Disambiguator
 from src.analyser import z3_analyse_hdead, z3_analyse_full, load_dot
 from src.process_manager import ProcessManager
-from flask import make_response, session, send_from_directory
+from flask import session, send_from_directory
 from flask import Flask, flash, request, redirect, url_for, render_template
 from werkzeug.utils import secure_filename
 
@@ -347,16 +347,16 @@ def verify_property():
     if not session['ambiguities']:
         queue = pm.get_queue(session['id'])
         if not queue:
-            return make_response( "No ambiguities data available execute a full analysis first", "400")
+            return {"text":"No ambiguities data available execute a full analysis first"}, 400
     if not (len(session['ambiguities']['hidden']) == 0):
-        return make_response("Hidden deadlocks detected. It is necessary to remove them before checking the property", "400")
+        return {"text":"Hidden deadlocks detected. It is necessary to remove them before checking the property"}, 400
 
     fname = secure_filename(request.form['name'])
     fpath = os.path.join(app.config['UPLOAD_FOLDER'], fname)
 
     actl_property = request.form['property']
     if (len(actl_property) == 0):
-        return make_response('Missing property to be verified', "400")
+        return {"text":'Missing property to be verified'}, 400
 
     if os.path.isfile(fpath):
         t = Translator()
@@ -380,7 +380,7 @@ def verify_property():
         result = subprocess.check_output(PATH_TO_VMC + ' ' + session_tmp_model + ' '+ session_tmp_properties, shell=True)
         shutil.rmtree(session_tmp_folder)
         return result
-    return make_response( 'File not found', "400")
+    return {"text": 'File not found'}, 400
 
 def draw_graph(source, target=None):
     try:
