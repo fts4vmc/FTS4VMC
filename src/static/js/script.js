@@ -46,6 +46,7 @@ $(function(){
 function show_terminal()
 {
     $("#image").hide();
+    $("#legend").hide();
     $("#terminal").show();
     $("#summary").hide();
 }
@@ -53,6 +54,7 @@ function show_terminal()
 function show_summary()
 {
     $("#image").hide();
+    $("#legend").hide();
     $("#terminal").hide();
     $("#summary").show();
 }
@@ -94,6 +96,7 @@ function show_graph()
     $("#terminal").hide();
     $("#summary").hide();
     $("#image").show();
+    $("#legend").show();
 }
 
 function alter_title() 

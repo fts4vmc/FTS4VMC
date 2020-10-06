@@ -12,7 +12,7 @@ aside > * {
     margin: 5px;
 }
 
-main {
+#legend, main {
     flex-grow: 9;
     padding: 5px;
     background-color: seashell;
@@ -89,4 +89,24 @@ img {
 
 #message, .tab > button {
   font-size:14pt;
+}
+
+
+#legend #dead {
+  color: blue;
+}
+
+#legend #false {
+  color: green;
+}
+
+#legend #hidden {
+  color: white;
+  background-color: red;
+}
+
+#legend {
+  margin-left: auto;
+  margin-right: auto;
+  display: none;
 }

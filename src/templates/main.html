@@ -42,7 +42,13 @@
               Remove dead transition and hidden deadlock
             </button>
             <button class="command" id="verify_properties" type="button">Verify property</button>
-            <textarea id="property_text_area" name="property_text_area" rows="20" cols="50">Insert an ACTL formula to verify</textarea> 
+            <textarea id="property_text_area" name="property_text_area" rows="20" cols="50">Insert an ACTL formula to verify</textarea>
+            <table id="legend">
+              <caption>Legend</caption>
+              <tr><td id="dead">dead transition</td></tr>
+              <tr><td id="false">false optional transition</td></tr>
+              <tr><td id="hidden">hidden deadlock</td></tr>
+            </table>
         </aside>
         <main>
             <h2>FTS4VMC</h2>
