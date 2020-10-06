@@ -6,6 +6,7 @@ $(function(){
     $("main").on("click", "#graph_tab", show_graph);
     $("main").on("click", "#console_tab", show_console);
     $("main").on("click", "#summary_tab", show_summary);
+    $("main").on("click", "#source_tab", show_source);
     $("aside").on("change", "#fts", alter_title);
     $("aside").on("click", "#load", upload_file);
     $("aside").on("click", "#full", 
@@ -47,8 +48,9 @@ function show_console()
 {
     $("#image").hide();
     $("#legend").hide();
-    $("#console").show();
     $("#summary").hide();
+    $("#source").hide();
+    $("#console").show();
 }
 
 function show_summary()
@@ -56,7 +58,17 @@ function show_summary()
     $("#image").hide();
     $("#legend").hide();
     $("#console").hide();
+    $("#source").hide();
     $("#summary").show();
+}
+
+function show_source()
+{
+    $("#image").hide();
+    $("#legend").hide();
+    $("#console").hide();
+    $("#summary").hide();
+    $("#source").show();
 }
 
 function update_textarea_graph(show, response)
@@ -95,8 +107,9 @@ function show_graph()
     $.ajax(request);
     $("#console").hide();
     $("#summary").hide();
-    $("#image").show();
+    $("#source").hide();
     $("#legend").show();
+    $("#image").show();
 }
 
 function alter_title() 
@@ -147,6 +160,8 @@ function upload_file(event)
             contentType: false, type: 'POST'};
         request['success'] = function(response) {
             $("#console").text(response['text']);
+            create_summary($("#summary"), response);
+            $("#source").text(response['graph']);
             $("#full").prop("disabled", false);
             $("#hdead").prop("disabled", false);
             $("#delete").prop("disabled", false);
@@ -172,6 +187,8 @@ function command(event)
             type: 'POST'};
         request['success'] = function(response){
             event.data.success(event.data.show, response);
+            if(response['graph'])
+                $("#source").text(response['graph']);
             $("#message").text("");
         };
         request['beforeSend'] = function(response) {
@@ -222,10 +239,10 @@ function process_update(show, wait)
     };
     statusCode['200'] = function(resp) {
         $("#console").append(resp['text']);
+        $("#source").text(resp['graph']);
         create_summary($("#summary"), resp)
         $("#message").text("");
         show_command(show);
-        $("#image-src").val(resp['value']);
         req = {url:'/graph', type:'POST'};
         req['success'] = load_graph;
         req['error'] = function(resp)
