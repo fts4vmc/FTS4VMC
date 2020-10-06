@@ -162,10 +162,10 @@ def get_output():
                     ProcessManager.get_instance().delete_queue(session['id'])
                     try:
                         dis = Disambiguator.from_file(session['model'])
-                        payload['value'] = dis.get_graph()
                         dis.highlight_ambiguities(tmp['ambiguities']['dead'], 
                                 tmp['ambiguities']['false'], 
                                 tmp['ambiguities']['hidden'])
+                        payload['graph'] = dis.get_graph()
                         draw_graph(dis.get_graph())
                         return payload, 200
                     except:
@@ -174,6 +174,8 @@ def get_output():
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
+    payload = {}
+    dot = ""
     close_session()
     new_session()
     if not os.path.exists(UPLOAD_FOLDER):
@@ -198,8 +200,12 @@ def upload_file():
                     os.remove(file_path)
                     return {"text":"The given file is not a FTS or contains errors"}, 400
                 with open(file_path, 'r') as graph:
-                    draw_graph(graph.read())
-                return {"text": "Model loaded"}, 200
+                    dot = graph.read()
+                draw_graph(dot)
+                payload['graph'] = dot
+                payload['edges'], payload['nodes'] = get_graph_number(file_path)
+                payload['text'] = "Model loaded"
+                return payload, 200
         else:
             return {"text": "Incompatible file format"}, 400
     return {"text": "Invalid request"}, 400
@@ -248,8 +254,7 @@ def delete_model():
     close_session()
     try:
         os.remove(file_path)
-    except OSError as e:  ## if failed, report it back to the user ##
-        print ("Error: %s - %s." % (e.filename, e.strerror))
+    except OSError as e:
         return {"text": "An error occured while deleting the file model"}, 400
     else:
         return {"text":"Model file deleted"}, 200
@@ -286,7 +291,8 @@ def disambiguate():
         dis.solve_hidden_deadlocks(session['ambiguities']['hidden'])
         pm.delete_queue(session['id'])
         graph = dis.get_graph()
-        payload['text'] = graph
+        payload['text'] = "Removed ambiguities"
+        payload['graph'] = graph
         payload['edges'], payload['nodes'] = get_string_graph_number(graph)
         draw_graph(graph)
         return payload, 200
@@ -310,7 +316,8 @@ def solve_fopt():
         dis.set_true_list(session['ambiguities']['false'])
         pm.delete_queue(session['id'])
         graph = dis.get_graph()
-        payload['text'] = graph
+        payload['text'] = "Removed false optional transitions"
+        payload['graph'] = graph
         payload['edges'], payload['nodes'] = get_string_graph_number(graph)
         draw_graph(graph)
         return payload, 200
@@ -335,7 +342,8 @@ def solve_hdd():
         dis.solve_hidden_deadlocks(session['ambiguities']['hidden'])
         pm.delete_queue(session['id'])
         graph = dis.get_graph()
-        payload['text'] = graph
+        payload['text'] = "Removed hidden deadlocks and dead transitions"
+        payload['graph'] = graph
         payload['edges'], payload['nodes'] = get_string_graph_number(graph)
         draw_graph(graph)
         return payload, 200
