@@ -4,7 +4,7 @@ $(function(){
     $("#fts").prop("disabled", false);
     $("#load").prop("disabled", false);
     $("main").on("click", "#graph_tab", show_graph);
-    $("main").on("click", "#terminal_tab", show_terminal);
+    $("main").on("click", "#console_tab", show_console);
     $("main").on("click", "#summary_tab", show_summary);
     $("aside").on("change", "#fts", alter_title);
     $("aside").on("click", "#load", upload_file);
@@ -43,11 +43,11 @@ $(function(){
     keep_alive();
 }); 
 
-function show_terminal()
+function show_console()
 {
     $("#image").hide();
     $("#legend").hide();
-    $("#terminal").show();
+    $("#console").show();
     $("#summary").hide();
 }
 
@@ -55,13 +55,13 @@ function show_summary()
 {
     $("#image").hide();
     $("#legend").hide();
-    $("#terminal").hide();
+    $("#console").hide();
     $("#summary").show();
 }
 
 function update_textarea_graph(show, response)
 {
-    $("#terminal").text(response['text']);
+    $("#console").text(response['text']);
     show_command(show);
     create_summary($("#summary"), response)
     request = {url:'/graph', type:'POST'};
@@ -93,7 +93,7 @@ function show_graph()
         $("#image").attr('src', '');
     };
     $.ajax(request);
-    $("#terminal").hide();
+    $("#console").hide();
     $("#summary").hide();
     $("#image").show();
     $("#legend").show();
@@ -103,7 +103,7 @@ function alter_title()
 {
     let name = $("#fts").val().replace(/.*[\/\\]/, '');
     $("main > h2").text("Analysis of "+name);
-    $("#terminal").text(name+" selected, click load model to"+
+    $("#console").text(name+" selected, click load model to"+
         " upload the file");
     $(".command").prop("disabled", true);
     $("#fts").prop("disabled", false);
@@ -123,7 +123,7 @@ function show_command(show)
 //Updates the main's textarea with the response value.
 function update_textarea(show, response)
 {
-    $("#terminal").text(response['text']);
+    $("#console").text(response['text']);
     show_command(show);
     create_summary($("#summary"), response)
 }
@@ -132,7 +132,7 @@ function update_textarea(show, response)
 //and initiates the polling of process output.
 function timed_update_textarea(show, response)
 {
-    $("#terminal").text(response['text']);
+    $("#console").text(response['text']);
     $(".command").prop("disabled", true);
     $("#stop").prop("disabled", false);
     process_update(show, 1000);
@@ -146,22 +146,22 @@ function upload_file(event)
         request = {url: '/upload', data: file, processData: false,
             contentType: false, type: 'POST'};
         request['success'] = function(response) {
-            $("#terminal").text(response['text']);
+            $("#console").text(response['text']);
             $("#full").prop("disabled", false);
             $("#hdead").prop("disabled", false);
             $("#delete").prop("disabled", false);
             $("#verify_properties").prop("disabled", true);
         };
         request['error'] = function(response) {
-            $("#terminal").text(response.responseJSON['text']);
+            $("#console").text(response.responseJSON['text']);
         };
         request['beforeSend'] = function() {
-            $("#terminal")
+            $("#console")
                 .text("Checking if the provided dot file contains a FTS...");
         };
         $.ajax(request);
     } else {
-        $("#terminal").text("Model file is missing.");
+        $("#console").text("Model file is missing.");
     }
 }
 
@@ -175,18 +175,18 @@ function command(event)
             $("#message").text("");
         };
         request['beforeSend'] = function(response) {
-            show_terminal();
-            $("#terminal").text("Processing data...");
+            show_console();
+            $("#console").text("Processing data...");
         };
         request['error'] = function(response) {
             if(response.responseJSON) {
-                $("#terminal").text(response.responseJSON['text']);
+                $("#console").text(response.responseJSON['text']);
             }
             $("#message").text("");
         };
         $.ajax(request);
     } else {
-        $("#terminal").text("Invalid file");
+        $("#console").text("Invalid file");
     }
 }
 
@@ -196,20 +196,20 @@ function command(event)
 // double wait value and waits 'wait'ms before requesting data again.
 // If the received status code is 200 appends the data inside the textarea.
 // On completed request scrolls to the bottom of the textarea to emulate
-// terminal behaviour.
+// console behaviour.
 function process_update(show, wait)
 {
     request = {url: '/yield'};
     request['complete'] = function(response) {
         if(response) {
-            $('#terminal').scrollTop(
-                $('#terminal')[0].scrollHeight
+            $('#console').scrollTop(
+                $('#console')[0].scrollHeight
             );
         }
     };
     statusCode = {};
     statusCode['206'] = function(response) {
-        $("#terminal").append(response['text']);
+        $("#console").append(response['text']);
         if(response['text'])
             wait = 1000;
         else
@@ -221,7 +221,7 @@ function process_update(show, wait)
         setTimeout(process_update.bind(null, show, wait), wait);
     };
     statusCode['200'] = function(resp) {
-        $("#terminal").append(resp['text']);
+        $("#console").append(resp['text']);
         create_summary($("#summary"), resp)
         $("#message").text("");
         show_command(show);
