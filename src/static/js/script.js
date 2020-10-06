@@ -216,7 +216,8 @@ function process_update(show, wait)
             wait = wait * 2;
         if(wait > 16000)
             wait = 4000;
-        $("#message").text("Next update in "+wait/1000+" seconds.").show().fadeOut(1000);
+        if(wait > 1000)
+            $("#message").text("Next update in "+wait/1000+" seconds.").show().fadeOut(1000);
         setTimeout(process_update.bind(null, show, wait), wait);
     };
     statusCode['200'] = function(resp) {
