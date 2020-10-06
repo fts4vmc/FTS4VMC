@@ -111,7 +111,7 @@ def new_session():
     session['timeout'] = now+600
     session['output'] = ''.join(random.SystemRandom().choice(
                 string.ascii_uppercase + string.digits) for _ in range(32))
-    session['graph'] = os.path.join('src', 'static', session['output']+'.jpg')
+    session['graph'] = os.path.join('src', 'static', session['output']+'.svg')
     session['model'] = os.path.join(UPLOAD_FOLDER, session['output']+'.dot')
     session['output'] = os.path.join('tmp', session['output']+'-output')
     session['ambiguities'] = {}
@@ -388,14 +388,14 @@ def draw_graph(source, target=None):
     except:
         return False
     if(len(graph.get_edges()) <= 300):
-        jpg = graph.create_jpg()
+        svg = graph.create_svg()
         if target:
-            with open(os.path.join('src','static', target)+'.jpg','wb') as out:
-                out.write(jpg)
+            with open(os.path.join('src','static', target)+'.svg','wb') as out:
+                out.write(svg)
                 return True
         else:
             with open(session['graph'],'wb') as out:
-                out.write(jpg)
+                out.write(svg)
                 return True
     return False
 
@@ -419,7 +419,7 @@ def delete_old_file(fmt, timeout, path):
 def deleter():
     while True:
         time.sleep(900)
-        delete_old_file('jpg', 900, os.path.join('src', 'static'))
+        delete_old_file('svg', 900, os.path.join('src', 'static'))
         delete_old_file('dot', 900, os.path.join('uploads'))
 
 def start_deleter():
