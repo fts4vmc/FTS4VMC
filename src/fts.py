@@ -1,14 +1,13 @@
 import os
-import pdb
 import sys
 import time
 import subprocess
 import shutil
-import pydot
 import string
 import random
 import pathlib
 import time
+import src.internals.graph as graphviz
 from multiprocessing import Process, Queue
 from src.disambiguator import Disambiguator
 from src.analyser import z3_analyse_hdead, z3_analyse_full, load_dot
@@ -154,7 +153,8 @@ def get_output():
                 queue = ProcessManager.get_instance().get_queue(session['id'])
                 payload = {}
                 payload['text'] = result
-                payload['edges'], payload['nodes'] = get_graph_number(session['model'])
+                payload['edges'], payload['nodes'] = graphviz.Graph.from_file(
+                        session['model']).get_graph_number()
                 if(queue):
                     tmp = queue.get()
                     session['ambiguities'] = tmp['ambiguities']
@@ -166,7 +166,7 @@ def get_output():
                                 tmp['ambiguities']['false'], 
                                 tmp['ambiguities']['hidden'])
                         payload['graph'] = dis.get_graph()
-                        draw_graph(dis.get_graph())
+                        graphviz.Graph(dis.get_graph()).draw_graph(session['graph'])
                         return payload, 200
                     except:
                         return payload, 200
@@ -199,11 +199,12 @@ def upload_file():
                 if(not is_fts(file_path)):
                     os.remove(file_path)
                     return {"text":"The given file is not a FTS or contains errors"}, 400
-                with open(file_path, 'r') as graph:
-                    dot = graph.read()
-                draw_graph(dot)
+                with open(file_path, 'r') as source:
+                    dot = source.read()
+                graph = graphviz.Graph(dot)
+                graph.draw_graph(session['graph'])
                 payload['graph'] = dot
-                payload['edges'], payload['nodes'] = get_graph_number(file_path)
+                payload['edges'], payload['nodes'] = graph.get_graph_number()
                 payload['text'] = "Model loaded"
                 return payload, 200
         else:
@@ -290,11 +291,11 @@ def disambiguate():
         dis.set_true_list(session['ambiguities']['false'])
         dis.solve_hidden_deadlocks(session['ambiguities']['hidden'])
         pm.delete_queue(session['id'])
-        graph = dis.get_graph()
+        graph = graphviz.Graph(dis.get_graph())
         payload['text'] = "Removed ambiguities"
-        payload['graph'] = graph
-        payload['edges'], payload['nodes'] = get_string_graph_number(graph)
-        draw_graph(graph)
+        payload['graph'] = graph.get_graph()
+        payload['edges'], payload['nodes'] = graph.get_graph_number()
+        graph.draw_graph(session['graph'])
         return payload, 200
     return {"text": 'File not found'}, 400
 
@@ -315,11 +316,11 @@ def solve_fopt():
         dis = Disambiguator.from_file(file_path)
         dis.set_true_list(session['ambiguities']['false'])
         pm.delete_queue(session['id'])
-        graph = dis.get_graph()
+        graph = graphviz.Graph(dis.get_graph())
         payload['text'] = "Removed false optional transitions"
-        payload['graph'] = graph
-        payload['edges'], payload['nodes'] = get_string_graph_number(graph)
-        draw_graph(graph)
+        payload['graph'] = graph.get_graph()
+        payload['edges'], payload['nodes'] = graph.get_graph_number()
+        graph.draw_graph(session['graph'])
         return payload, 200
     return {"text": 'File not found'}, 400
 
@@ -341,11 +342,11 @@ def solve_hdd():
         dis.remove_transitions(session['ambiguities']['dead'])
         dis.solve_hidden_deadlocks(session['ambiguities']['hidden'])
         pm.delete_queue(session['id'])
-        graph = dis.get_graph()
+        graph = graphviz.Graph(dis.get_graph())
         payload['text'] = "Removed hidden deadlocks and dead transitions"
-        payload['graph'] = graph
-        payload['edges'], payload['nodes'] = get_string_graph_number(graph)
-        draw_graph(graph)
+        payload['graph'] = graph.get_graph()
+        payload['edges'], payload['nodes'] = graph.get_graph_number()
+        graph.draw_graph(session['graph'])
         return payload, 200
     return {"text": 'File not found'}, 400
 
@@ -390,23 +391,6 @@ def verify_property():
         return result
     return {"text": 'File not found'}, 400
 
-def draw_graph(source, target=None):
-    try:
-        graph = pydot.graph_from_dot_data(source)[0]
-    except:
-        return False
-    if(len(graph.get_edges()) <= 300):
-        svg = graph.create_svg()
-        if target:
-            with open(os.path.join('src','static', target)+'.svg','wb') as out:
-                out.write(svg)
-                return True
-        else:
-            with open(session['graph'],'wb') as out:
-                out.write(svg)
-                return True
-    return False
-
 @app.route('/graph', methods=['POST'])
 def get_graph():
     if check_session(): 
@@ -435,31 +419,3 @@ def start_deleter():
     thread = Process(target=deleter)
     pm.add_process('deleter', thread)
     pm.start_process('deleter')
-
-def get_graph_number(graph_source):
-    node = list()
-    try:
-        graph = pydot.graph_from_dot_file(graph_source)[0]
-    except:
-        return 0, 0
-
-    for edge in graph.get_edges():
-        if edge.get_source() not in node:
-            node.append(edge.get_source())
-        if edge.get_destination() not in node:
-            node.append(edge.get_destination())
-    return len(graph.get_edges()), len(node)
-
-def get_string_graph_number(graph_source):
-    node = list()
-    try:
-        graph = pydot.graph_from_dot_data(graph_source)[0]
-    except:
-        return 0, 0
-
-    for edge in graph.get_edges():
-        if edge.get_source() not in node:
-            node.append(edge.get_source())
-        if edge.get_destination() not in node:
-            node.append(edge.get_destination())
-    return len(graph.get_edges()), len(node)
