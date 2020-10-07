@@ -344,26 +344,54 @@ function create_summary(target, data)
 
 function verify_property()
 {
-    
-    var prop = $("#property_text_area").val();
     if($("#fts")[0].files[0]) {
+        var prop = $("#property_text_area").val();
+        request = {url: 'verify_property', data: {name: $("#fts")[0].files[0].name, property: prop},
+            type: 'POST'};
+        request['success'] = function(response){
+            /*event.data.success(event.data.show, response);
+            $("#mts").text("View modal transition system");
+            $("#tmp-source").attr('name', 'MTS');
+            if(response['graph']) {
+                $("#source").text(response['graph']);
+                $("#tmp-source").val(response['mts']);
+            }
+            $("#message").text("");*/
+            $("#console").text(response['text'])
+        };
+        request['beforeSend'] = function(response) {
+            show_console();
+            $("#console").text("Processing data...");
+        };
+        request['error'] = function(response) {
+            if(response.responseJSON) {
+                $("#console").text(response.responseJSON['text']);
+            }
+            $("#message").text("");
+        };
+        $.ajax(request);
+    } else {
+        $("#console").text("Invalid file");
+    }
+    //========================================
+    /*if($("#fts")[0].files[0]) {
         $.ajax({
             url: '/verify_property',
             data: {name: $("#fts")[0].files[0].name, property: prop},
             type: 'POST',
             success: function(response){
-                $("main > textarea").text(response['text']);
+                $("console").text(response['text']);
                 //event.data.success(event.data.show, response);
             },
             beforeSend: function(response) {
-                $("main > textarea").text("Processing data...");
+                $("console").text("Verifying property...");
             },
             error: function(response) {
-                $("main > textarea").text(response['text']);
+                $("console").text(response['text']);
             }
         });
     } else {
-        $("main > textarea").text("Invalid file");
-    }
+        $("console").text("Invalid file");
+    }*/
 }
 

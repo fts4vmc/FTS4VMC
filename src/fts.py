@@ -366,7 +366,8 @@ def verify_property():
         return {"text":"Hidden deadlocks detected. It is necessary to remove them before checking the property"}, 400
 
     fname = secure_filename(request.form['name'])
-    fpath = os.path.join(app.config['UPLOAD_FOLDER'], fname)
+    #fpath = os.path.join(app.config['UPLOAD_FOLDER'], fname)
+    fpath = session['model']
 
     actl_property = request.form['property']
     if (len(actl_property) == 0):
@@ -393,7 +394,8 @@ def verify_property():
         prop_file.close()
         result = subprocess.check_output(PATH_TO_VMC + ' ' + session_tmp_model + ' '+ session_tmp_properties, shell=True)
         shutil.rmtree(session_tmp_folder)
-        return result
+        print(str(result))
+        return {"text": result.decode("utf-8")}, 200
     return {"text": 'File not found'}, 400
 
 @app.route('/graph', methods=['POST'])
