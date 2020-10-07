@@ -9,18 +9,19 @@ $(function(){
     $("main").on("click", "#source_tab", show_source);
     $("aside").on("change", "#fts", alter_title);
     $("aside").on("click", "#load", upload_file);
+    $("aside").on("click", "#mts", load_mts);
     $("aside").on("click", "#full", 
         {url: '/full_analysis', success:timed_update_textarea, 
             show:[
                 $("#disambiguate"), $("#fopt"), $("#hdd"), 
                 $("#full"), $("#hdead"), $("#delete"), $("#stop"),
-                $("#fts"), $("#verify_properties")
+                $("#fts"), $("#verify_properties"), $("#mts")
             ]
         }, command);
 
     $("aside").on("click", "#hdead", 
         {url: '/hdead_analysis', success:timed_update_textarea, 
-            show:[$("#full"), $("#hdead"), $("#delete"),
+            show:[$("#full"), $("#hdead"), $("#delete"), $("#mts"),
               $("#stop"), $("#load"), $("#fts"), $("verify_properties")] 
         }, command);
 
@@ -30,7 +31,7 @@ $(function(){
     $("aside").on("click", "#stop", 
         {url: '/stop', success:update_textarea, 
             show:[
-              $("#full"), $("#hdead"), 
+              $("#full"), $("#hdead"), $("#mts"),
               $("#delete"), $("#load"), $("#fts")
             ]
         }, command);
@@ -43,6 +44,31 @@ $(function(){
     $("aside").on("click", "#verify_properties", verify_property);
     keep_alive();
 }); 
+
+function load_mts()
+{
+  tmp = $("#tmp-source").val();
+  $("#tmp-source").val($("#source").text())
+  $("#source").text(tmp);
+  if($("#tmp-source").attr('name') == "MTS") {
+    $("#mts").text("View featured transition system");
+    $("#tmp-source").attr('name', 'FTS')
+  } else {
+    $("#mts").text("View modal transition system");
+    $("#tmp-source").attr('name', 'MTS')
+  }
+  request = {url:'/reload_graph', type:'POST'};
+  request['success'] = load_graph;
+  request['data'] = {'src': tmp};
+  request['error'] = function(resp)
+  {
+      if(resp.responseJSON) {
+          $("#image-div > p").text(resp.responseJSON['text']).show();
+      }
+      $("#image").attr('src', '');
+  };
+  $.ajax(request);
+}
 
 function show_console()
 {
@@ -92,7 +118,7 @@ function load_graph(response)
 {
     $("#image").attr('src', '');
     $("#image").attr('src', response['source']+"?random="+new Date().getTime());
-    $("#message").text('').hide();
+    $("#image-div > p").text('').hide();
 }
 
 function show_graph()
@@ -101,7 +127,7 @@ function show_graph()
     request['success'] = load_graph;
     request['error'] = function(response)
     {
-        $("#message").text(response.responseJSON['text']).show().fadeOut(1000);
+        $("#image-div > p").text(response.responseJSON['text']).show();
         $("#image").attr('src', '');
     };
     $.ajax(request);
@@ -163,9 +189,11 @@ function upload_file(event)
             create_summary($("#summary"), response);
             $("#source").text(response['graph']);
             $("#tmp-source").val(response['mts']);
+            $("#tmp-source").attr('name', 'MTS');
             $("#full").prop("disabled", false);
             $("#hdead").prop("disabled", false);
             $("#delete").prop("disabled", false);
+            $("#mts").prop("disabled", false);
             $("#verify_properties").prop("disabled", true);
         };
         request['error'] = function(response) {
@@ -188,6 +216,8 @@ function command(event)
             type: 'POST'};
         request['success'] = function(response){
             event.data.success(event.data.show, response);
+            $("#mts").text("View modal transition system");
+            $("#tmp-source").attr('name', 'MTS');
             if(response['graph']) {
                 $("#source").text(response['graph']);
                 $("#tmp-source").val(response['mts']);
@@ -244,6 +274,8 @@ function process_update(show, wait)
         $("#console").append(resp['text']);
         $("#source").text(resp['graph']);
         $("#tmp-source").val(resp['mts']);
+        $("#mts").text("View modal transition system");
+        $("#tmp-source").attr('name', 'MTS');
         create_summary($("#summary"), resp)
         $("#message").text("");
         show_command(show);
@@ -251,7 +283,7 @@ function process_update(show, wait)
         req['success'] = load_graph;
         req['error'] = function(resp)
         {
-          $("#message").text(resp.responseJSON['text']).show().fadeOut(1000);
+          $("#image-div > p").text(resp.responseJSON['text']).show();
           $("#image").attr('src', '');
         };
         $.ajax(req);
