@@ -49,16 +49,16 @@ function show_console()
     $("#image").hide();
     $("#legend").hide();
     $("#summary").hide();
-    $("#source").hide();
-    $("#console").show();
+    $(".source").hide();
+    $(".console").show();
 }
 
 function show_summary()
 {
     $("#image").hide();
     $("#legend").hide();
-    $("#console").hide();
-    $("#source").hide();
+    $(".console").hide();
+    $(".source").hide();
     $("#summary").show();
 }
 
@@ -66,9 +66,9 @@ function show_source()
 {
     $("#image").hide();
     $("#legend").hide();
-    $("#console").hide();
+    $(".console").hide();
     $("#summary").hide();
-    $("#source").show();
+    $(".source").show();
 }
 
 function update_textarea_graph(show, response)
@@ -105,9 +105,9 @@ function show_graph()
         $("#image").attr('src', '');
     };
     $.ajax(request);
-    $("#console").hide();
+    $(".console").hide();
     $("#summary").hide();
-    $("#source").hide();
+    $(".source").hide();
     $("#legend").show();
     $("#image").show();
 }
@@ -162,6 +162,7 @@ function upload_file(event)
             $("#console").text(response['text']);
             create_summary($("#summary"), response);
             $("#source").text(response['graph']);
+            $("#tmp-source").val(response['mts']);
             $("#full").prop("disabled", false);
             $("#hdead").prop("disabled", false);
             $("#delete").prop("disabled", false);
@@ -187,8 +188,10 @@ function command(event)
             type: 'POST'};
         request['success'] = function(response){
             event.data.success(event.data.show, response);
-            if(response['graph'])
+            if(response['graph']) {
                 $("#source").text(response['graph']);
+                $("#tmp-source").val(response['mts']);
+            }
             $("#message").text("");
         };
         request['beforeSend'] = function(response) {
@@ -240,6 +243,7 @@ function process_update(show, wait)
     statusCode['200'] = function(resp) {
         $("#console").append(resp['text']);
         $("#source").text(resp['graph']);
+        $("#tmp-source").val(resp['mts']);
         create_summary($("#summary"), resp)
         $("#message").text("");
         show_command(show);
