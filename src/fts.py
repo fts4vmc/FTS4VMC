@@ -377,8 +377,8 @@ def verify_property():
         session_tmp_folder = str(session['id']) + '_tmp'
         os.mkdir(session_tmp_folder)
 
-        session_tmp_model = session_tmp_folder + '/model.txt'
-        session_tmp_properties = session_tmp_folder + '/properties.txt'
+        session_tmp_model = os.path.join(session_tmp_folder, 'model.txt')
+        session_tmp_properties = os.path.join(session_tmp_folder, 'properties.txt')
 
         vmc_file = open(session_tmp_model,"w+")
         vmc_file.write(vmc_string)
