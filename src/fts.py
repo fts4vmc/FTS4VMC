@@ -403,6 +403,14 @@ def get_graph():
             return {"source":os.path.join('static', os.path.basename(session['graph']))}, 200
     return {"text":"No graph data available"}, 400
 
+@app.route('/reload_graph', methods=['POST'])
+def reload_graph():
+    graphviz.Graph(request.form['src']).draw_graph(session['graph'])
+    if check_session(): 
+        if os.path.isfile(session['graph']):
+            return {"source":os.path.join('static', os.path.basename(session['graph']))}, 200
+    return {"text":"No graph data available"}, 400
+
 def delete_old_file(fmt, timeout, path):
     for f in os.listdir(path):
         f = os.path.join(path, f)
