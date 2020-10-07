@@ -19,6 +19,9 @@
             <button class="command" id="delete" type="button" disabled>
               Delete model and close
             </button>
+            <button class="command" id="download" type="button" disabled>
+              Download result
+            </button>
             <!-- Analisys handling -->
             <hr>
             <button class="command" id="mts" type="button" disabled>
@@ -61,17 +64,18 @@
                 <button type="button" id="graph_tab">Graph</button>
                 <button type="button" id="summary_tab">Summary</button>
                 <button type="button" id="message"></button>
+                <a id="downloader"href="" download="" style="display: none">Download</a>
             </div>
-            <div class="console">
+            <div class="console" name="console">
               <textarea id="console" class="console" readonly></textarea>
             </div>
-            <div id="image-div">
+            <div id="image-div" name="image">
               <p></p>
               <img id="image" />
             </div>
-            <div id="summary">
+            <div id="summary" name="summary">
             </div>
-            <div class="source">
+            <div class="source" "source">
               <textarea id="source" class="source" readonly></textarea>
               <input type="hidden" id="tmp-source" name="MTS">
             </div>
