@@ -23,24 +23,14 @@ class Graph():
                     return True
         return False
 
-    def __draw_graph(self, graph, target):
-        if(len(graph.get_edges()) <= 300):
-            svg = graph.create_svg()
-            if target:
-                with open(target,'wb') as out:
-                    out.write(svg)
-                    return True
-        return False
-
     def draw_mts(self, target=None):
-        tmp = pydot.graph_from_dot_data(self.__graph.to_string())[0]
-        for edge in tmp.get_edges():
+        mts = pydot.graph_from_dot_data(self.__graph.to_string())[0]
+        for edge in mts.get_edges():
             attr = edge.obj_dict['attributes']
             if (attr['label'][1:-1].split('|')[-1].strip() != 'True'):
                 attr['style'] = "dashed"
             attr['label'] = attr['label'][1:-1].split('|')[0] 
-            self.__draw_graph(tmp, target)
-        return tmp.to_string()
+        return mts.to_string()
 
     def get_graph_number(self):
         node = list()
