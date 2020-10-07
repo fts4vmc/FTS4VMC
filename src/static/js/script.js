@@ -22,7 +22,7 @@ $(function(){
     $("aside").on("click", "#hdead", 
         {url: '/hdead_analysis', success:timed_update_textarea, 
             show:[$("#full"), $("#hdead"), $("#delete"), $("#mts"),
-              $("#stop"), $("#load"), $("#fts"), $("verify_properties")] 
+              $("#stop"), $("#load"), $("#fts"), $("#verify_properties")] 
         }, command);
 
     $("aside").on("click", "#delete", 
