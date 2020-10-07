@@ -10,19 +10,20 @@ $(function(){
     $("aside").on("change", "#fts", alter_title);
     $("aside").on("click", "#load", upload_file);
     $("aside").on("click", "#mts", load_mts);
+    $("aside").on("click", "#download", download);
     $("aside").on("click", "#full", 
         {url: '/full_analysis', success:timed_update_textarea, 
             show:[
                 $("#disambiguate"), $("#fopt"), $("#hdd"), 
                 $("#full"), $("#hdead"), $("#delete"), $("#stop"),
-                $("#fts"), $("#verify_properties"), $("#mts")
+                $("#fts"), $("#verify_properties"), $("#mts"), $("#download")
             ]
         }, command);
 
     $("aside").on("click", "#hdead", 
         {url: '/hdead_analysis', success:timed_update_textarea, 
             show:[$("#full"), $("#hdead"), $("#delete"), $("#mts"),
-              $("#stop"), $("#load"), $("#fts"), $("#verify_properties")] 
+              $("#stop"), $("#download"), $("#fts"), $("#verify_properties")] 
         }, command);
 
     $("aside").on("click", "#delete", 
@@ -32,7 +33,7 @@ $(function(){
         {url: '/stop', success:update_textarea, 
             show:[
               $("#full"), $("#hdead"), $("#mts"),
-              $("#delete"), $("#load"), $("#fts")
+              $("#delete"), $("#fts"), $("#download")
             ]
         }, command);
     $("aside").on("click", "#disambiguate", 
@@ -194,6 +195,7 @@ function upload_file(event)
             $("#hdead").prop("disabled", false);
             $("#delete").prop("disabled", false);
             $("#mts").prop("disabled", false);
+            $("#download").prop("disabled", false);
             $("#verify_properties").prop("disabled", true);
         };
         request['error'] = function(response) {
@@ -367,3 +369,30 @@ function verify_property()
     }
 }
 
+function download()
+{
+  request = {url:'/download', type:'POST'};
+  request['success'] = function(response) {
+    $("a").attr('href', response['source']);
+    $("a").attr('download', response['name']);
+    document.getElementById('downloader').click();
+  }
+  request['data'] = {};
+  if($("#console:visible").length){
+    request['data']['target'] = 'console';
+    request['data']['main'] = $("#console").text();
+  }
+  if($("#source:visible").length){
+    request['data']['target'] = 'source';
+    request['data']['main'] = $("#source").text();
+  }
+  if($("#image:visible").length){
+    request['data']['target'] = 'graph';
+    request['data']['main'] = $("#image").attr('src');
+  }
+  if($("#summary:visible").length){
+    request['data']['target'] = 'summary';
+    request['data']['main'] = $("#summary").html();
+  }
+  $.ajax(request);
+}

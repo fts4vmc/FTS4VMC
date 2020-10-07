@@ -12,7 +12,7 @@ from multiprocessing import Process, Queue
 from src.internals.disambiguator import Disambiguator
 from src.internals.analyser import z3_analyse_hdead, z3_analyse_full, load_dot
 from src.internals.process_manager import ProcessManager
-from flask import session, send_from_directory
+from flask import session, send_from_directory, Response, send_file
 from flask import Flask, flash, request, redirect, url_for, render_template
 from werkzeug.utils import secure_filename
 
@@ -432,3 +432,27 @@ def start_deleter():
     thread = Process(target=deleter)
     pm.add_process('deleter', thread)
     pm.start_process('deleter')
+
+@app.route('/download', methods=['POST'])
+def download():
+    if(request.form['target'] == 'source'): 
+        payload = request.form['main']
+        mimetype = 'text/plain'
+        format = "model.dot"
+    elif(request.form['target'] == 'summary'): 
+        payload = request.form['main']
+        mimetype = 'text/html'
+        format = "summary.html"
+    elif(request.form['target'] == 'graph'): 
+        mime = 'image/svg+xml'
+        format = "graph.svg"
+        return {"source":os.path.join('static', os.path.basename(
+            session['graph'])), 'name':format}, 200
+    elif(request.form['target'] == 'console'): 
+        payload = request.form['main']
+        mimetype = 'text/plain'
+        format="log.txt"
+    with open(session['output']+format, 'w') as tmp:
+        tmp.write(payload)
+        return {"source":os.path.join('tmp', os.path.basename(
+            session['output']+format)), 'name':format}, 200
