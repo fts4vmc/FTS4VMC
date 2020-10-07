@@ -18,9 +18,13 @@ aside > * {
     background-color: seashell;
 }
 
-main > textarea {
+div.console, div.source{
+  height: 80%;
+}
+
+main textarea {
     width: 90%;
-    height: 80%;
+    height: 100%;
     background-color: black;
     color: white;
     border-radius: 5px;
