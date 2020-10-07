@@ -6,7 +6,7 @@ import sys
 import pydot
 import traceback
 
-import src.analyser as analyser
+import src.internals.analyser as analyser
 #From analyser we use:
 #   function load_dot(path)
 

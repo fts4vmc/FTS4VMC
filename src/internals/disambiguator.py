@@ -1,5 +1,5 @@
 import pydot
-from src.analyser import c_translator, Transition, State
+from src.internals.analyser import c_translator, Transition, State
 
 class Disambiguator(object):
     """

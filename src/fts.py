@@ -9,9 +9,9 @@ import pathlib
 import time
 import src.internals.graph as graphviz
 from multiprocessing import Process, Queue
-from src.disambiguator import Disambiguator
-from src.analyser import z3_analyse_hdead, z3_analyse_full, load_dot
-from src.process_manager import ProcessManager
+from src.internals.disambiguator import Disambiguator
+from src.internals.analyser import z3_analyse_hdead, z3_analyse_full, load_dot
+from src.internals.process_manager import ProcessManager
 from flask import session, send_from_directory
 from flask import Flask, flash, request, redirect, url_for, render_template
 from werkzeug.utils import secure_filename
