@@ -423,15 +423,25 @@ def delete_old_file(fmt, timeout, path):
 
 def deleter():
     while True:
-        time.sleep(900)
-        delete_old_file('svg', 900, os.path.join('src', 'static'))
-        delete_old_file('dot', 900, os.path.join('uploads'))
+        timeout = 900
+        time.sleep(timeout)
+        delete_old_file('svg', timeout, os.path.join('src', 'static'))
+        delete_old_file('dot', timeout, os.path.join('uploads'))
+        delete_old_file('txt', timeout, os.path.join('tmp'))
+        delete_old_file('html', timeout, os.path.join('tmp'))
+        delete_old_file('dot', timeout, os.path.join('tmp'))
 
 def start_deleter():
     pm = ProcessManager.get_instance()
     thread = Process(target=deleter)
     pm.add_process('deleter', thread)
     pm.start_process('deleter')
+
+app.before_first_request(start_deleter)
+
+def stop_deleter(a):
+    pm = ProcessManager.get_instance()
+    pm.end_process('deleter')
 
 @app.route('/download', methods=['POST'])
 def download():
