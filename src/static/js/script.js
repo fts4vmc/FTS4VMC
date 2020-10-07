@@ -72,7 +72,7 @@ function load_mts()
 
 function show_console()
 {
-    $("#image").hide();
+    $("#image-div *").hide();
     $("#legend").hide();
     $("#summary").hide();
     $(".source").hide();
@@ -81,7 +81,7 @@ function show_console()
 
 function show_summary()
 {
-    $("#image").hide();
+    $("#image-div *").hide();
     $("#legend").hide();
     $(".console").hide();
     $(".source").hide();
@@ -90,7 +90,7 @@ function show_summary()
 
 function show_source()
 {
-    $("#image").hide();
+    $("#image-div *").hide();
     $("#legend").hide();
     $(".console").hide();
     $("#summary").hide();
@@ -107,7 +107,7 @@ function update_textarea_graph(show, response)
     request['error'] = function(resp)
     {
         if(resp.responseJSON) {
-            $("#message").text(resp.responseJSON['text']).show().fadeOut(1000);
+            $("#image-div > p").text(resp.responseJSON['text']).show();
         }
         $("#image").attr('src', '');
     };
