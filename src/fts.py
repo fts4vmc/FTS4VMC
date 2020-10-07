@@ -153,8 +153,9 @@ def get_output():
                 queue = ProcessManager.get_instance().get_queue(session['id'])
                 payload = {}
                 payload['text'] = result
-                payload['edges'], payload['nodes'] = graphviz.Graph.from_file(
-                        session['model']).get_graph_number()
+                graph = graphviz.Graph.from_file(session['model'])
+                payload['edges'], payload['nodes'] = graph.get_graph_number()
+                payload['mts'] = graph.draw_mts()
                 if(queue):
                     tmp = queue.get()
                     session['ambiguities'] = tmp['ambiguities']
@@ -202,6 +203,7 @@ def upload_file():
                 with open(file_path, 'r') as source:
                     dot = source.read()
                 graph = graphviz.Graph(dot)
+                payload['mts'] = graph.draw_mts()
                 graph.draw_graph(session['graph'])
                 payload['graph'] = dot
                 payload['edges'], payload['nodes'] = graph.get_graph_number()
@@ -292,6 +294,7 @@ def disambiguate():
         dis.solve_hidden_deadlocks(session['ambiguities']['hidden'])
         pm.delete_queue(session['id'])
         graph = graphviz.Graph(dis.get_graph())
+        payload['mts'] = graph.draw_mts()
         payload['text'] = "Removed ambiguities"
         payload['graph'] = graph.get_graph()
         payload['edges'], payload['nodes'] = graph.get_graph_number()
@@ -317,6 +320,7 @@ def solve_fopt():
         dis.set_true_list(session['ambiguities']['false'])
         pm.delete_queue(session['id'])
         graph = graphviz.Graph(dis.get_graph())
+        payload['mts'] = graph.draw_mts()
         payload['text'] = "Removed false optional transitions"
         payload['graph'] = graph.get_graph()
         payload['edges'], payload['nodes'] = graph.get_graph_number()
@@ -343,6 +347,7 @@ def solve_hdd():
         dis.solve_hidden_deadlocks(session['ambiguities']['hidden'])
         pm.delete_queue(session['id'])
         graph = graphviz.Graph(dis.get_graph())
+        payload['mts'] = graph.draw_mts()
         payload['text'] = "Removed hidden deadlocks and dead transitions"
         payload['graph'] = graph.get_graph()
         payload['edges'], payload['nodes'] = graph.get_graph_number()
