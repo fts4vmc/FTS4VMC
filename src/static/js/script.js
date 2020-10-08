@@ -15,7 +15,7 @@ $(function(){
             show:[
                 $("#disambiguate"), $("#fopt"), $("#hdd"), 
                 $("#full"), $("#hdead"), $("#delete"), $("#stop"),
-                $("#fts"), $("#verify_properties"), $("#mts")
+                $("#fts"), $("#mts")
             ]
         }, command);
 
@@ -40,7 +40,10 @@ $(function(){
     $("aside").on("click", "#fopt", 
         {url: '/remove_false_opt', success:update_textarea_graph}, command);
     $("aside").on("click", "#hdd", 
-        {url: '/remove_dead_hidden', success:update_textarea_graph}, command);
+        {url: '/remove_dead_hidden', success:update_textarea_graph, show:[
+                $("#disambiguate"), $("#fopt"), $("#hdd"), 
+                $("#full"), $("#hdead"), $("#delete"), $("#stop"),
+                $("#fts"), $("#verify_properties"), $("#mts"), $("#property_text_area")]}, command);
     $("aside").on("click", "#verify_properties", verify_property);
     $("aside").on("click", "#show_explanation", show_explanation);
     keep_alive();
