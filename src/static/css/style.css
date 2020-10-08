@@ -87,7 +87,7 @@ img {
   display: none;
 }
 
-#source, #summary, #legend {
+.summary, .source, #summary, #legend {
   display: none;
 }
 
