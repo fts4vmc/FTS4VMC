@@ -41,8 +41,12 @@ $(function(){
     $("aside").on("click", "#fopt", 
         {url: '/remove_false_opt', success:update_textarea_graph}, command);
     $("aside").on("click", "#hdd", 
-        {url: '/remove_dead_hidden', success:update_textarea_graph}, command);
+        {url: '/remove_dead_hidden', success:update_textarea_graph, show:[
+                $("#disambiguate"), $("#fopt"), $("#hdd"), 
+                $("#full"), $("#hdead"), $("#delete"), $("#stop"),
+                $("#fts"), $("#verify_properties"), $("#mts"), $("#property_text_area")]}, command);
     $("aside").on("click", "#verify_properties", verify_property);
+    $("aside").on("click", "#show_explanation", show_explanation);
     keep_alive();
 }); 
 
@@ -195,7 +199,7 @@ function upload_file(event)
             $("#hdead").prop("disabled", false);
             $("#delete").prop("disabled", false);
             $("#mts").prop("disabled", false);
-            $("#download").prop("disabled", false);
+            //$("#download").prop("disabled", false);
             $("#verify_properties").prop("disabled", true);
         };
         request['error'] = function(response) {
@@ -346,26 +350,24 @@ function create_summary(target, data)
 
 function verify_property()
 {
-    
-    var prop = $("#property_text_area").val();
     if($("#fts")[0].files[0]) {
-        $.ajax({
-            url: '/verify_property',
-            data: {name: $("#fts")[0].files[0].name, property: prop},
-            type: 'POST',
-            success: function(response){
-                $("main > textarea").text(response['text']);
-                //event.data.success(event.data.show, response);
-            },
-            beforeSend: function(response) {
-                $("main > textarea").text("Processing data...");
-            },
-            error: function(response) {
-                $("main > textarea").text(response['text']);
-            }
-        });
+        var prop = $("#property_text_area").val();
+        request = {url: 'verify_property', data: {name: $("#fts")[0].files[0].name, property: prop},
+            type: 'POST'};
+        request['success'] = function(response){
+            $("#show_explanation").prop("disabled", false);
+            $("#console").text(response['text']);
+        };
+        request['beforeSend'] = function(response) {
+            show_console();
+            $("#console").text("Processing data...");
+        };
+        request['error'] = function(response) {
+            $("#console").text(response['text']);
+        };
+        $.ajax(request);
     } else {
-        $("main > textarea").text("Invalid file");
+        $("#console").text("Invalid file");
     }
 }
 
@@ -395,4 +397,18 @@ function download()
     request['data']['main'] = $("#summary").html();
   }
   $.ajax(request);
+}
+
+function show_explanation()
+{
+    $("#console").text('debug');
+    request = {url: 'explanation', data:{msg: 'show_exp'} ,type: 'POST'};
+    
+    request['success'] = function(response){
+        $("#console").text(response['text']);
+    };
+    request['error'] = function(response) {
+        $("#console").text(response['text']);
+    }
+    $.ajax(request);
 }

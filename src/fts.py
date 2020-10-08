@@ -17,10 +17,12 @@ from flask import Flask, flash, request, redirect, url_for, render_template
 from werkzeug.utils import secure_filename
 
 from src.translator import Translator
+from src.vmc_controller import VmcController
 
 UPLOAD_FOLDER = os.path.relpath("uploads")
 ALLOWED_EXTENSIONS = {'dot'}
-PATH_TO_VMC = './vmc.linux-executable'
+PATH_TO_VMC = './vmc65-linux'
+vmc = None #It will host VmcController
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -366,7 +368,8 @@ def verify_property():
         return {"text":"Hidden deadlocks detected. It is necessary to remove them before checking the property"}, 400
 
     fname = secure_filename(request.form['name'])
-    fpath = os.path.join(app.config['UPLOAD_FOLDER'], fname)
+    #fpath = os.path.join(app.config['UPLOAD_FOLDER'], fname)
+    fpath = session['model']
 
     actl_property = request.form['property']
     if (len(actl_property) == 0):
@@ -391,10 +394,24 @@ def verify_property():
         prop_file = open(session_tmp_properties,"w+")
         prop_file.write(actl_property)
         prop_file.close()
-        result = subprocess.check_output(PATH_TO_VMC + ' ' + session_tmp_model + ' '+ session_tmp_properties, shell=True)
+
+        global vmc
+        vmc = VmcController(PATH_TO_VMC)
+        vmc.run_vmc(session_tmp_model,session_tmp_properties)
+        result = vmc.get_output()
+        #result = subprocess.check_output(PATH_TO_VMC + ' ' + session_tmp_model + ' '+ session_tmp_properties + ' +z', shell=True)
         shutil.rmtree(session_tmp_folder)
-        return result
+        return {"text": result}, 200
     return {"text": 'File not found'}, 400
+
+@app.route('/explanation', methods=['POST'])
+def show_explanation():
+    global vmc
+    if check_session():
+        if vmc == None:
+            return {"text": 'No translation has been performed'}, 400
+        return {"text": vmc.get_explanation()}, 200
+    return {"text": 'No translation has been performed'}, 400
 
 @app.route('/graph', methods=['POST'])
 def get_graph():
