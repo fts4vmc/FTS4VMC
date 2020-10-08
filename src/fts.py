@@ -394,16 +394,19 @@ def verify_property():
         prop_file = open(session_tmp_properties,"w+")
         prop_file.write(actl_property)
         prop_file.close()
+
+        global vmc
         vmc = VmcController(PATH_TO_VMC)
         vmc.run_vmc(session_tmp_model,session_tmp_properties)
         result = vmc.get_output()
         #result = subprocess.check_output(PATH_TO_VMC + ' ' + session_tmp_model + ' '+ session_tmp_properties + ' +z', shell=True)
         shutil.rmtree(session_tmp_folder)
-        return {"text": result.decode("utf-8")}, 200
+        return {"text": result}, 200
     return {"text": 'File not found'}, 400
 
-@app.route('/explanation', methods['POST']):
+@app.route('/explanation', methods=['POST'])
 def show_explanation():
+    global vmc
     if check_session():
         if vmc == None:
             return {"text": 'No translation has been performed'}, 400

@@ -27,11 +27,11 @@ class VmcController:
         self.explanation = '-------------------------------------------\nThe formula:\n' + self.explanation 
 
     def get_output(self):
-        if(self.output = ''):
+        if(self.output == ''):
             return 'Nothing to show.'
         return self.output
 
     def get_explanation(self):
-        if(self.explanation = ''):
+        if(self.explanation == ''):
             return 'Nothing to show.'
-        return self.output
+        return self.explanation

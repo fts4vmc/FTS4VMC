@@ -42,6 +42,7 @@ $(function(){
     $("aside").on("click", "#hdd", 
         {url: '/remove_dead_hidden', success:update_textarea_graph}, command);
     $("aside").on("click", "#verify_properties", verify_property);
+    $("aside").on("click", "#show_explanation", show_explanation);
     keep_alive();
 }); 
 
@@ -349,49 +350,32 @@ function verify_property()
         request = {url: 'verify_property', data: {name: $("#fts")[0].files[0].name, property: prop},
             type: 'POST'};
         request['success'] = function(response){
-            /*event.data.success(event.data.show, response);
-            $("#mts").text("View modal transition system");
-            $("#tmp-source").attr('name', 'MTS');
-            if(response['graph']) {
-                $("#source").text(response['graph']);
-                $("#tmp-source").val(response['mts']);
-            }
-            $("#message").text("");*/
-            $("#console").text(response['text'])
+            $("#show_explanation").prop("disabled", false);
+            $("#console").text(response['text']);
         };
         request['beforeSend'] = function(response) {
             show_console();
             $("#console").text("Processing data...");
         };
         request['error'] = function(response) {
-            if(response.responseJSON) {
-                $("#console").text(response.responseJSON['text']);
-            }
-            $("#message").text("");
+            $("#console").text(response['text']);
         };
         $.ajax(request);
     } else {
         $("#console").text("Invalid file");
     }
-    //========================================
-    /*if($("#fts")[0].files[0]) {
-        $.ajax({
-            url: '/verify_property',
-            data: {name: $("#fts")[0].files[0].name, property: prop},
-            type: 'POST',
-            success: function(response){
-                $("console").text(response['text']);
-                //event.data.success(event.data.show, response);
-            },
-            beforeSend: function(response) {
-                $("console").text("Verifying property...");
-            },
-            error: function(response) {
-                $("console").text(response['text']);
-            }
-        });
-    } else {
-        $("console").text("Invalid file");
-    }*/
 }
 
+function show_explanation()
+{
+    $("#console").text('debug');
+    request = {url: 'explanation', data:{msg: 'show_exp'} ,type: 'POST'};
+    
+    request['success'] = function(response){
+        $("#console").text(response['text']);
+    };
+    request['error'] = function(response) {
+        $("#console").text(response['text']);
+    }
+    $.ajax(request);
+}
