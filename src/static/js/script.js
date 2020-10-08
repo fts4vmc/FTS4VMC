@@ -199,7 +199,7 @@ function upload_file(event)
             $("#hdead").prop("disabled", false);
             $("#delete").prop("disabled", false);
             $("#mts").prop("disabled", false);
-            //$("#download").prop("disabled", false);
+            $("#download").prop("disabled", false);
             $("#verify_properties").prop("disabled", true);
         };
         request['error'] = function(response) {
