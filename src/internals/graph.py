@@ -25,6 +25,8 @@ class Graph():
 
     def draw_mts(self, target=None):
         mts = pydot.graph_from_dot_data(self.__graph.to_string())[0]
+        if mts.get_node('FeatureModel'):
+            mts.del_node('FeatureModel')
         for edge in mts.get_edges():
             attr = edge.obj_dict['attributes']
             if (attr['label'][1:-1].split('|')[-1].strip() != 'True'):
