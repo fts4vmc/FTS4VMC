@@ -398,18 +398,24 @@ def verify_property():
 
 @app.route('/graph', methods=['POST'])
 def get_graph():
+    message = """No graph data available, the graph may be too big render.
+        You can render it locally by downloading the graph source code and use
+        the following command: dot -Tsvg model.dot -o output.svg"""
     if check_session(): 
         if os.path.isfile(session['graph']):
             return {"source":os.path.join('static', os.path.basename(session['graph']))}, 200
-    return {"text":"No graph data available"}, 400
+    return {"text":message}, 400
 
 @app.route('/reload_graph', methods=['POST'])
 def reload_graph():
+    message = """No graph data available, the graph may be too big render.
+        You can render it locally by downloading the graph source code and use
+        the following command: dot -Tsvg model.dot -o output.svg"""
     graphviz.Graph(request.form['src']).draw_graph(session['graph'])
     if check_session(): 
         if os.path.isfile(session['graph']):
             return {"source":os.path.join('static', os.path.basename(session['graph']))}, 200
-    return {"text":"No graph data available"}, 400
+    return {"text":message}, 400
 
 def delete_old_file(fmt, timeout, path):
     for f in os.listdir(path):
