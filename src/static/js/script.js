@@ -68,7 +68,7 @@ function load_mts()
   request['error'] = function(resp)
   {
       if(resp.responseJSON) {
-          $("#image-div > p").text(resp.responseJSON['text']).show();
+          $("#image-div > p").text(resp.responseJSON['text']);
       }
       $("#image").attr('src', '');
   };
@@ -112,7 +112,7 @@ function update_textarea_graph(show, response)
     request['error'] = function(resp)
     {
         if(resp.responseJSON) {
-            $("#image-div > p").text(resp.responseJSON['text']).show();
+            $("#image-div > p").text(resp.responseJSON['text']);
         }
         $("#image").attr('src', '');
     };
@@ -289,7 +289,7 @@ function process_update(show, wait)
         req['success'] = load_graph;
         req['error'] = function(resp)
         {
-          $("#image-div > p").text(resp.responseJSON['text']).show();
+          $("#image-div > p").text(resp.responseJSON['text']);
           $("#image").attr('src', '');
         };
         $.ajax(req);
@@ -378,6 +378,9 @@ function download()
     $("a").attr('href', response['source']);
     $("a").attr('download', response['name']);
     document.getElementById('downloader').click();
+  }
+  request['error'] = function(response) {
+    $("#message").text(response.responseJSON['text']).show().fadeOut(2000);
   }
   request['data'] = {};
   if($("#console:visible").length){
