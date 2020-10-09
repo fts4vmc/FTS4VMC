@@ -468,6 +468,12 @@ def stop_deleter(a):
 
 @app.route('/download', methods=['POST'])
 def download():
+    if not check_session():
+        return {'text':"Session timed-out"}, 400
+
+    payload = 'empty'
+    mimetype = ''
+    format = ''
     if(request.form['target'] == 'source'): 
         payload = request.form['main']
         mimetype = 'text/plain'
@@ -479,12 +485,18 @@ def download():
     elif(request.form['target'] == 'graph'): 
         mime = 'image/svg+xml'
         format = "graph.svg"
-        return {"source":os.path.join('static', os.path.basename(
-            session['graph'])), 'name':format}, 200
+        path = os.path.join('static', os.path.basename(session['graph']))
+        if os.path.isfile(path):
+            return {"source":path, 'name':format}, 200
+        else:
+            return {"text":"File not found"}, 404
     elif(request.form['target'] == 'console'): 
         payload = request.form['main']
         mimetype = 'text/plain'
         format="log.txt"
+    else:
+        return {"text":"Invalid request"}, 400
+
     with open(session['output']+format, 'w') as tmp:
         tmp.write(payload)
         return {"source":os.path.join('tmp', os.path.basename(
