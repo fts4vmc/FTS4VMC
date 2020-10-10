@@ -130,7 +130,12 @@ The full ambiguities analysis will search inside the provided FTS for three type
 + False optional transition
 + Hidden deadlocks
 
-This analysis may require quite a lot of time for bigger models so it's possible to abort it prematurely by clicking **Stop processing**.  
+This analysis may require quite a lot of time for bigger models so it's possible to abort it prematurely by clicking **Stop processing**.
+The output of this process is an updated version of the uploaded FTS with:  
++ dead transitions highlighted in **blue**
++ false optional transitions highlighted in **green**
++ hidden headlock highlighted in **red**
+
 By completing a full analysis the buttons for removal of ambiguities will be enabled.
 
 #### Liveness analysis ####
@@ -138,4 +143,8 @@ By completing a full analysis the buttons for removal of ambiguities will be ena
 If the user is only interested in knowing if the FTS is live, meaning that it doesn't contain hidden deadlock, this analysis can get the answer way more quickly than a full ambiguities analysis by skipping the detection of dead transitions and false optional transitions.  
 While faster than a full analysis it is also possible to stop a running liveness analysis clicking on **Stop processing**.
 
+### Ambiguities removal ###
 
+### Modal transition system ###
+
+### VMC ###
