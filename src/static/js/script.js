@@ -16,14 +16,16 @@ $(function(){
             show:[
                 $("#disambiguate"), $("#fopt"), $("#hdd"), 
                 $("#full"), $("#hdead"), $("#delete"), $("#stop"),
-                $("#fts"), $("#verify_properties"), $("#mts"), $("#download")
+                $("#fts"), $("#verify_properties"), $("#mts"), $("#download"),
+                $("#property_text_area")
             ]
         }, command);
 
     $("aside").on("click", "#hdead", 
         {url: '/hdead_analysis', success:timed_update_textarea, 
             show:[$("#full"), $("#hdead"), $("#delete"), $("#mts"),
-              $("#stop"), $("#download"), $("#fts"), $("#verify_properties")] 
+                $("#stop"), $("#download"), $("#fts"), $("#verify_properties"),
+                $("#property_text_area")]
         }, command);
 
     $("aside").on("click", "#delete", 
@@ -363,7 +365,7 @@ function verify_property()
             $("#console").text("Processing data...");
         };
         request['error'] = function(response) {
-            $("#console").text(response['text']);
+            $("#console").text(response.responseJSON['text']);
         };
         $.ajax(request);
     } else {
@@ -411,7 +413,7 @@ function show_explanation()
         $("#console").text(response['text']);
     };
     request['error'] = function(response) {
-        $("#console").text(response['text']);
+        $("#console").text(response.responseJSON['text']);
     }
     $.ajax(request);
 }
