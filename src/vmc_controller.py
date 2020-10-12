@@ -23,8 +23,12 @@ class VmcController:
         if(not os.path.isfile(properties)):
             raise ValueError('Invalid properties file')
         self.output = subprocess.check_output(self.vmc_path + ' ' + model + ' ' + properties + ' +z', shell=True)
-        self.output, self.explanation = self.output.decode("utf-8").split(separator,1) 
-        self.explanation = '-------------------------------------------\nThe formula:\n' + self.explanation 
+        decoded = self.output.decode("utf-8")
+        if separator in decoded:
+            self.output, self.explanation = decoded.split(separator,1) 
+            self.explanation = separator +'\n' + self.explanation 
+        else:
+            self.output = decoded
 
     def get_output(self):
         if(self.output == ''):
