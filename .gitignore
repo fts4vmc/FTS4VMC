@@ -1,4 +1,4 @@
 __pycache__
 uploads
 venv
-src/static/*.jpg
+src/static/*.svg
