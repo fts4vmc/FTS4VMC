@@ -145,6 +145,29 @@ While faster than a full analysis it is also possible to stop a running liveness
 
 ### Ambiguities removal ###
 
+For ambiguities removal there are three possible options.  
+Every command of this section will updated the code inside the source tab and the image present in the graph tab.
+
+#### Remove false optional transitions #####
+
+This command will remove false optional transition by replacing the transition's feature expression with True converting it into a must transition.  
+This operation won't add or delete transition in the FTS.
+
+#### Remove dead transitions and hidden deadlocks ####
+
+This command alters the graph by deleting unreachable transitions if present, then it solves hidden deadlocks by adding an explicit deadlock state called DEAD and creating special transitions to this newly created state starting from every state marked as hidden deadlock with feature expression equivalent to the disjunction of every feature expression starting from a hidden deadlock state negated.  
+
+#### Remove all ambiguities #####
+
+This command combines the two types of ambiguities removal inside a single command.
+
 ### Modal transition system ###
 
+FTS can quickly be converted into MTS by replacing transition with feature expression True into MTS's must transition and every other transition into an admissible one.  
+By clicking on **View modal transition system** the user can quickly pass to an MTS view updating both the source code tab and the image inside the graph tab.
+
 ### VMC ###
+
+Once an analysis is fully completed and the FTS is found alive it is possible to verify properties expressed using the process algebra compatible with the Variable Model Checker.  
+Properties can be written inside the textarea under the **Verify properties** button.  
+After checking if a property is either True or False you can ask a counterexample the see why the formula is False by clicking on the **Show explanation button**.
