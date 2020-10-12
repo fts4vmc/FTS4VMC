@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import subprocess
+import atexit
 import shutil
 import string
 import random
@@ -382,8 +383,12 @@ def verify_property():
 
         vmc_string = t.get_output()
         
-        session_tmp_folder = str(session['id']) + '_tmp'
-        os.mkdir(session_tmp_folder)
+        session_tmp_folder = session['output'].split('-output')[0]
+        try:
+            os.mkdir(session_tmp_folder)
+        except FileExistsError:
+            #if the directory is already present continue
+            pass
 
         session_tmp_model = os.path.join(session_tmp_folder, 'model.txt')
         session_tmp_properties = os.path.join(session_tmp_folder, 'properties.txt')
@@ -396,10 +401,23 @@ def verify_property():
         prop_file.close()
 
         global vmc
-        vmc = VmcController(PATH_TO_VMC)
-        vmc.run_vmc(session_tmp_model,session_tmp_properties)
+        try:
+            vmc = VmcController(PATH_TO_VMC)
+            vmc.run_vmc(session_tmp_model,session_tmp_properties)
+        except ValueError as ve:
+            if str(ve) == 'Invalid vmc_path':
+                shutil.rmtree(session_tmp_folder)
+                return {"text": "Unable to locate VMC executable"}, 400
+            if str(ve) == 'Invalid model file':
+                shutil.rmtree(session_tmp_folder)
+                return {"text": 'Invalid model file'}, 400
+            if str(ve) == 'Invalid properties file':
+                shutil.rmtree(session_tmp_folder)
+                return {"text": 'Invalid properties file'}, 400
+        except:
+            shutil.rmtree(session_tmp_folder)
+            return {'text': 'An error occured'}, 400
         result = vmc.get_output()
-        #result = subprocess.check_output(PATH_TO_VMC + ' ' + session_tmp_model + ' '+ session_tmp_properties + ' +z', shell=True)
         shutil.rmtree(session_tmp_folder)
         return {"text": result}, 200
     return {"text": 'File not found'}, 400
@@ -462,9 +480,14 @@ def start_deleter():
 
 app.before_first_request(start_deleter)
 
-def stop_deleter(a):
+def stop_deleter():
     pm = ProcessManager.get_instance()
     pm.end_process('deleter')
+    delete_old_file('svg', 0, os.path.join('src', 'static'))
+    delete_old_file('dot', 0, os.path.join('uploads'))
+    delete_old_file('txt', 0, os.path.join('tmp'))
+    delete_old_file('html', 0, os.path.join('tmp'))
+    delete_old_file('dot', 0, os.path.join('tmp'))
 
 @app.route('/download', methods=['POST'])
 def download():
