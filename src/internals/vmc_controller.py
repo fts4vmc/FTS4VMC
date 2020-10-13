@@ -8,7 +8,6 @@ class VmcController:
     __slots__ = ['vmc_path','output','explanation','counterexample']
 
     def __init__(self,vmc_path):
-        print(vmc_path)
         if(not os.path.isfile(vmc_path)):
             raise ValueError('Invalid vmc_path')
         else:
@@ -16,6 +15,10 @@ class VmcController:
             self.output = ''
             self.explanation = ''
             self.counterexample = ''
+
+    def _is_true(self):
+        idx = self.output.find('is: TRUE')
+        return not (idx == -1)
 
     def run_vmc(self, model, properties):
         if(not os.path.isfile(model)):
@@ -27,6 +30,8 @@ class VmcController:
         if separator in decoded:
             self.output, self.explanation = decoded.split(separator,1) 
             self.explanation = separator +'\n' + self.explanation 
+            if(self._is_true()):
+                self.explanation = 'Nothing to show: the formula is TRUE'
         else:
             self.output = decoded
 
@@ -36,6 +41,8 @@ class VmcController:
         return self.output
 
     def get_explanation(self):
+        print('exp=')
+        print(self.explanation)
         if(self.explanation == ''):
             return 'Nothing to show.'
         return self.explanation
