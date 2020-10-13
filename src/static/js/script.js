@@ -34,13 +34,17 @@ $(function(){
               $("#full"), $("#hdead"), $("#mts"),
               $("#delete"), $("#fts"), $("#download")]}, command);
     $("aside").on("click", "#disambiguate", 
-        {url: '/remove_ambiguities', success:update_textarea_graph}, command);
+        {url: '/remove_ambiguities', name:'all', success:update_textarea_graph},
+        solve);
     $("aside").on("click", "#fopt", 
-        {url: '/remove_false_opt', success:update_textarea_graph}, command);
+        {url: '/remove_false_opt', name:'fopt', success:update_textarea_graph},
+        solve);
     $("aside").on("click", "#hdd", 
-        {url: '/remove_dead_hidden', success:update_textarea_graph}, command);
+        {url: '/remove_dead_hidden', name:'hdd', success:update_textarea_graph}, 
+        solve);
     $("aside").on("click", "#verify_properties", verify_property);
     $("aside").on("click", "#show_explanation", show_explanation);
+    $("aside").on("click", "#apply", apply_transform);
     $("body").on("click", "#mconfirm", 
         {url: '/hdead_analysis', success:timed_update_textarea, 
             show:[$("#full"), $("#hdead"), $("#delete"), $("#mts"),
@@ -55,6 +59,10 @@ function load_mts()
   tmp = $("#tmp-source").val();
   $("#tmp-source").val($("#source").text())
   $("#source").text(tmp);
+  if($("main > h3").text() == 'FTS')
+    $("main > h3").text('MTS');
+  else if($("main > h3").text() == 'MTS')
+    $("main > h3").text('FTS');
   if($("#tmp-source").attr('name') == "MTS") {
     $("#mts").text("View featured transition system");
     $("#tmp-source").attr('name', 'FTS')
@@ -145,6 +153,7 @@ function show_graph()
 
 function alter_title() 
 {
+    $("main > h3").text('FTS')
     let name = $("#fts").val().replace(/.*[\/\\]/, '');
     $("main > h2").text("Analysis of "+name);
     $("#console").text(name+" selected, click load model to"+
@@ -184,6 +193,7 @@ function timed_update_textarea(show, response)
 
 function upload_file(event)
 {
+    $("main > h3").text('FTS')
     if($("#fts")[0].files[0]) {
         var file = new FormData();
         file.append('file', $("#fts")[0].files[0]);
@@ -229,11 +239,47 @@ function modal_command(event)
 
 function command(event)
 {
+    $("main > h3").text('FTS')
     if($("#fts")[0].files[0]) {
         request = {url: event.data.url, data: {name: $("#fts")[0].files[0].name},
             type: 'POST'};
         request['success'] = function(response){
             event.data.success(event.data.show, response);
+            $("#mts").text("View modal transition system");
+            $("#tmp-source").attr('name', 'MTS');
+            if(response['graph']) {
+                $("#source").text(response['graph']);
+                $("#tmp-source").val(response['mts']);
+            }
+            $("#message").text("");
+            $("#modal").hide();
+        };
+        request['beforeSend'] = function(response) {
+            show_console();
+            $("#console").text("Processing data...");
+        };
+        request['error'] = function(response) {
+            if(response.responseJSON) {
+                $("#console").text(response.responseJSON['text']);
+            }
+            $("#message").text("");
+        };
+        $.ajax(request);
+    } else {
+        $("#console").text("Invalid file");
+    }
+}
+
+function solve(event)
+{
+    $("main > h3").text('FTS')
+    if($("#fts")[0].files[0]) {
+        request = {url: event.data.url, data: {name: $("#fts")[0].files[0].name},
+            type: 'POST'};
+        request['success'] = function(response){
+            update_textarea_graph(event.data.show, response);
+            $("#apply").prop('disabled', false);
+            $("#apply").attr('value', event.data.name);
             $("#mts").text("View modal transition system");
             $("#tmp-source").attr('name', 'MTS');
             if(response['graph']) {
@@ -290,6 +336,7 @@ function process_update(show, wait)
         setTimeout(process_update.bind(null, show, wait), wait);
     };
     statusCode['200'] = function(resp) {
+        $("main > h3").text('FTS')
         $("#console").append(resp['text']);
         $("#source").text(resp['graph']);
         $("#tmp-source").val(resp['mts']);
@@ -325,10 +372,10 @@ function create_summary(target, data)
   main = $("<div></div>");
   target.append(main);
   if(data['nodes']){
-    main.append("<p>Number of nodes: "+data['nodes']+"</p>");
+    main.append("<p>Number of states: "+data['nodes']+"</p>");
   }
   if(data['edges']){
-    main.append("<p>Number of edges: "+data['edges']+"</p>");
+    main.append("<p>Number of transitions: "+data['edges']+"</p>");
   }
   if(data['ambiguities']){
     main.append("<h3>Ambiguities found</h3>");
@@ -363,6 +410,7 @@ function create_summary(target, data)
 
 function verify_property()
 {
+    $("main > h3").text('FTS')
     if($("#fts")[0].files[0]) {
         var prop = $("#property_text_area").val();
         request = {url: 'verify_property', data: {name: $("#fts")[0].files[0].name, property: prop},
@@ -417,6 +465,7 @@ function download()
 
 function show_explanation()
 {
+    $("main > h3").text('FTS')
     $("#console").text('debug');
     request = {url: 'explanation', data:{msg: 'show_exp'} ,type: 'POST'};
     
@@ -425,6 +474,29 @@ function show_explanation()
     };
     request['error'] = function(response) {
         $("#console").text(response.responseJSON['text']);
+    }
+    $.ajax(request);
+}
+
+function apply_transform()
+{
+    $("main > h3").text('FTS')
+    request = {};
+    if($("#apply").attr('value') == 'all')
+      request['url'] = '/apply_all';
+    else if($("#apply").attr('value') == 'fopt')
+      request['url'] = '/apply_fopt';
+    else if($("#apply").attr('value') == 'hdd')
+      request['url'] = '/apply_hdd';
+    else
+      return;
+    request['type'] = 'POST';
+    request['success'] = function(response){
+      $("#console").text(response['text']);
+      $("#apply").prop('disabled', true);
+    };
+    request['error'] = function(response) {
+      $("#console").text(response.responseJSON['text']);
     }
     $.ajax(request);
 }
