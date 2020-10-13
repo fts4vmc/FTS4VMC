@@ -13,8 +13,7 @@ from multiprocessing import Process, Queue
 from src.internals.disambiguator import Disambiguator
 from src.internals.analyser import z3_analyse_hdead, z3_analyse_full, load_dot
 from src.internals.process_manager import ProcessManager
-from flask import session, send_from_directory, Response, send_file
-from flask import Flask, flash, request, redirect, url_for, render_template
+from flask import session, Flask, request, render_template
 from werkzeug.utils import secure_filename
 
 from src.translator import Translator
@@ -463,8 +462,8 @@ def delete_old_file(fmt, timeout, path):
                 pass
 
 def deleter():
+    timeout = 900
     while True:
-        timeout = 900
         time.sleep(timeout)
         delete_old_file('svg', timeout, os.path.join('src', 'static'))
         delete_old_file('dot', timeout, os.path.join('uploads'))
@@ -474,20 +473,20 @@ def deleter():
 
 def start_deleter():
     pm = ProcessManager.get_instance()
-    thread = Process(target=deleter)
+    thread = Process(target=deleter, daemon=True)
     pm.add_process('deleter', thread)
     pm.start_process('deleter')
 
 app.before_first_request(start_deleter)
 
 def stop_deleter():
-    pm = ProcessManager.get_instance()
-    pm.end_process('deleter')
     delete_old_file('svg', 0, os.path.join('src', 'static'))
     delete_old_file('dot', 0, os.path.join('uploads'))
     delete_old_file('txt', 0, os.path.join('tmp'))
     delete_old_file('html', 0, os.path.join('tmp'))
     delete_old_file('dot', 0, os.path.join('tmp'))
+
+atexit.register(stop_deleter)
 
 @app.route('/download', methods=['POST'])
 def download():
