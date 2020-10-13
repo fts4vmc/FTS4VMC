@@ -17,17 +17,14 @@ $(function(){
                 $("#disambiguate"), $("#fopt"), $("#hdd"), 
                 $("#full"), $("#hdead"), $("#delete"), $("#stop"),
                 $("#fts"), $("#verify_properties"), $("#mts"), $("#download"),
-                $("#property_text_area")
-            ]
+                $("#property_text_area")]
         }, command);
-
     $("aside").on("click", "#hdead", 
         {url: '/hdead_analysis', success:timed_update_textarea, 
             show:[$("#full"), $("#hdead"), $("#delete"), $("#mts"),
                 $("#stop"), $("#download"), $("#fts"), $("#verify_properties"),
                 $("#property_text_area")]
-        }, command);
-
+        }, modal_command);
     $("aside").on("click", "#delete", 
         {url: '/delete_model', success:update_textarea,
           show: [$("#load"), $("#fts")]}, command);
@@ -35,20 +32,21 @@ $(function(){
         {url: '/stop', success:update_textarea, 
             show:[
               $("#full"), $("#hdead"), $("#mts"),
-              $("#delete"), $("#fts"), $("#download")
-            ]
-        }, command);
+              $("#delete"), $("#fts"), $("#download")]}, command);
     $("aside").on("click", "#disambiguate", 
         {url: '/remove_ambiguities', success:update_textarea_graph}, command);
     $("aside").on("click", "#fopt", 
         {url: '/remove_false_opt', success:update_textarea_graph}, command);
     $("aside").on("click", "#hdd", 
-        {url: '/remove_dead_hidden', success:update_textarea_graph, show:[
-                $("#disambiguate"), $("#fopt"), $("#hdd"), 
-                $("#full"), $("#hdead"), $("#delete"), $("#stop"),
-                $("#fts"), $("#verify_properties"), $("#mts"), $("#property_text_area")]}, command);
+        {url: '/remove_dead_hidden', success:update_textarea_graph}, command);
     $("aside").on("click", "#verify_properties", verify_property);
     $("aside").on("click", "#show_explanation", show_explanation);
+    $("body").on("click", "#mconfirm", 
+        {url: '/hdead_analysis', success:timed_update_textarea, 
+            show:[$("#full"), $("#hdead"), $("#delete"), $("#mts"),
+                $("#stop"), $("#download"), $("#fts"), $("#verify_properties"),
+                $("#property_text_area")]}, command);
+    $("body").on("click", "#mcancel", function() { $("#modal").hide();});
     keep_alive();
 }); 
 
@@ -151,7 +149,7 @@ function alter_title()
     $("main > h2").text("Analysis of "+name);
     $("#console").text(name+" selected, click load model to"+
         " upload the file");
-    $(".command").prop("disabled", true);
+    $(".operation").prop("disabled", true);
     $("#fts").prop("disabled", false);
     $("#load").prop("disabled", false);
 }
@@ -159,7 +157,7 @@ function alter_title()
 function show_command(show)
 {
     if(show) {
-        $(".command").prop("disabled", true);
+        $(".operation").prop("disabled", true);
         for (element of show) {
             element.prop("disabled", false);
         }
@@ -179,7 +177,7 @@ function update_textarea(show, response)
 function timed_update_textarea(show, response)
 {
     $("#console").text(response['text']);
-    $(".command").prop("disabled", true);
+    $(".operation").prop("disabled", true);
     $("#stop").prop("disabled", false);
     process_update(show, 1000);
 }
@@ -217,6 +215,18 @@ function upload_file(event)
     }
 }
 
+function modal_command(event)
+{
+    if(!$("#disambiguate").prop('disabled') && 
+        !$('#fopt').prop('disabled') &&
+        !$("#hdd").prop('disabled') && $("#modal").is(":hidden")){
+        $("#modal").show();
+        return;
+    } else {
+      command(event);
+    }
+}
+
 function command(event)
 {
     if($("#fts")[0].files[0]) {
@@ -231,6 +241,7 @@ function command(event)
                 $("#tmp-source").val(response['mts']);
             }
             $("#message").text("");
+            $("#modal").hide();
         };
         request['beforeSend'] = function(response) {
             show_console();

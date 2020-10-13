@@ -5,51 +5,52 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script src="static/js/script.js"></script>
         <link rel="stylesheet" href="static/css/style.css">
+        <link rel="stylesheet" href="static/css/modal.css">
         <link rel="stylesheet" href="static/css/tab.css">
     </head>
     <body>
         <aside>
             <!-- File handling -->
-            <label class="command" for="fts" id="fts-label">Select FTS Model
-                <input type="file" name="fts" id="fts" class="command">
+            <label class="command operation" for="fts" id="fts-label">Select FTS Model
+                <input type="file" name="fts" id="fts" class="command operation">
             </label>
-            <button class="command" id="load" type="button" disabled>
+            <button class="command operation" id="load" type="button" disabled>
               Upload model
             </button>
-            <button class="command" id="delete" type="button" disabled>
+            <button class="command operation" id="delete" type="button" disabled>
               Delete model and close
             </button>
-            <button class="command" id="download" type="button" disabled>
+            <button class="command operation" id="download" type="button" disabled>
               Download displayed result
             </button>
             <!-- Analisys handling -->
             <hr>
-            <button class="command" id="mts" type="button" disabled>
+            <button class="command operation" id="mts" type="button" disabled>
               View modal transition system
             </button>
-            <button class="command" id="full" type="button" disabled>
+            <button class="command operation" id="full" type="button" disabled>
               Full ambiguities analysis
             </button>
-            <button class="command" id="hdead" type="button" disabled>
+            <button class="command operation" id="hdead" type="button" disabled>
               Liveness analysis
             </button>
-            <button class="command" id="stop" type="button" disabled>
+            <button class="command operation" id="stop" type="button" disabled>
               Stop processing
             </button>
             <!-- Disambiguation handling -->
             <hr>
-            <button class="command" id="disambiguate" type="button" disabled>
+            <button class="command operation" id="disambiguate" type="button" disabled>
               Remove all ambiguities
             </button>
-            <button class="command" id="fopt" type="button" disabled>
+            <button class="command operation" id="fopt" type="button" disabled>
               Remove false optional
             </button>
-            <button class="command" id="hdd" type="button" disabled>
+            <button class="command operation" id="hdd" type="button" disabled>
               Remove dead transition and hidden deadlock
             </button>
-            <button class="command" id="verify_properties" type="button" disabled>Verify property</button>
+            <button class="command operation" id="verify_properties" type="button" disabled>Verify property</button>
             <textarea disabled id="property_text_area" name="property_text_area" rows="20" cols="50">Insert an ACTL formula to verify</textarea>
-            <button class="command" id="show_explanation" type="button" disabled>Show explanation</button>
+            <button class="command operation" id="show_explanation" type="button" disabled>Show explanation</button>
             <table id="legend">
               <caption>Legend</caption>
               <tr><td id="dead">dead transition</td></tr>
@@ -81,5 +82,12 @@
               <input type="hidden" id="tmp-source" name="MTS">
             </div>
         </main>
+        <div id="modal" class="modal">
+          <div class="modal-content">
+            <p>Starting a liveness analysis will delete ambiguities data found</p>
+            <button type="button" class="command" id="mconfirm">Confirm</button>
+            <button type="button" class="command" id="mcancel">Cancel</button>
+          </div>
+        </div>
     </body>
 </html>
