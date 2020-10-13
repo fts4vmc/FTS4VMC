@@ -93,7 +93,10 @@ class Disambiguator(object):
         dead_state -- the deadlock state name
         """
         if not self._is_hidden_deadlock(state):
-           return
+            return
+        #If transition between state and dead_state already exists do nothing
+        if self.__fts.get_edge(state, dead_state):
+            return
         transition_list = self.__fts.get_edges()
         tmp = []
         for transition in transition_list:
