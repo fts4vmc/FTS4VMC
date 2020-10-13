@@ -52,13 +52,13 @@ digraph COFFEE_MACHINE { # the FTS is encoded as a directed graph
 
 ## User interface ##
 
-The UI for FTS4VMC was inspired by [VMC][VMC] for easier integration between the tools.
+UI for FTS4VMC was inspired by [VMC][VMC] for easier integration between the tools.
 
 Here's a screenshot:
 
 ![User Interface Start Menu][UI-START]
 
-The fist thing to do to start the process is selecting a dot file containing a FTS definition following the format showed in the previous example, this can be done by clicking on **Select FTS Model**.   
+The first thing to do to start the process is selecting a dot file containing a FTS definition following the format showed in the previous example, this can be done by clicking on **Select FTS Model**.   
 Once the file is selected it can be uploaded to the server by clicking on **Upload model**.
 
 ![User Interface Selected File][UI-SELECT]
@@ -134,7 +134,7 @@ This analysis may require quite a lot of time for bigger models so it's possible
 The output of this process is an updated version of the uploaded FTS with:  
 + dead transitions highlighted in **blue**
 + false optional transitions highlighted in **green**
-+ hidden headlock highlighted in **red**
++ hidden deadlock highlighted in **red**
 
 By completing a full analysis the buttons for removal of ambiguities will be enabled.
 
