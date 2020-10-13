@@ -65,7 +65,6 @@ def full_analysis_worker(fts_file, out_file, out_graph, queue):
             'label':str(transition._label), 'constraint':str(transition._constraint)})
     for state in fts._set_hidden_deadlock:
         hidden.append(state._id)
-    fts_source.seek(0,0)
     queue.put({'ambiguities':{'dead': dead, 'false': false, 'hidden': hidden}})
     fts.report()
     sys.stdout.close()
@@ -79,7 +78,6 @@ def hdead_analysis_worker(fts_file, out_file, out_graph, queue):
     z3_analyse_hdead(fts)
     for state in fts._set_hidden_deadlock:
         hidden.append(state._id)
-    fts_source.seek(0,0)
     queue.put({'ambiguities':{'dead':[], 'false':[], 'hidden': hidden}})
     fts.report()
     sys.stdout.close()
@@ -304,6 +302,23 @@ def disambiguate():
         return payload, 200
     return {"text": 'File not found'}, 400
 
+@app.route('/apply_all', methods=['POST'])
+def apply_all():
+    payload, status = disambiguate()
+    if status == 200:
+        if os.path.isfile(session['model']):
+            with open(session['model'], 'w') as model:
+                try:
+                    model.write(payload['graph']);
+                    session['ambiguities']['dead'] = []
+                    session['ambiguities']['false'] = []
+                    session['ambiguities']['hidden'] = []
+                    return {'text': 'Model file updated correctly'}, 200
+                except:
+                    return {'text':'Unable to update file model'}, 400
+    return {'text':'Unable to update file model'}, 400
+
+
 @app.route('/remove_false_opt', methods=['POST'])
 def solve_fopt():
     pm = ProcessManager.get_instance()
@@ -329,6 +344,20 @@ def solve_fopt():
         graph.draw_graph(session['graph'])
         return payload, 200
     return {"text": 'File not found'}, 400
+
+@app.route('/apply_fopt', methods=['POST'])
+def apply_fopt():
+    payload, status = solve_fopt()
+    if status == 200:
+        if os.path.isfile(session['model']):
+            with open(session['model'], 'w') as model:
+                try:
+                    model.write(payload['graph']);
+                    session['ambiguities']['false'] = []
+                    return {'text': 'Model file updated correctly'}, 200
+                except:
+                    return {'text':'Unable to update file model'}, 400
+    return {'text':'Unable to update file model'}, 400
 
 @app.route('/remove_dead_hidden', methods=['POST'])
 def solve_hdd():
@@ -356,6 +385,22 @@ def solve_hdd():
         graph.draw_graph(session['graph'])
         return payload, 200
     return {"text": 'File not found'}, 400
+
+@app.route('/apply_hdd', methods=['POST'])
+def apply_hdd():
+    payload, status = solve_hdd()
+    if status == 200:
+        if os.path.isfile(session['model']):
+            with open(session['model'], 'w') as model:
+                try:
+                    model.write(payload['graph']);
+                    session['ambiguities']['dead'] = []
+                    session['ambiguities']['hidden'] = []
+                    return {'text': 'Model file updated correctly'}, 200
+                except:
+                    return {'text':'Unable to update file model'}, 400
+    return {'text':'Unable to update file model'}, 400
+
 
 @app.route('/verify_property', methods=['POST'])
 def verify_property():
