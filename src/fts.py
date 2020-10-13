@@ -16,8 +16,8 @@ from src.internals.process_manager import ProcessManager
 from flask import session, Flask, request, render_template
 from werkzeug.utils import secure_filename
 
-from src.translator import Translator
-from src.vmc_controller import VmcController
+from src.internals.translator import Translator
+from src.internals.vmc_controller import VmcController
 
 UPLOAD_FOLDER = os.path.relpath("uploads")
 ALLOWED_EXTENSIONS = {'dot'}
