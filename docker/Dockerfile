@@ -4,10 +4,11 @@ WORKDIR /app
 
 COPY src ./src
 COPY requirements.txt ./
+COPY vmc65-linux ./
 COPY docker ./docker
 
 RUN apt-get update
-RUN apt-get install -y --no-install-recommends python3-pip
+RUN apt-get install -y --no-install-recommends python3-pip graphviz
 RUN pip install --no-cache-dir -r requirements.txt
 
 
