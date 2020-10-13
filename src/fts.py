@@ -553,7 +553,7 @@ def download():
         mime = 'image/svg+xml'
         format = "graph.svg"
         path = os.path.join('static', os.path.basename(session['graph']))
-        if os.path.isfile(path):
+        if os.path.isfile(os.path.join('src', path)):
             return {"source":path, 'name':format}, 200
         else:
             return {"text":"File not found"}, 404
