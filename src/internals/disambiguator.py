@@ -35,7 +35,7 @@ class Disambiguator(object):
         transition_list = self.__fts.get_edge(src, dst)
         for index, transition in enumerate(transition_list):
             tmp = transition.obj_dict['attributes']['label'][1:-1].split('|')
-            if label == tmp[0] and constraint == str(self.__ctran.c_translate(tmp[-1])):
+            if label == tmp[0].strip() and constraint == str(self.__ctran.c_translate(tmp[-1])):
                 self.__fts.del_edge(src, dst, index)
 
     def remove_transitions(self, transition_list):
@@ -67,7 +67,8 @@ class Disambiguator(object):
         transition_list = self.__fts.get_edge(src, dst)
         for transition in transition_list:
             tmp = transition.obj_dict['attributes']['label'][1:-1].split('|')
-            if label == tmp[0] and constraint == str(self.__ctran.c_translate(tmp[-1])):
+            if label == tmp[0].strip() and constraint == str(
+                    self.__ctran.c_translate(tmp[-1])):
                 transition.obj_dict['attributes']['label'] = label + " | True"
 
     def set_true_list(self, transition_list):
@@ -92,7 +93,7 @@ class Disambiguator(object):
         state -- the hidden deadlock state name
         dead_state -- the deadlock state name
         """
-        if not self._is_hidden_deadlock(state):
+        if not self._still_hidden_deadlock(state):
             return
         #If transition between state and dead_state already exists do nothing
         if self.__fts.get_edge(state, dead_state):
@@ -118,8 +119,12 @@ class Disambiguator(object):
                 else:
                     self.solve_hidden_deadlock(state, self.__dead_name)
 
-    def _is_hidden_deadlock(self, state):
-        """Return True if state is the source of any transitions False otherwise"""
+    def _still_hidden_deadlock(self, state):
+        """Return True if state is the source of any transitions False otherwise
+
+        It is used to check if the removal of dead transitions also solved
+        hidden deadlock.
+        """
         transitions = self.__fts.get_edges()
         for transition in transitions:
             if transition.get_source() == state:
@@ -131,7 +136,7 @@ class Disambiguator(object):
             edge_list = self.__fts.get_edge(transition['src'], transition['dst'])
             for edge in edge_list:
                 tmp = edge.obj_dict['attributes']['label'][1:-1].split('|')
-                if (transition['label'] == tmp[0] and 
+                if (transition['label'] == tmp[0].strip() and 
                         transition['constraint'] == str(self.__ctran.c_translate(tmp[-1]))):
                     edge.obj_dict['attributes']['color'] = color
                     edge.obj_dict['attributes']['style'] = 'bold'
