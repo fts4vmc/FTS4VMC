@@ -35,7 +35,7 @@ class Disambiguator(object):
         transition_list = self.__fts.get_edge(src, dst)
         for index, transition in enumerate(transition_list):
             tmp = transition.obj_dict['attributes']['label'][1:-1].split('|')
-            if label == tmp[0].strip() and constraint == str(self.__ctran.c_translate(tmp[-1])):
+            if label.strip() == tmp[0].strip() and constraint == str(self.__ctran.c_translate(tmp[-1])):
                 self.__fts.del_edge(src, dst, index)
 
     def remove_transitions(self, transition_list):
@@ -67,7 +67,7 @@ class Disambiguator(object):
         transition_list = self.__fts.get_edge(src, dst)
         for transition in transition_list:
             tmp = transition.obj_dict['attributes']['label'][1:-1].split('|')
-            if label == tmp[0].strip() and constraint == str(
+            if label.strip() == tmp[0].strip() and constraint == str(
                     self.__ctran.c_translate(tmp[-1])):
                 transition.obj_dict['attributes']['label'] = label + " | True"
 
@@ -136,7 +136,7 @@ class Disambiguator(object):
             edge_list = self.__fts.get_edge(transition['src'], transition['dst'])
             for edge in edge_list:
                 tmp = edge.obj_dict['attributes']['label'][1:-1].split('|')
-                if (transition['label'] == tmp[0].strip() and 
+                if (transition['label'].strip() == tmp[0].strip() and 
                         transition['constraint'] == str(self.__ctran.c_translate(tmp[-1]))):
                     edge.obj_dict['attributes']['color'] = color
                     edge.obj_dict['attributes']['style'] = 'bold'
