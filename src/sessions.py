@@ -52,10 +52,14 @@ def close_session():
 
 def delete_output_file():
     if 'output' in session:
-        try:
-            os.remove(session['output'])
-        except:
-            pass
+        files = [session['output'], session['output']+'log.txt',
+                session['output']+'summary.html', session['output']+'graph.svg',
+                session['output']+'model.dot']
+        for f in files:
+            try:
+                os.remove(f)
+            except:
+                pass
         try:
             os.remove(session['graph'])
         except:
