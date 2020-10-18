@@ -3,3 +3,4 @@ uploads
 venv
 src/static/*.svg
 *.swp
+tests/dot/*.png
