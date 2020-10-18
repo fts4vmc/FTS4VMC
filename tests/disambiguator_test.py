@@ -5,13 +5,13 @@ class TestDisambiguator:
     @pytest.fixture
     def graph(self):
         import os
-        dis = Disambiguator.from_file(os.path.join('tests', 'ambiguous.dot'))
+        dis = Disambiguator.from_file(os.path.join('tests', 'dot', 'ambiguous.dot'))
         return dis
 
     @pytest.fixture
     def disambiguated_graph(self):
         import os
-        dis = Disambiguator.from_file(os.path.join('tests', 'test_fts_disambiguato.dot'))
+        dis = Disambiguator.from_file(os.path.join('tests', 'dot', 'test_fts_disambiguato.dot'))
         return dis
 
     def test_remove_transition(self, graph):
@@ -46,3 +46,23 @@ class TestDisambiguator:
             false_tr.get_color() == 'green' and 
             hidden_st.get_fillcolor() == 'red')
 
+#    def test_disambiguate():
+#        import os
+#        import src.internals.analyser as analyser
+#        dot = os.listdir(os.path.join('tests','dot'))
+#        for source in dot:
+#            dead = [] 
+#            false = [] 
+#            hidden = []
+#            fts_source = open(os.path.join('tests','dot', source), 'r')
+#            fts = analyser.load_dot(fts_source)
+#            analyser.z3_analyse_full(fts)
+#            for transition in fts._set_dead:
+#                dead.append({'src':transition._in._id, 'dst':transition._out._id,
+#                    'label':str(transition._label), 'constraint':str(transition._constraint)})
+#            for transition in fts._set_false_optional:
+#                false.append({'src':transition._in._id, 'dst':transition._out._id,
+#                    'label':str(transition._label), 'constraint':str(transition._constraint)})
+#            for state in fts._set_hidden_deadlock:
+#                hidden.append(state._id)
+#            dis = Disambiguator.from_file(os.path.join('tests', 'ambiguous.dot'))
