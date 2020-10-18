@@ -4,10 +4,6 @@ import time
 import subprocess
 import atexit
 import shutil
-import string
-import random
-import pathlib
-import time
 import src.internals.graph as graphviz
 from multiprocessing import Process, Queue
 from src.internals.disambiguator import Disambiguator
@@ -27,6 +23,7 @@ vmc = None #It will host VmcController
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.secret_key = b'\xb1\xa8\xc0W\x0c\xb3M\xd6\xa0\xf4\xabSmz=\x83'
+import src.sessions as sessions
 
 def is_fts(file_path):
     """Check if the given file_path refers to an dot file containing an FTS.
@@ -37,17 +34,6 @@ def is_fts(file_path):
             return True
         except:
             return False
-
-def delete_output_file():
-    if 'output' in session:
-        try:
-            os.remove(session['output'])
-        except:
-            pass
-        try:
-            os.remove(session['graph'])
-        except:
-            pass
 
 def full_analysis_worker(fts_file, out_file, out_graph, queue):
     dead = [] 
@@ -83,49 +69,6 @@ def hdead_analysis_worker(fts_file, out_file, out_graph, queue):
     sys.stdout.close()
     fts_source.close()
 
-def check_session():
-    if ('timeout' in session and session['timeout'] is not None 
-            and session['timeout'] > time.time()):
-        return True
-    return False
-
-@app.route('/keep_alive', methods=['POST'])
-def update_session_timeout():
-    tmp = ['output', 'graph', 'model']
-    if check_session():
-        session['timeout'] = time.time()+600
-        for target in tmp:
-            if target in session and os.path.isfile(session[target]):
-                try:
-                    pathlib.Path(session[target]).touch()
-                except:
-                    pass
-    return {'text':'ok'}, 200
-
-def new_session():
-    if 'output' in session and session['output']:
-        delete_output_file()
-    now = time.time()
-    session['position'] = 0
-    session['timeout'] = now+600
-    session['output'] = ''.join(random.SystemRandom().choice(
-                string.ascii_uppercase + string.digits) for _ in range(32))
-    session['graph'] = os.path.join('src', 'static', session['output']+'.svg')
-    session['model'] = os.path.join(UPLOAD_FOLDER, session['output']+'.dot')
-    session['output'] = os.path.join('tmp', session['output']+'-output')
-    session['ambiguities'] = {}
-
-def close_session():
-    pm = ProcessManager.get_instance()
-    session.pop('timeout', None)
-    session.pop('position', None)
-    if 'id' in session and session['id']:
-        pm.end_process(session['id'])
-    delete_output_file()
-    session.pop('id', None)
-    session.pop('output', None)
-    session.pop('ambiguities', None)
-
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -133,11 +76,11 @@ def allowed_file(filename):
 @app.route('/yield')
 def get_output():
     pm = ProcessManager.get_instance()
-    if not check_session():
-        delete_output_file()
+    if not sessions.check_session():
+        sessions.delete_output_file()
         return {"text":'\nSession timed-out'}, 404
     elif not 'id' in session or not pm.process_exists(session['id']):
-        delete_output_file()
+        sessions.delete_output_file()
         return {"text":''}, 404
     else:
         with open(session['output']) as out:
@@ -177,8 +120,8 @@ def get_output():
 def upload_file():
     payload = {}
     dot = ""
-    close_session()
-    new_session()
+    sessions.close_session()
+    sessions.new_session()
     if not os.path.exists(UPLOAD_FOLDER):
         os.makedirs(UPLOAD_FOLDER);
     if not os.path.exists(os.path.dirname(session['output'])):
@@ -221,7 +164,7 @@ def index():
 def full_analyser():
     pm = ProcessManager.get_instance()
     queue = Queue()
-    update_session_timeout()
+    sessions.update_session_timeout()
     file_path = session['model']
     if os.path.isfile(file_path):
         thread = Process(target=full_analysis_worker,
@@ -238,7 +181,7 @@ def full_analyser():
 def hdead_analyser():
     pm = ProcessManager.get_instance()
     queue = Queue()
-    update_session_timeout()
+    sessions.update_session_timeout()
     file_path = session['model']
     if os.path.isfile(file_path):
         thread = Process(target=hdead_analysis_worker,
@@ -254,7 +197,7 @@ def hdead_analyser():
 @app.route('/delete_model', methods=['POST'])
 def delete_model():
     file_path = session['model']
-    close_session()
+    sessions.close_session()
     try:
         os.remove(file_path)
     except OSError as e:
@@ -268,7 +211,7 @@ def stop_process():
     session.pop('position', None)
     if 'id' in session and session['id']:
         pm.end_process(session['id'])
-    delete_output_file()
+    sessions.delete_output_file()
     session.pop('id', None)
     session.pop('ambiguities', None)
     session.pop('ambiguities', None)
@@ -277,7 +220,7 @@ def stop_process():
 @app.route('/remove_ambiguities', methods=['POST'])
 def disambiguate():
     pm = ProcessManager.get_instance()
-    if not check_session():
+    if not sessions.check_session():
         return {"text": "No ambiguities data available execute a full analysis first"}, 400
     if not session['ambiguities']:
         queue = pm.get_queue(session['id'])
@@ -322,7 +265,7 @@ def apply_all():
 @app.route('/remove_false_opt', methods=['POST'])
 def solve_fopt():
     pm = ProcessManager.get_instance()
-    if not check_session():
+    if not sessions.check_session():
         return {"text": "No ambiguities data available execute a full analysis first"}, 400
     if not session['ambiguities']:
         queue = pm.get_queue(session['id'])
@@ -362,7 +305,7 @@ def apply_fopt():
 @app.route('/remove_dead_hidden', methods=['POST'])
 def solve_hdd():
     pm = ProcessManager.get_instance()
-    if not check_session():
+    if not sessions.check_session():
         return {"text": "No ambiguities data available execute a full analysis first"}, 400
     if not session['ambiguities']:
         queue = pm.get_queue(session['id'])
@@ -469,7 +412,7 @@ def verify_property():
 @app.route('/explanation', methods=['POST'])
 def show_explanation():
     global vmc
-    if check_session():
+    if sessions.check_session():
         if vmc == None:
             return {"text": 'No translation has been performed'}, 400
         return {"text": vmc.get_explanation()}, 200
@@ -480,7 +423,7 @@ def get_graph():
     message = """No graph data available, the graph may be too big render.
         You can render it locally by downloading the graph source code and use
         the following command: dot -Tsvg model.dot -o output.svg"""
-    if check_session(): 
+    if sessions.check_session(): 
         if os.path.isfile(session['graph']):
             return {"source":os.path.join('static', os.path.basename(session['graph']))}, 200
     return {"text":message}, 400
@@ -491,7 +434,7 @@ def reload_graph():
         You can render it locally by downloading the graph source code and use
         the following command: dot -Tsvg model.dot -o output.svg"""
     graphviz.Graph(request.form['src']).draw_graph(session['graph'])
-    if check_session(): 
+    if sessions.check_session(): 
         if os.path.isfile(session['graph']):
             return {"source":os.path.join('static', os.path.basename(session['graph']))}, 200
     return {"text":message}, 400
@@ -535,7 +478,7 @@ atexit.register(stop_deleter)
 
 @app.route('/download', methods=['POST'])
 def download():
-    if not check_session():
+    if not sessions.check_session():
         return {'text':"Session timed-out"}, 400
 
     payload = 'empty'
