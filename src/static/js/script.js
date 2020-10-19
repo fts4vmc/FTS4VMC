@@ -7,6 +7,7 @@ $(function(){
     $("main").on("click", "#console_tab", show_console);
     $("main").on("click", "#summary_tab", show_summary);
     $("main").on("click", "#source_tab", show_source);
+    $("main").on("click", "#counter_graph_tab", show_counter_graph);
     $("aside").on("change", "#fts", alter_title);
     $("aside").on("click", "#load", upload_file);
     $("aside").on("click", "#mts", load_mts);
@@ -470,6 +471,7 @@ function show_explanation()
     request = {url: 'explanation', data:{msg: 'show_exp'} ,type: 'POST'};
     
     request['success'] = function(response){
+        $("#counter_graph_tab").prop("disabled", false);
         $("#console").text(response['text']);
     };
     request['error'] = function(response) {
@@ -499,4 +501,28 @@ function apply_transform()
       $("#console").text(response.responseJSON['text']);
     }
     $.ajax(request);
+}
+function load_counter_graph(response)
+{
+    $("#counter_image").attr('src', '');
+    //$("#counter_image").attr('src', response['graph']+"?random="+new Date().getTime());
+    $("#counter_image").attr('src', response['graph']);
+    $("#counter-div > p").text('').hide();
+}
+
+function show_counter_graph()
+{
+    request = {url:'/counter_graph', type:'POST'};
+    request['success'] = load_counter_graph;
+    request['error'] = function(response)
+    {
+        $("#counter-div > p").text(response.responseJSON['text']).show();
+        $("#counter_image").attr('src', '');
+    };
+    $.ajax(request);
+    $(".console").hide();
+    $("#summary").hide();
+    $(".source").hide();
+    $("#legend").show();
+    $("#counter_image").show();
 }

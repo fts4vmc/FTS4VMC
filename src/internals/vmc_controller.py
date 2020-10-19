@@ -41,8 +41,6 @@ class VmcController:
         return self.output
 
     def get_explanation(self):
-        print('exp=')
-        print(self.explanation)
         if(self.explanation == ''):
             return 'Nothing to show.'
         return self.explanation

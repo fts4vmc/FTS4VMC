@@ -69,6 +69,7 @@
                 <button type="button" id="source_tab">Source</button>
                 <button type="button" id="graph_tab">Graph</button>
                 <button type="button" id="summary_tab">Summary</button>
+                <button type="button" id="counter_graph_tab" disabled>View counterexample graph</button>
                 <button type="button" id="message"></button>
                 <a id="downloader"href="" download="" style="display: none">Download</a>
             </div>
@@ -84,6 +85,10 @@
             <div class="source">
               <textarea id="source" class="source" readonly></textarea>
               <input type="hidden" id="tmp-source" name="MTS">
+            </div>
+            <div id="counter-div" name="counter_image">
+              <p></p>
+              <img id="counter_image" />
             </div>
         </main>
         <div id="modal" class="modal">
