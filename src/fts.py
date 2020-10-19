@@ -48,6 +48,10 @@ def delete_output_file():
             os.remove(session['graph'])
         except:
             pass
+        try:
+            os.remove(session['counter_graph'])
+        except:
+            pass
 
 def full_analysis_worker(fts_file, out_file, out_graph, queue):
     dead = [] 
