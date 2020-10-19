@@ -46,7 +46,7 @@ def upload_file():
             return {"text": 'No selected file'}, 400
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            if(filename.split(".")[-1].lower() == "dot"):
+            if allowed_file(filename):
                 file_path = session['model']
                 file.save(file_path)
                 if(not is_fts(file_path)):
