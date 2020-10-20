@@ -2,3 +2,4 @@ z3-solver
 pydot
 lrparsing 
 Flask
+puremagic

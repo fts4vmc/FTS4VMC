@@ -1,5 +1,6 @@
 import os
 import time
+import puremagic
 from flask import session, request
 from werkzeug.utils import secure_filename
 from src.fts import app
@@ -9,11 +10,7 @@ from src.internals.process_manager import ProcessManager
 from multiprocessing import Process
 from src.internals.analyser import load_dot
 
-ALLOWED_EXTENSIONS = {'dot'}
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+ALLOWED_EXTENSIONS = {'.dot'}
 
 def is_fts(file_path):
     """Check if the given file_path refers to an dot file containing an FTS.
@@ -44,23 +41,25 @@ def upload_file():
         # submit an empty part without filename
         if file.filename == '':
             return {"text": 'No selected file'}, 400
-        if file and allowed_file(file.filename):
+        if file:
             filename = secure_filename(file.filename)
-            if allowed_file(filename):
-                file_path = session['model']
-                file.save(file_path)
-                if(not is_fts(file_path)):
-                    os.remove(file_path)
-                    return {"text":"The given file is not a FTS or contains errors"}, 400
-                with open(file_path, 'r') as source:
-                    dot = source.read()
-                graph = graphviz.Graph(dot)
-                payload['mts'] = graph.draw_mts()
-                graph.draw_graph(session['graph'])
-                payload['graph'] = dot
-                payload['edges'], payload['nodes'] = graph.get_graph_number()
-                payload['text'] = "Model loaded"
-                return payload, 200
+            file_path = session['model']
+            file.save(file_path)
+            if not puremagic.from_file(file_path) in ALLOWED_EXTENSIONS:
+                os.remove(file_path)
+                return {"text":"Incompatible file format"}, 400
+            if(not is_fts(file_path)):
+                os.remove(file_path)
+                return {"text":"The given file is not a FTS or contains errors"}, 400
+            with open(file_path, 'r') as source:
+                dot = source.read()
+            graph = graphviz.Graph(dot)
+            payload['mts'] = graph.draw_mts()
+            graph.draw_graph(session['graph'])
+            payload['graph'] = dot
+            payload['edges'], payload['nodes'] = graph.get_graph_number()
+            payload['text'] = "Model loaded"
+            return payload, 200
         else:
             return {"text": "Incompatible file format"}, 400
     return {"text": "Invalid request"}, 400
