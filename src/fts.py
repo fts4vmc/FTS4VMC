@@ -36,7 +36,7 @@ atexit.register(fm.stop_deleter)
 def request_entity_too_large(error):
     return 'File Too Large', 413
 
-def full_analysis_worker(fts_file, out_file, out_graph, queue):
+def full_analysis_worker(fts_file, out_file, queue):
     dead = [] 
     false = [] 
     hidden = []
@@ -57,7 +57,7 @@ def full_analysis_worker(fts_file, out_file, out_graph, queue):
     sys.stdout.close()
     fts_source.close()
 
-def hdead_analysis_worker(fts_file, out_file, out_graph, queue):
+def hdead_analysis_worker(fts_file, out_file, queue):
     hidden = []
     fts_source = open(fts_file, 'r')
     sys.stdout = open(out_file, 'w')
@@ -125,7 +125,7 @@ def full_analyser():
     file_path = session['model']
     if os.path.isfile(file_path):
         thread = Process(target=full_analysis_worker,
-                args=[file_path, session['output'], session['graph'], queue])
+                args=[file_path, session['output'], queue])
         session['id'] = str(thread.name)
         pm.add_process(session['id'], thread)
         pm.add_queue(session['id'], queue)
@@ -142,7 +142,7 @@ def hdead_analyser():
     file_path = session['model']
     if os.path.isfile(file_path):
         thread = Process(target=hdead_analysis_worker,
-                args=[file_path, session['output'], session['graph'], queue])
+                args=[file_path, session['output'], queue])
         session['id'] = str(thread.name)
         pm.add_process(key=session['id'], process=thread)
         pm.add_queue(session['id'], queue)
@@ -170,7 +170,6 @@ def stop_process():
         pm.end_process(session['id'])
     sessions.delete_output_file()
     session.pop('id', None)
-    session.pop('ambiguities', None)
     session.pop('ambiguities', None)
     return {"text":'Stopped process'}, 200
 
