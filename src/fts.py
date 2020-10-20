@@ -21,13 +21,20 @@ vmc = None #It will host VmcController
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+#Secret key used to cipher session cookies
 app.secret_key = b'\xb1\xa8\xc0W\x0c\xb3M\xd6\xa0\xf4\xabSmz=\x83'
+#Maximum uploaded file size 1MB
+app.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024
 
 import src.sessions as sessions
 import src.file_manager as fm
 
 app.before_first_request(fm.start_deleter)
 atexit.register(fm.stop_deleter)
+
+@app.errorhandler(413)
+def request_entity_too_large(error):
+    return 'File Too Large', 413
 
 def full_analysis_worker(fts_file, out_file, out_graph, queue):
     dead = [] 

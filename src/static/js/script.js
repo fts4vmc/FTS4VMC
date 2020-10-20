@@ -213,11 +213,16 @@ function upload_file(event)
             $("#verify_properties").prop("disabled", true);
         };
         request['error'] = function(response) {
+          if(response.responseJSON && response.responseJSON['text'])
             $("#console").text(response.responseJSON['text']);
         };
         request['beforeSend'] = function() {
-            $("#console")
-                .text("Checking if the provided dot file contains a FTS...");
+          $("#console")
+            .text("Checking if the provided dot file contains a FTS...");
+          var message = "\nFile bigger than 1MB are refused by the server.\n"+
+            "If the file is smaller than 1MB please wait otherwise"+
+            " try uploading a smaller file.";
+          $("#console").append(message);
         };
         $.ajax(request);
     } else {
