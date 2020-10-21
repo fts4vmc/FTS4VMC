@@ -130,5 +130,8 @@ def download():
 
     with open(session['output']+format, 'w') as tmp:
         tmp.write(payload)
-        return {"source":os.path.join('tmp', os.path.basename(
-            session['output']+format)), 'name':format}, 200
+        path = os.path.join('tmp', os.path.basename(session['output']+format));
+        if os.path.isfile(path):
+            return {"source":path, "name":format}, 200
+        else:
+            return {"text":"File not found"}, 404
