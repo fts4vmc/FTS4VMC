@@ -70,7 +70,7 @@ function load_mts()
     $("#mts").text("View modal transition system");
     $("#tmp-source").attr('name', 'MTS')
   }
-  request = {url:'/reload_graph', type:'POST'};
+  request = {url:full_url('/reload_graph'), type:'POST'};
   request['success'] = load_graph;
   request['data'] = {'src': tmp};
   request['error'] = function(resp)
@@ -115,7 +115,7 @@ function update_textarea_graph(show, response)
     $("#console").text(response['text']);
     show_command(show);
     create_summary($("#summary"), response)
-    request = {url:'/graph', type:'POST'};
+    request = {url:full_url('/graph'), type:'POST'};
     request['success'] = load_graph;
     request['error'] = function(resp)
     {
@@ -136,7 +136,7 @@ function load_graph(response)
 
 function show_graph()
 {
-    request = {url:'/graph', type:'POST'};
+    request = {url:full_url('/graph'), type:'POST'};
     request['success'] = load_graph;
     request['error'] = function(response)
     {
@@ -197,7 +197,7 @@ function upload_file(event)
     if($("#fts")[0].files[0]) {
         var file = new FormData();
         file.append('file', $("#fts")[0].files[0]);
-        request = {url: '/upload', data: file, processData: false,
+        request = {url: full_url('/upload'), data: file, processData: false,
             contentType: false, type: 'POST'};
         request['success'] = function(response) {
             $("#console").text(response['text']);
@@ -246,7 +246,7 @@ function command(event)
 {
     $("main > h3").text('FTS')
     if($("#fts")[0].files[0]) {
-        request = {url: event.data.url, data: {name: $("#fts")[0].files[0].name},
+        request = {url: full_url(event.data.url), data: {name: $("#fts")[0].files[0].name},
             type: 'POST'};
         request['success'] = function(response){
             event.data.success(event.data.show, response);
@@ -279,7 +279,7 @@ function solve(event)
 {
     $("main > h3").text('FTS')
     if($("#fts")[0].files[0]) {
-        request = {url: event.data.url, data: {name: $("#fts")[0].files[0].name},
+        request = {url: full_url(event.data.url), data: {name: $("#fts")[0].files[0].name},
             type: 'POST'};
         request['success'] = function(response){
             update_textarea_graph(event.data.show, response);
@@ -319,7 +319,7 @@ function solve(event)
 // console behaviour.
 function process_update(show, wait)
 {
-    request = {url: '/yield'};
+    request = {url: full_url('/yield')};
     request['complete'] = function(response) {
         if(response) {
             $('#console').scrollTop(
@@ -350,7 +350,7 @@ function process_update(show, wait)
         create_summary($("#summary"), resp)
         $("#message").text("");
         show_command(show);
-        req = {url:'/graph', type:'POST'};
+        req = {url:full_url('/graph'), type:'POST'};
         req['success'] = load_graph;
         req['error'] = function(resp)
         {
@@ -366,7 +366,7 @@ function process_update(show, wait)
 
 function keep_alive()
 {
-    request = {url: '/keep_alive', type:'POST'};
+    request = {url: full_url('/keep_alive'), type:'POST'};
     $.ajax(request);
     setTimeout(keep_alive.bind(null), 300000);
 }
@@ -418,7 +418,7 @@ function verify_property()
     $("main > h3").text('FTS')
     if($("#fts")[0].files[0]) {
         var prop = $("#property_text_area").val();
-        request = {url: 'verify_property', data: {name: $("#fts")[0].files[0].name, property: prop},
+        request = {url: full_url('verify_property'), data: {name: $("#fts")[0].files[0].name, property: prop},
             type: 'POST'};
         request['success'] = function(response){
             $("#show_explanation").prop("disabled", false);
@@ -439,7 +439,7 @@ function verify_property()
 
 function download()
 {
-  request = {url:'/download', type:'POST'};
+  request = {url:full_url('/download'), type:'POST'};
   request['success'] = function(response) {
     $("a").attr('href', response['source']);
     $("a").attr('download', response['name']);
@@ -472,7 +472,7 @@ function show_explanation()
 {
     $("main > h3").text('FTS')
     $("#console").text('debug');
-    request = {url: 'explanation', data:{msg: 'show_exp'} ,type: 'POST'};
+    request = {url: full_url('explanation'), data:{msg: 'show_exp'} ,type: 'POST'};
     
     request['success'] = function(response){
         $("#console").text(response['text']);
@@ -488,11 +488,11 @@ function apply_transform()
     $("main > h3").text('FTS')
     request = {};
     if($("#apply").attr('value') == 'all')
-      request['url'] = '/apply_all';
+      request['url'] = full_url('/apply_all');
     else if($("#apply").attr('value') == 'fopt')
-      request['url'] = '/apply_fopt';
+      request['url'] = full_url('/apply_fopt');
     else if($("#apply").attr('value') == 'hdd')
-      request['url'] = '/apply_hdd';
+      request['url'] = full_url('/apply_hdd');
     else
       return;
     request['type'] = 'POST';
@@ -504,4 +504,14 @@ function apply_transform()
       $("#console").text(response.responseJSON['text']);
     }
     $.ajax(request);
+}
+
+function full_url(url)
+{
+  if(url) {
+    if(window.location.pathname != '/')
+      return window.location.pathname + url;
+    else
+      return url;
+  }
 }
