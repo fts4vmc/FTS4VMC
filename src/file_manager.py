@@ -78,11 +78,11 @@ def deleter():
     timeout = 900
     while True:
         time.sleep(timeout)
-        delete_old_file('svg', timeout, os.path.join('src', 'static'))
+        delete_old_file('svg', timeout, app.config['TMP_FOLDER'])
         delete_old_file('dot', timeout, os.path.join('uploads'))
-        delete_old_file('txt', timeout, os.path.join('tmp'))
-        delete_old_file('html', timeout, os.path.join('tmp'))
-        delete_old_file('dot', timeout, os.path.join('tmp'))
+        delete_old_file('txt', timeout, app.config['TMP_FOLDER'])
+        delete_old_file('html', timeout, app.config['TMP_FOLDER'])
+        delete_old_file('dot', timeout, app.config['TMP_FOLDER'])
 
 def start_deleter():
     pm = ProcessManager.get_instance()
@@ -91,11 +91,11 @@ def start_deleter():
     pm.start_process('deleter')
 
 def stop_deleter():
-    delete_old_file('svg', 0, os.path.join('src', 'static'))
+    delete_old_file('svg', 0, app.config['TMP_FOLDER'])
     delete_old_file('dot', 0, os.path.join('uploads'))
-    delete_old_file('txt', 0, os.path.join('tmp'))
-    delete_old_file('html', 0, os.path.join('tmp'))
-    delete_old_file('dot', 0, os.path.join('tmp'))
+    delete_old_file('txt', 0, app.config['TMP_FOLDER'])
+    delete_old_file('html', 0, app.config['TMP_FOLDER'])
+    delete_old_file('dot', 0, app.config['TMP_FOLDER'])
 
 @app.route('/download', methods=['POST'])
 def download():
@@ -116,7 +116,7 @@ def download():
     elif(request.form['target'] == 'graph'): 
         mime = 'image/svg+xml'
         format = "graph.svg"
-        path = os.path.join('static', os.path.basename(session['graph']))
+        path = os.path.join('static', 'tmp', os.path.basename(session['graph']))
         if os.path.isfile(os.path.join('src', path)):
             return {"source":path, 'name':format}, 200
         else:
@@ -130,8 +130,8 @@ def download():
 
     with open(session['output']+format, 'w') as tmp:
         tmp.write(payload)
-        path = os.path.join('tmp', os.path.basename(session['output']+format));
-        if os.path.isfile(path):
+        path = os.path.join('static', 'tmp', os.path.basename(session['output']+format));
+        if os.path.isfile(os.path.join('src', path)):
             return {"source":path, "name":format}, 200
         else:
             return {"text":"File not found"}, 404

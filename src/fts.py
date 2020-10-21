@@ -16,11 +16,13 @@ from src.internals.translator import Translator
 from src.internals.vmc_controller import VmcController
 
 UPLOAD_FOLDER = os.path.relpath("uploads")
+TMP_FOLDER = os.path.join("src",'static','tmp')
 PATH_TO_VMC = './vmc65-linux'
 vmc = None #It will host VmcController
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['TMP_FOLDER'] = TMP_FOLDER
 #Secret key used to cipher session cookies
 app.secret_key = b'\xb1\xa8\xc0W\x0c\xb3M\xd6\xa0\xf4\xabSmz=\x83'
 #Maximum uploaded file size 1MB
@@ -381,7 +383,8 @@ def get_graph():
         the following command: dot -Tsvg model.dot -o output.svg"""
     if sessions.check_session(): 
         if os.path.isfile(session['graph']):
-            return {"source":os.path.join('static', os.path.basename(session['graph']))}, 200
+            return {"source":os.path.join('static', 'tmp',
+                os.path.basename(session['graph']))}, 200
     return {"text":message}, 400
 
 @app.route('/reload_graph', methods=['POST'])
@@ -392,6 +395,7 @@ def reload_graph():
     graphviz.Graph(request.form['src']).draw_graph(session['graph'])
     if sessions.check_session(): 
         if os.path.isfile(session['graph']):
-            return {"source":os.path.join('static', os.path.basename(session['graph']))}, 200
+            return {"source":os.path.join('static', 'tmp',
+                os.path.basename(session['graph']))}, 200
     return {"text":message}, 400
 

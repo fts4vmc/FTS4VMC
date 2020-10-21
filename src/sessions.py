@@ -34,9 +34,9 @@ def new_session():
     session['timeout'] = now+600
     session['output'] = ''.join(random.SystemRandom().choice(
                 string.ascii_uppercase + string.digits) for _ in range(32))
-    session['graph'] = os.path.join('src', 'static', session['output']+'.svg')
+    session['graph'] = os.path.join(app.config['TMP_FOLDER'], session['output']+'.svg')
     session['model'] = os.path.join(app.config['UPLOAD_FOLDER'], session['output']+'.dot')
-    session['output'] = os.path.join('tmp', session['output']+'-output')
+    session['output'] = os.path.join(app.config['TMP_FOLDER'], session['output']+'-output')
     session['ambiguities'] = {}
 
 def close_session():
