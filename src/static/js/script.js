@@ -420,7 +420,7 @@ function verify_property()
     $("main > h3").text('FTS')
     if($("#fts")[0].files[0]) {
         var prop = $("#property_text_area").val();
-        request = {url: full_url('verify_property'), data: {name: $("#fts")[0].files[0].name, property: prop},
+        request = {url: full_url('/verify_property'), data: {name: $("#fts")[0].files[0].name, property: prop},
             type: 'POST'};
         request['success'] = function(response){
             $("#show_explanation").prop("disabled", false);
@@ -474,7 +474,7 @@ function show_explanation()
 {
     $("main > h3").text('FTS')
     $("#console").text('debug');
-    request = {url: full_url('explanation'), data:{msg: 'show_exp'} ,type: 'POST'};
+    request = {url: full_url('/explanation'), data:{msg: 'show_exp'} ,type: 'POST'};
     
     request['success'] = function(response){
         $("#console").text(response['text']);
