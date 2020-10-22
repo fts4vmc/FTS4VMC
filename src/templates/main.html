@@ -3,10 +3,10 @@
     <head>
         <title>FTS4VMC</title>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <script src="static/js/script.js"></script>
-        <link rel="stylesheet" href="static/css/style.css">
-        <link rel="stylesheet" href="static/css/modal.css">
-        <link rel="stylesheet" href="static/css/tab.css">
+        <script src="{{ url_for('static', filename='js/script.js')}}"></script>
+        <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+        <link rel="stylesheet" href="{{url_for('static', filename='css/modal.css')}}">
+        <link rel="stylesheet" href="{{url_for('static', filename='css/tab.css')}}">
     </head>
     <body>
         <aside>

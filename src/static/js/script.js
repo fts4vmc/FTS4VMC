@@ -1,4 +1,6 @@
 $(function(){
+    if(!window.location.pathname.endsWith('/'))
+        window.history.pushState("", "FTS4VMC", window.location.pathname.concat('/'));
     $(window).on("beforeunload", {url: '/delete_model', success:update_textarea,
           show: [$("#load"), $("#fts")]}, command);
     $("#fts").prop("disabled", false);
@@ -510,7 +512,10 @@ function full_url(url)
 {
   if(url) {
     if(window.location.pathname != '/')
-      return window.location.pathname + url;
+      if(window.location.pathname.endsWith('/'))
+        return window.location.pathname.substring(0, window.location.pathname.length-1) + url;
+      else
+        return window.location.pathname + url;
     else
       return url;
   }
