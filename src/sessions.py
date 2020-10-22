@@ -15,7 +15,7 @@ def check_session():
 
 @app.route('/keep_alive', methods=['POST'])
 def update_session_timeout():
-    tmp = ['output', 'graph', 'model']
+    tmp = ['output', 'graph', 'model', 'counter_graph']
     if check_session():
         session['timeout'] = time.time()+600
         for target in tmp:
@@ -35,6 +35,8 @@ def new_session():
     session['output'] = ''.join(random.SystemRandom().choice(
                 string.ascii_uppercase + string.digits) for _ in range(32))
     session['graph'] = os.path.join(app.config['TMP_FOLDER'], session['output']+'.svg')
+    
+    session['counter_graph'] = os.path.join(app.config['TMP_FOLDER'], session['output'] + 'counterexamplegraph.svg')
     session['model'] = os.path.join(app.config['UPLOAD_FOLDER'], session['output']+'.dot')
     session['output'] = os.path.join(app.config['TMP_FOLDER'], session['output']+'-output')
     session['ambiguities'] = {}

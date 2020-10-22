@@ -427,7 +427,7 @@ def show_counter_graph():
         if clean_counter == 'NO':
             return {"text": 'The formula is TRUE'}, 200
         t.load_mts(clean_counter)
+        print('debug' + session['graph'])
+        print('debug:' + session['counter_graph'])
         t.mts_to_dot(session['counter_graph']) 
-        ret_val = session['counter_graph'].split('/',1)
-        return {"graph": '/' + ret_val[1]}, 200
-
+        return {"graph": os.path.join('static','tmp',os.path.basename(session['counter_graph']))}, 200
