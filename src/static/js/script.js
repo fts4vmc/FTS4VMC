@@ -521,6 +521,8 @@ function full_url(url)
     else
       return url;
   }
+}
+
 function load_counter_graph(response)
 {
     $("#counter_image").attr('src', '');
@@ -543,5 +545,4 @@ function show_counter_graph()
     $(".source").hide();
     $("#legend").show();
     $("#counter_image").show();
->>>>>>> explanation_graphviz
 }
