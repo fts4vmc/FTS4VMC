@@ -72,6 +72,8 @@ There are four tabs used to show different aspects about the loaded FTS:
 + Source
 + Graph
 + Summary
++ Counterexample graph
+
 
 #### Console ####
 
@@ -121,6 +123,10 @@ The displayed information are:
 
 This summary can also be downloaded by pressing **Download displayed result** in HTML format.
 
+#### Counterexample graph ####
+
+This tab is used to render the counterexample, obtained with the **Show explanation** button, as a graph(See VMC section below)
+
 ### Analysis ###
 
 #### Full ambiguities analysis ####
@@ -166,7 +172,7 @@ This command combines the two types of ambiguities removal inside a single comma
 FTS can quickly be converted into MTS by replacing transition with feature expression True into MTS's must transition and every other transition into an admissible one.  
 By clicking on **View modal transition system** the user can quickly pass to an MTS view updating both the source code tab and the image inside the graph tab.
 
-### VMC ###
+### <a name="vmc-section"></a> VMC ###
 
 Once an analysis is fully completed and the FTS is found alive it is possible to verify properties expressed using the process algebra compatible with the Variable Model Checker.  
 Properties can be written inside the textarea under the **Verify properties** button.  
