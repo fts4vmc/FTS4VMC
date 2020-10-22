@@ -310,7 +310,7 @@ def verify_property():
         queue = pm.get_queue(session['id'])
         if not queue:
             return {"text":"No ambiguities data available execute a full analysis first"}, 400
-    if not (len(session['ambiguities']['hidden']) == 0):
+    if (len(session['ambiguities']['hidden']) != 0):
         return {"text":"Hidden deadlocks detected. It is necessary to remove them before checking the property"}, 400
 
     fname = secure_filename(request.form['name'])
@@ -398,4 +398,36 @@ def reload_graph():
             return {"source":os.path.join('static', 'tmp',
                 os.path.basename(session['graph']))}, 200
     return {"text":message}, 400
+
+def clean_counterexample():
+    global vmc
+    counter = vmc.get_explanation()
+    lines = counter.split('\n')
+    clean_counter = ''
+    is_false = False
+    for line in lines:
+        if "-->" in line:
+            #if at least an occurrence of '-->' is found we can infer
+            #that the formula was evaluated as FALSE
+            is_false = True
+            clean_counter = clean_counter + line + '\n'
+    if is_false:
+        return clean_counter
+    else:
+        return 'NO'
+    
+
+@app.route('/counter_graph', methods=['POST'])
+def show_counter_graph():
+    if sessions.check_session():
+        if vmc == None:
+            return {"text": 'No translation has been performed'}, 400
+        t = Translator()
+        clean_counter = clean_counterexample()
+        if clean_counter == 'NO':
+            return {"text": 'The formula is TRUE'}, 200
+        t.load_mts(clean_counter)
+        t.mts_to_dot(session['counter_graph']) 
+        ret_val = session['counter_graph'].split('/',1)
+        return {"graph": '/' + ret_val[1]}, 200
 
