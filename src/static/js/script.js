@@ -505,8 +505,7 @@ function apply_transform()
 function load_counter_graph(response)
 {
     $("#counter_image").attr('src', '');
-    //$("#counter_image").attr('src', response['graph']+"?random="+new Date().getTime());
-    $("#counter_image").attr('src', response['graph']);
+    $("#counter_image").attr('src', response['graph']+"?random="+new Date().getTime());
     $("#counter-div > p").text('').hide();
 }
 
