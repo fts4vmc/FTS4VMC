@@ -419,6 +419,7 @@ def clean_counterexample():
 
 @app.route('/counter_graph', methods=['POST'])
 def show_counter_graph():
+    global vmc
     if sessions.check_session():
         if vmc == None:
             return {"text": 'No translation has been performed'}, 400
@@ -427,7 +428,5 @@ def show_counter_graph():
         if clean_counter == 'NO':
             return {"text": 'The formula is TRUE'}, 200
         t.load_mts(clean_counter)
-        print('debug' + session['graph'])
-        print('debug:' + session['counter_graph'])
         t.mts_to_dot(session['counter_graph']) 
         return {"graph": os.path.join('static','tmp',os.path.basename(session['counter_graph']))}, 200

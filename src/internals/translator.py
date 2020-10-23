@@ -34,14 +34,34 @@ class Translator:
         single_transition = {}#map (state,boolean_var) | boolean_var = true iff state has only one transition
         for t in self.__fts._transitions:
             id = str(t._in._id)
+            
+            label = str(t._label)
+            unlabeled = label.find('-')
+            if unlabeled >= 0:
+                l_pt1 = label[:unlabeled]
+                l_pt2 = label[unlabeled+1:]
+                label = l_pt1 + '_unlabeled_' + l_pt2
+            
+            open_br = label.find('(')
+            if open_br >= 0:
+                l_pt1 = label[:open_br]
+                l_pt2 = label[open_br+1:]
+                label = l_pt1 + l_pt2
+
+            close_br = label.find(')')
+            if close_br >= 0:
+                l_pt1 = label[:close_br]
+                l_pt2 = label[close_br+1:]
+                label = l_pt1 + l_pt2
+
             if id not in adj:
                 if len(self.__fts._states[id]._out) > 1:
-                    tmp = 'C' + id + ' = ' + str(t._label) + '(may).' + 'C' + str(t._out._id)
+                    tmp = 'C' + id + ' = ' + label + '(may).' + 'C' + str(t._out._id)
                 else:
-                    tmp = 'C' + id + ' = ' + str(t._label) + '.C' + str(t._out._id)
+                    tmp = 'C' + id + ' = ' + label + '.C' + str(t._out._id)
                 adj.update([(id,tmp)])
             else:
-                adj[id] += ' + ' + str(t._label) + '(may).' + 'C' + str(t._out._id)
+                adj[id] += ' + ' + label  + '(may).' + 'C' + str(t._out._id)
         for a in adj:
             self.output += adj[a] + '\n'
         self.output += '\n' + initial_state + '\n\nConstraints{ LIVE }'
@@ -62,8 +82,6 @@ class Translator:
         mts_lines = self._mts.split('\n')
         for line in mts_lines[:len(mts_lines)-1]:
             if line != "\n":
-                print("line:")
-                print(line)
                 state, edges_line = line.split('-->')
                 state_num_str = re.findall(r'\d+', state)
                 state_num = int(state_num_str[0])
@@ -72,14 +90,13 @@ class Translator:
                 state_num_2 = int(state_num_str[0])  
                 tmp_list = rest.split(', ')
                 if(len(tmp_list) == 2):#may, <something>
-                    mode, feature = rest.split(', ')
-                    label = mode + ' | ' + feature
+                    action, feature = rest.split(', ')
+                    label = action + ' | ' + feature
                 else:#<something>
                     label = rest
                 new_edge = pydot.Edge(state_num_str[0],state_num_str2[0])
                 new_edge.obj_dict['attributes']['label'] = label 
                 dot.add_edge(new_edge)
-                print(dot.to_string())
         svg_graph = dot.create_svg()
         if out_file:
             with open(out_file,'wb') as of:
