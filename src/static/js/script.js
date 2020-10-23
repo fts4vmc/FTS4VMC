@@ -546,4 +546,5 @@ function show_counter_graph()
     $(".console").hide();
     $("#summary").hide();
     $(".source").hide();
+    $("#image-div *").hide();
 }
