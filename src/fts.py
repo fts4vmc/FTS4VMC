@@ -429,4 +429,8 @@ def show_counter_graph():
             return {"text": 'The formula is TRUE'}, 200
         t.load_mts(clean_counter)
         t.mts_to_dot(session['counter_graph']) 
-        return {"graph": os.path.join('static','tmp',os.path.basename(session['counter_graph']))}, 200
+        if(os.path.isfile(os.path.join(app.config['TMP_FOLDER'], 
+            os.path.basename(session['counter_graph'])))):
+            return {"graph": os.path.join('static','tmp', os.path.basename(session['counter_graph']))}, 200
+        else:
+            return {'text': 'No counter example graph available'}, 404

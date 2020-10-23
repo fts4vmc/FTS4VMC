@@ -92,6 +92,7 @@ function show_console()
     $("#legend").hide();
     $("#summary").hide();
     $(".source").hide();
+    $("#counter-div *").hide();
     $(".console").show();
 }
 
@@ -101,6 +102,7 @@ function show_summary()
     $("#legend").hide();
     $(".console").hide();
     $(".source").hide();
+    $("#counter-div *").hide();
     $("#summary").show();
 }
 
@@ -110,6 +112,7 @@ function show_source()
     $("#legend").hide();
     $(".console").hide();
     $("#summary").hide();
+    $("#counter-div *").hide();
     $(".source").show();
 }
 
@@ -150,6 +153,7 @@ function show_graph()
     $(".console").hide();
     $("#summary").hide();
     $(".source").hide();
+    $("#counter-div *").hide();
     $("#legend").show();
     $("#image").show();
 }
@@ -525,24 +529,22 @@ function full_url(url)
 
 function load_counter_graph(response)
 {
-    $("#counter_image").attr('src', '');
-    $("#counter_image").attr('src', response['graph']+"?random="+new Date().getTime());
+    $("#counter_image").attr('src', response['graph']+"?random="+new Date().getTime()).show();
     $("#counter-div > p").text('').hide();
 }
 
 function show_counter_graph()
 {
-    request = {url:'/counter_graph', type:'POST'};
+    request = {url:full_url('/counter_graph'), type:'POST'};
     request['success'] = load_counter_graph;
     request['error'] = function(response)
     {
         $("#counter-div > p").text(response.responseJSON['text']).show();
-        $("#counter_image").attr('src', '');
+        $("#counter_image").attr('src', '').hide;
     };
     $.ajax(request);
     $(".console").hide();
     $("#summary").hide();
     $(".source").hide();
-    $("#legend").show();
-    $("#counter_image").show();
+    $("#image-div *").hide();
 }
