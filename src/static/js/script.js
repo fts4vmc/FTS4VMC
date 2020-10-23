@@ -535,7 +535,7 @@ function load_counter_graph(response)
 
 function show_counter_graph()
 {
-    request = {url:'/counter_graph', type:'POST'};
+    request = {url:full_url('/counter_graph'), type:'POST'};
     request['success'] = load_counter_graph;
     request['error'] = function(response)
     {
