@@ -123,8 +123,8 @@ function update_textarea_graph(show, response)
 
 function load_graph(response)
 {
-    $("#image").attr('src', '');
-    $("#image").attr('src', response['source']+"?random="+new Date().getTime());
+    if(response['source'])
+      $("#image").attr('src', response['source']+"?random="+new Date().getTime());
     $("#image-div > p").text('').hide();
 }
 
