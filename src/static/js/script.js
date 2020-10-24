@@ -514,8 +514,9 @@ function full_url(url)
 
 function load_counter_graph(response)
 {
+  if(response['graph'])
     $("#counter_image").attr('src', response['graph']+"?random="+new Date().getTime()).show();
-    $("#counter-div > p").text('').hide();
+  $("#counter-div > p").text('').hide();
 }
 
 function show_counter_graph()
