@@ -54,7 +54,7 @@
             <button class="command operation" id="verify_properties" type="button" disabled>Verify property</button>
             <textarea disabled id="property_text_area" name="property_text_area" rows="20" cols="50">Insert an ACTL formula to verify</textarea>
             <button class="command operation" id="show_explanation" type="button" disabled>Show explanation</button>
-            <table id="legend">
+            <table class="hideme" id="legend">
               <caption>Legend</caption>
               <tr><td id="dead">dead transition</td></tr>
               <tr><td id="false">false optional transition</td></tr>
@@ -73,22 +73,22 @@
                 <button type="button" id="message"></button>
                 <a id="downloader"href="" download="" style="display: none">Download</a>
             </div>
-            <div class="console" name="console">
+            <div class="console hideme" name="console">
               <textarea id="console" class="console" readonly></textarea>
             </div>
             <div id="image-div" name="image">
-              <p></p>
-              <img id="image" />
+              <p class="hideme"></p>
+              <img class="hideme" id="image" />
             </div>
-            <div id="summary" name="summary">
+            <div class="hideme" id="summary" name="summary">
             </div>
-            <div class="source">
+            <div class="source hideme">
               <textarea id="source" class="source" readonly></textarea>
               <input type="hidden" id="tmp-source" name="MTS">
             </div>
             <div id="counter-div" name="counter_image">
-              <p></p>
-              <img id="counter_image" />
+              <p class="hideme"></p>
+              <img class="hideme" id="counter_image" />
             </div>
         </main>
         <div id="modal" class="modal">

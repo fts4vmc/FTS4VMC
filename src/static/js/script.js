@@ -88,31 +88,19 @@ function load_mts()
 
 function show_console()
 {
-    $("#image-div *").hide();
-    $("#legend").hide();
-    $("#summary").hide();
-    $(".source").hide();
-    $("#counter-div *").hide();
+    $(".hideme").hide();
     $(".console").show();
 }
 
 function show_summary()
 {
-    $("#image-div *").hide();
-    $("#legend").hide();
-    $(".console").hide();
-    $(".source").hide();
-    $("#counter-div *").hide();
+    $(".hideme").hide();
     $("#summary").show();
 }
 
 function show_source()
 {
-    $("#image-div *").hide();
-    $("#legend").hide();
-    $(".console").hide();
-    $("#summary").hide();
-    $("#counter-div *").hide();
+    $(".hideme").hide();
     $(".source").show();
 }
 
@@ -150,10 +138,7 @@ function show_graph()
         $("#image").attr('src', '');
     };
     $.ajax(request);
-    $(".console").hide();
-    $("#summary").hide();
-    $(".source").hide();
-    $("#counter-div *").hide();
+    $(".hideme").hide();
     $("#legend").show();
     $("#image").show();
 }
@@ -543,8 +528,5 @@ function show_counter_graph()
         $("#counter_image").attr('src', '').hide;
     };
     $.ajax(request);
-    $(".console").hide();
-    $("#summary").hide();
-    $(".source").hide();
-    $("#image-div *").hide();
+    $(".hideme").hide();
 }
