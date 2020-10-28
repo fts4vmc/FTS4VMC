@@ -23,6 +23,8 @@ def is_fts(file_path):
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
+    """This function allows file uploading while checking if the provided
+    file is valid and creating necessary folders if not present"""
     payload = {}
     dot = ""
     sessions.close_session()
@@ -46,7 +48,7 @@ def upload_file():
             if not puremagic.from_file(file_path) in ALLOWED_EXTENSIONS:
                 os.remove(file_path)
                 return {"text":"Incompatible file format"}, 400
-            if(not is_fts(file_path)):
+            if not is_fts(file_path):
                 os.remove(file_path)
                 return {"text":"The given file is not a FTS or contains errors"}, 400
             with open(file_path, 'r') as source:
@@ -63,6 +65,14 @@ def upload_file():
     return {"text": "Invalid request"}, 400
 
 def delete_old_file(fmt, timeout, path):
+    """Deletes file in the specified format older than timeout inside path
+
+    Arguments:
+    fmt -- File format to be deleted.
+    timeout -- Maximum time in seconds after which file are considered
+        deletable.
+    path -- Path containing files to be deleted
+    """
     for f in os.listdir(path):
         f = os.path.join(path, f)
         if f.split('.')[-1] == fmt:
@@ -73,6 +83,8 @@ def delete_old_file(fmt, timeout, path):
                 pass
 
 def deleter():
+    """Wait for 900 seconds then delete all temporary files older then
+    900 seconds, forever"""
     timeout = 900
     while True:
         time.sleep(timeout)
@@ -83,12 +95,15 @@ def deleter():
         delete_old_file('dot', timeout, app.config['TMP_FOLDER'])
 
 def start_deleter():
+    """Launch the deleter process as a daemon this ensure that the deleter
+    process will end on parent process termination"""
     pm = ProcessManager.get_instance()
     thread = Process(target=deleter, daemon=True)
     pm.add_process('deleter', thread)
     pm.start_process('deleter')
 
 def final_delete():
+    """Deletes all temporary files, used on server shutdown"""
     delete_old_file('svg', 0, app.config['TMP_FOLDER'])
     delete_old_file('dot', 0, os.path.join('uploads'))
     delete_old_file('txt', 0, app.config['TMP_FOLDER'])
