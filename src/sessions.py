@@ -8,6 +8,8 @@ from flask import session
 from src.internals.process_manager import ProcessManager
 
 def check_session():
+    """Check if the current session is still valid by verifying if the
+    timeout value is still bigger than the current time."""
     if ('timeout' in session and session['timeout'] is not None 
             and session['timeout'] > time.time()):
         return True
@@ -15,6 +17,8 @@ def check_session():
 
 @app.route('/keep_alive', methods=['POST'])
 def update_session_timeout():
+    """Updates timeout for valid sessions and updates last modification
+    time for existing files related to the session"""
     tmp = ['output', 'graph', 'model', 'counter_graph']
     if check_session():
         session['timeout'] = time.time()+600
@@ -27,6 +31,8 @@ def update_session_timeout():
     return {'text':'ok'}, 200
 
 def new_session():
+    """Deletes file related to the previous session and sets value for the
+    new one"""
     if 'output' in session and session['output']:
         delete_output_file()
     now = time.time()
@@ -42,6 +48,8 @@ def new_session():
     session['ambiguities'] = {}
 
 def close_session():
+    """Closes a session by deleting all of its related files and by freeing
+    the related session dictionary."""
     pm = ProcessManager.get_instance()
     session.pop('timeout', None)
     session.pop('position', None)
@@ -53,10 +61,15 @@ def close_session():
     session.pop('ambiguities', None)
 
 def delete_output_file():
+    """Deletes output file for the current session"""
     if 'output' in session:
-        files = [session['output'], session['output']+'log.txt',
-                session['output']+'summary.html', session['output']+'graph.svg',
-                session['output']+'model.dot']
+        files = [
+                session['output'], 
+                session['output']+'log.txt',
+                session['output']+'summary.html', 
+                session['output']+'graph.svg',
+                session['output']+'model.dot'
+                ]
         for f in files:
             try:
                 os.remove(f)
