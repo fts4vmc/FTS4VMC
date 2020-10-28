@@ -99,8 +99,18 @@ def final_delete():
 
 @app.route('/download', methods=['POST'])
 def download():
+    """The function returns the path to the requested file
+
+    Arguments:
+    request.form['target'] -- Part of the HTTP request is used to choose
+        the right file.
+    request.form['main'] -- Part of the HTTP request is used to populate
+        the content of the temporary file used to serve the download."""
     if not sessions.check_session():
         return {'text':"Session timed-out"}, 400
+
+    if not ('target' in request.form and 'main' in request.form):
+        return {'text':"Invalid request"}, 400
 
     payload = 'empty'
     mimetype = ''
