@@ -2,7 +2,6 @@ import os
 import time
 import puremagic
 from flask import session, request
-from werkzeug.utils import secure_filename
 from src.fts import app
 import src.sessions as sessions
 import src.internals.graph as graphviz
@@ -42,7 +41,6 @@ def upload_file():
         if file.filename == '':
             return {"text": 'No selected file'}, 400
         if file:
-            filename = secure_filename(file.filename)
             file_path = session['model']
             file.save(file_path)
             if not puremagic.from_file(file_path) in ALLOWED_EXTENSIONS:
