@@ -132,6 +132,8 @@ class Disambiguator(object):
         return False
 
     def __set_color(self, transition_list, color):
+        """Updates transition style by changing color and applying bold style
+        for the matching transition, contained in transition list."""
         for transition in transition_list:
             edge_list = self.__fts.get_edge(transition['src'], transition['dst'])
             for edge in edge_list:
@@ -144,6 +146,8 @@ class Disambiguator(object):
 
 
     def highlight_ambiguities(self, dead =[], false =[], hidden=[]):
+        """Given list containing ambiguities it updates the style on the graph
+        changing the color of the matched element"""
         self.__set_color(dead, "blue")
         self.__set_color(false, "green")
 
@@ -151,4 +155,5 @@ class Disambiguator(object):
             self.__fts.add_node(pydot.Node(name=state, style = 'filled', fillcolor = 'red', fontcolor = 'white'))
 
     def get_graph(self):
+        """Return the source of the graph in string form"""
         return self.__fts.to_string()
