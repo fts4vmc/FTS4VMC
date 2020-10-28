@@ -1,4 +1,15 @@
 $(function(){
+    var hdead_show = [ $("#full"), $("#hdead"), $("#delete"), $("#mts"),
+        $("#stop"), $("#download"), $("#fts"), $("#verify_properties"),
+        $("#property_text_area")
+    ];
+    var full_show = [$("#disambiguate"), $("#fopt"), $("#hdd"), 
+        $("#full"), $("#hdead"), $("#delete"), $("#stop"),
+        $("#fts"), $("#verify_properties"), $("#mts"), $("#download"),
+        $("#property_text_area")
+    ];
+    var stop_show = [$("#full"), $("#hdead"), $("#mts"),
+        $("#delete"), $("#fts"), $("#download")];
     if(!window.location.pathname.endsWith('/'))
         window.history.pushState("", "FTS4VMC", window.location.pathname.concat('/'));
     $(window).on("beforeunload", {url: '/delete_model', success:update_textarea,
@@ -14,45 +25,27 @@ $(function(){
     $("aside").on("click", "#load", upload_file);
     $("aside").on("click", "#mts", load_mts);
     $("aside").on("click", "#download", download);
-    $("aside").on("click", "#full", 
-        {url: '/full_analysis', success:timed_update_textarea, 
-            show:[
-                $("#disambiguate"), $("#fopt"), $("#hdd"), 
-                $("#full"), $("#hdead"), $("#delete"), $("#stop"),
-                $("#fts"), $("#verify_properties"), $("#mts"), $("#download"),
-                $("#property_text_area")]
-        }, command);
-    $("aside").on("click", "#hdead", 
-        {url: '/hdead_analysis', success:timed_update_textarea, 
-            show:[$("#full"), $("#hdead"), $("#delete"), $("#mts"),
-                $("#stop"), $("#download"), $("#fts"), $("#verify_properties"),
-                $("#property_text_area")]
-        }, modal_command);
+    $("aside").on("click", "#full", {url: '/full_analysis', 
+        success:timed_update_textarea, show:full_show}, command);
+    $("aside").on("click", "#hdead", {url: '/hdead_analysis',
+        success:timed_update_textarea, show:hdead_show}, modal_command);
     $("aside").on("click", "#delete", 
         {url: '/delete_model', success:update_textarea,
           show: [$("#load"), $("#fts")]}, command);
-    $("aside").on("click", "#stop", 
-        {url: '/stop', success:update_textarea, 
-            show:[
-              $("#full"), $("#hdead"), $("#mts"),
-              $("#delete"), $("#fts"), $("#download")]}, command);
-    $("aside").on("click", "#disambiguate", 
-        {url: '/remove_ambiguities', name:'all', success:update_textarea_graph},
-        solve);
-    $("aside").on("click", "#fopt", 
-        {url: '/remove_false_opt', name:'fopt', success:update_textarea_graph},
-        solve);
+    $("aside").on("click", "#stop", {url: '/stop', success:update_textarea, 
+        show:stop_show}, command);
+    $("aside").on("click", "#disambiguate", {url: '/remove_ambiguities', 
+        name:'all', success:update_textarea_graph}, solve);
+    $("aside").on("click", "#fopt", {url: '/remove_false_opt', name:'fopt', 
+        success:update_textarea_graph},solve);
     $("aside").on("click", "#hdd", 
         {url: '/remove_dead_hidden', name:'hdd', success:update_textarea_graph}, 
         solve);
     $("aside").on("click", "#verify_properties", verify_property);
     $("aside").on("click", "#show_explanation", show_explanation);
     $("aside").on("click", "#apply", apply_transform);
-    $("body").on("click", "#mconfirm", 
-        {url: '/hdead_analysis', success:timed_update_textarea, 
-            show:[$("#full"), $("#hdead"), $("#delete"), $("#mts"),
-                $("#stop"), $("#download"), $("#fts"), $("#verify_properties"),
-                $("#property_text_area")]}, command);
+    $("body").on("click", "#mconfirm", {url: '/hdead_analysis', 
+      success:timed_update_textarea, show:hdead_show}, command);
     $("body").on("click", "#mcancel", function() { $("#modal").hide();});
     keep_alive();
 }); 
