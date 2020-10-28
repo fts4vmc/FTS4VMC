@@ -90,7 +90,7 @@ def start_deleter():
     pm.add_process('deleter', thread)
     pm.start_process('deleter')
 
-def stop_deleter():
+def final_delete():
     delete_old_file('svg', 0, app.config['TMP_FOLDER'])
     delete_old_file('dot', 0, os.path.join('uploads'))
     delete_old_file('txt', 0, app.config['TMP_FOLDER'])

@@ -32,7 +32,7 @@ import src.sessions as sessions
 import src.file_manager as fm
 
 app.before_first_request(fm.start_deleter)
-atexit.register(fm.stop_deleter)
+atexit.register(fm.final_delete)
 
 @app.errorhandler(413)
 def request_entity_too_large(error):
