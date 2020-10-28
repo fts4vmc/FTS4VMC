@@ -5,7 +5,7 @@ import subprocess
 separator = '-------------------------------------------\nThe formula:' 
 
 class VmcController:
-    __slots__ = ['vmc_path','output','explanation','counterexample']
+    __slots__ = ['vmc_path','output','_formula','_eval','_details','explanation','counterexample']
 
     def __init__(self,vmc_path):
         if(not os.path.isfile(vmc_path)):
@@ -15,6 +15,9 @@ class VmcController:
             self.output = ''
             self.explanation = ''
             self.counterexample = ''
+            self._formula = ''
+            self._eval = ''
+            self._details = ''
 
     def _is_true(self):
         idx = self.output.find('is: TRUE')
@@ -45,17 +48,37 @@ class VmcController:
         tmp_output = ''
         tmp_output += 'The Formula: ' + formula
         if(self._is_true()):
+            self._eval = 'TRUE'
             tmp_output += ' is TRUE'
-            if(self._holds_for_variants()):
-                tmp_output += ' and holds for all the MTS variants'
         else:
             tmp_output += ' is FALSE.\nEven if the formula is FALSE for the MTS, its validity is not necessarily preserved by the MTS variants'
+
+ 
+        if(self._holds_for_variants()):
+            self._details = ' and holds for all the MTS variants'
+            tmp_output += ' and holds for all the MTS variants'
+        else:
+            tmp_output += ' even if the formula is ' + self._eval + ' for the MTS, its validity is not necessarily preserved by the MTS variants'
+            self._details = ' even if the formula is ' + self._eval + ' for the MTS, its validity is not necessarily preserved by the MTS variants'
+
+
         self.output = tmp_output
+        self._formula = formula
+        
 
     def get_output(self):
         if(self.output == ''):
             return 'Nothing to show.'
         return self.output
+
+    def get_formula(self):
+        return self._formula
+
+    def get_eval(self):
+        return self._eval
+
+    def get_details(self):
+        return self._details
 
     def get_explanation(self):
         if(self.explanation == ''):
