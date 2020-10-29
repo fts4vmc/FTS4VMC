@@ -21,11 +21,20 @@ class VmcController:
 
     def _is_true(self):
         idx = self.output.find('is: TRUE')
-        return not (idx == -1)
+        return idx != -1
 
     def _holds_for_variants(self):
-        idx = self.output.find('')
-        return not (idx == -1)
+        idx = self.output.find('The formula holds also for all the MTS variants')
+        return idx != -1
+
+    def _holds_for_no_variant(self):
+        idx = self.output.find('The formula does NOT hold for any MTS variant')
+        return idx != -1
+    
+    def _is_formula(self):
+        print(self.output)
+        idx = self.output.find('Nothing to explain! first type in an UCTL formula!')
+        return idx == -1
 
     def run_vmc(self, model, properties):
         if(not os.path.isfile(model)):
@@ -34,6 +43,7 @@ class VmcController:
             raise ValueError('Invalid properties file')
         self.output = subprocess.check_output(self.vmc_path + ' ' + model + ' ' + properties + ' +z', shell=True)
         decoded = self.output.decode("utf-8")
+        print(decoded)
         if separator in decoded:
             self.output, self.explanation = decoded.split(separator,1) 
             self.explanation = separator +'\n' + self.explanation 
@@ -41,30 +51,43 @@ class VmcController:
                 self.explanation = 'Nothing to show: the formula is TRUE'
         else:
             self.output = decoded
-        #Rewriting output
+
+        #Checking formula
         formula = ''
         with open(properties,"r") as prop_file:
             formula = prop_file.read()
+
+        if(not self._is_formula()):
+            self._formula = formula
+            self._eval = 'INVALID'
+            self._details = 'Nothing to explain! first type in an UCTL formula!'
+            return
+
+        
+        #Rewriting output
         tmp_output = ''
         tmp_output += 'The Formula: ' + formula
         if(self._is_true()):
             self._eval = 'TRUE'
             tmp_output += ' is TRUE'
         else:
-            tmp_output += ' is FALSE.\nEven if the formula is FALSE for the MTS, its validity is not necessarily preserved by the MTS variants'
+            self._eval = 'FALSE'
+            tmp_output += ' is FALSE'
 
  
         if(self._holds_for_variants()):
-            self._details = ' and holds for all the MTS variants'
+            self._details = 'and holds for all the MTS variants'
             tmp_output += ' and holds for all the MTS variants'
+        elif(self._holds_for_no_variant()):
+            self._details = 'and does NOT hold for any MTS variant'
         else:
-            tmp_output += ' even if the formula is ' + self._eval + ' for the MTS, its validity is not necessarily preserved by the MTS variants'
+            tmp_output += 'and, even if the formula is ' + self._eval + ' for the MTS, its validity is not necessarily preserved by the MTS variants'
             self._details = ' even if the formula is ' + self._eval + ' for the MTS, its validity is not necessarily preserved by the MTS variants'
 
 
         self.output = tmp_output
         self._formula = formula
-        
+                
 
     def get_output(self):
         if(self.output == ''):
