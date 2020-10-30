@@ -12,7 +12,10 @@ class Graph():
         Arguments:
         data -- String containing a pydot graph definition
         """
-        self.__graph = pydot.graph_from_dot_data(data)[0]
+        try:
+            self.__graph = pydot.graph_from_dot_data(data)[0]
+        except:
+            raise Exception("Invalid data")
         self.__graph.obj_dict['attributes']['rankdir'] = 'TB'
 
     @classmethod
