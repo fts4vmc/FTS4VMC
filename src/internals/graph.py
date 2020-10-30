@@ -41,6 +41,8 @@ class Graph():
     def draw_mts(self):
         """Return a string containing the MTS expressed in dot format."""
         mts = pydot.graph_from_dot_data(self.__graph.to_string())[0]
+        if mts.obj_dict['attributes']['FM']:
+            del mts.obj_dict['attributes']['FM']
         if mts.get_node('FeatureModel'):
             mts.del_node('FeatureModel')
         for edge in mts.get_edges():
