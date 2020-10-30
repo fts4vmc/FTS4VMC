@@ -407,7 +407,10 @@ function verify_property()
             type: 'POST'};
         request['success'] = function(response){
             $("#show_explanation").prop("disabled", false);
-            $("#console").text(response['text']);
+            $("#console").text("The result is being displayed below.");
+            $("#vmc_formula").text(response['formula']);
+            $("#vmc_eval").text(response['eval']);
+            $("#vmc_details").text(response['details']);
         };
         request['beforeSend'] = function(response) {
             show_console();

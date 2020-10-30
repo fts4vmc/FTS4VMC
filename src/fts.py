@@ -364,7 +364,10 @@ def verify_property():
             return {'text': 'An error occured'}, 400
         result = vmc.get_output()
         shutil.rmtree(session_tmp_folder)
-        return {"text": result}, 200
+        print(vmc.get_formula())
+        print(vmc.get_eval())
+        print(vmc.get_details())
+        return {"formula": vmc.get_formula(), "eval": vmc.get_eval(), "details": vmc.get_details()}, 200
     return {"text": 'File not found'}, 400
 
 @app.route('/explanation', methods=['POST'])
