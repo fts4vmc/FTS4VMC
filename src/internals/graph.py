@@ -1,5 +1,6 @@
 import pydot
 import os
+import puremagic
 
 class Graph():
     __slots__ = '__graph'
@@ -15,13 +16,20 @@ class Graph():
         self.__graph.obj_dict['attributes']['rankdir'] = 'TB'
 
     @classmethod
-    def from_file(self, filename):
+    def from_file(self, file_path):
         """Read the content of filename and creates a Graph instance
         using it as source.
 
         Arguments:
-        filename -- Path to the file containing the graph definition"""
-        with open(filename, 'r') as source:
+        file_path -- Path to the file containing the graph definition"""
+        with open(file_path, 'r') as source:
+            try:
+                if puremagic.from_file(file_path) != '.dot':
+                    raise Exception('Wrong file format')
+                    return None
+            except:
+                raise Exception('Wrong file format')
+                return None
             data = source.read()
             return self(data)
 
