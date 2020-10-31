@@ -1,0 +1,43 @@
+digraph SOUP { # the FTS is encoded as a directed graph
+  # the following three lines are only used for display
+  node [shape=circle];
+  rankdir=LR;  FeatureModel [shape=plaintext, style=filled, color=yellow, label="Omitted"];  # the feature model of the FTS
+  FM="(M <=> True) and (O <=> M) and (R => M) and (SC <=> M) and (X => M) and (E xor D) and (U => SC) and (S <=> SC) and (CS or PS or TS or (not S)) and (P => R) and ((D and SC) => U)";    # the feature model of the FTS
+  name="SOUP"; # the name of the FTS
+  0 [initial=True] # states that the initial state of the FTS is "0"
+  # all the transitions of the FTS; the label of a transition is 
+  # structured in two parts, separated with the "|" symbols:
+  #  - the first part is the action of the transition
+  #  - the second part is the feature expression of the transition
+  0 -> 1 [ label = "insertSoup(Euro) | SC and E" ];
+  0 -> 1 [ label = "insertSoup(Dollar) | SC and D" ];
+  1 -> 0 [ label = "cancelSoup | X" ];
+  1 -> 2 [ label = "tomato | TS" ];
+  1 -> 4 [ label = "chicken | CS" ]; 
+  1 -> 6 [ label = "pea | PS" ]; 
+  2 -> 3 [ label = "no_cup | U" ];
+  2 -> 8 [ label = "cup_present | U" ]; 
+  2 -> 8 [ label = "skip | not U" ];     
+  3 -> 2 [ label = "place_cup | U" ]; 
+  3 -> 0 [ label = "cancelSoup | X" ];   
+  4 -> 5 [ label = "no_cup | U" ]; 
+  4 -> 9 [ label = "cup_present | U" ]; 
+  4 -> 9 [ label = "skip | not U" ]; 
+  5 -> 4 [ label = "place_cup | U" ];
+  5 -> 0 [ label = "cancelSoup | X" ];     
+  6 -> 7 [ label = "no_cup | U" ]; 
+  6 -> 10 [ label = "cup_present | U" ];
+  6 -> 10 [ label = "skip | not U" ];    
+  7 -> 6 [ label = "place_cup | U" ];
+  7 -> 0 [ label = "cancelSoup | X" ];   
+  8 -> 11 [ label = "pour_tomato | TS" ]; 
+  9 -> 11 [ label = "pour_chicken | CS" ]; 
+  10 -> 11 [ label = "pour_pea | PS" ];
+  11 -> 12 [ label = "skip | not R" ];       
+  11 -> 12 [ label = "ring | R" ];
+  12 -> 0 [ label = "take_soup | M" ]; 
+  12 -> 0 [ label = "bad_luck | not U" ];
+}
+
+
+
