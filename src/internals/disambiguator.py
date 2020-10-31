@@ -11,7 +11,10 @@ class Disambiguator(object):
     __slots__ = '__fts', '__ctran', '__dead_name'
 
     def __init__(self, data, name = 'DEAD'):
-        self.__fts = pydot.graph_from_dot_data(data)[0]
+        try:
+            self.__fts = pydot.graph_from_dot_data(data)[0]
+        except:
+            raise Exception("Invalid data")
         #Force Tob to Bottom view to improve readbility on browser page
         self.__fts.obj_dict['attributes']['rankdir'] = 'TB'
         self.__ctran = c_translator()
@@ -40,8 +43,12 @@ class Disambiguator(object):
         constraint -- the target transition's constraint formula,
             using the notation given by analyser.c_translator
         """
+        if not (src and dst and label and constraint):
+            return
         transition_list = self.__fts.get_edge(src, dst)
         for index, transition in enumerate(transition_list):
+            if 'label' not in transition.obj_dict['attributes']:
+                continue
             tmp = transition.obj_dict['attributes']['label'][1:-1].split('|')
             if label.strip() == tmp[0].strip() and constraint == str(self.__ctran.c_translate(tmp[-1])):
                 self.__fts.del_edge(src, dst, index)
@@ -58,7 +65,8 @@ class Disambiguator(object):
             if isinstance(transition, Transition):
                 self.remove_transition(transition._in._id, transition._out._id,
                         str(transition._label), str(transition._constraint))
-            else:
+            elif ('src' in transition and 'dst' in transition and
+                    'label' in transition and 'constraint' in transition):
                 self.remove_transition(transition['src'], transition['dst'],
                         transition['label'], transition['constraint'])
 
@@ -72,8 +80,12 @@ class Disambiguator(object):
         constraint -- the target transition's constraint formula,
             using the notation given by analyser.c_translator
         """
+        if not (src and dst and label and constraint):
+            return
         transition_list = self.__fts.get_edge(src, dst)
         for transition in transition_list:
+            if 'label' not in transition.obj_dict['attributes']:
+                continue
             tmp = transition.obj_dict['attributes']['label'][1:-1].split('|')
             if label.strip() == tmp[0].strip() and constraint == str(
                     self.__ctran.c_translate(tmp[-1])):
@@ -90,7 +102,8 @@ class Disambiguator(object):
             if isinstance(transition, Transition):
                 self.set_true(transition._in._id, transition._out._id,
                         str(transition._label), str(transition._constraint))
-            else:
+            elif ('src' in transition and 'dst' in transition and
+                    'label' in transition and 'constraint' in transition):
                 self.set_true(transition['src'], transition['dst'],
                         transition['label'], transition['constraint'])
 
@@ -101,6 +114,8 @@ class Disambiguator(object):
         state -- the hidden deadlock state name
         dead_state -- the deadlock state name
         """
+        if not (state and dead_state):
+            return
         if not self._still_hidden_deadlock(state):
             return
         #If transition between state and dead_state already exists do nothing
@@ -108,8 +123,10 @@ class Disambiguator(object):
             return
         transition_list = self.__fts.get_edges()
         tmp = []
+        #Create feature expression of transition to dead_state
         for transition in transition_list:
-            if transition.get_source() == state:
+            if (transition.get_source() == state and
+                    'label' in transition.obj_dict['attributes']):
                 tmp.append('not (' + transition.obj_dict['attributes']['label'][1:-1].split('|')[-1] + ')')
         tmp_label = dead_state + " | " + " or ".join(tmp)
         self.__fts.add_edge(pydot.Edge(src=state, dst=dead_state, obj_dict=None, label=tmp_label))
@@ -143,10 +160,15 @@ class Disambiguator(object):
         """Updates transition style by changing color and applying bold style
         for the matching transition, contained in transition list."""
         for transition in transition_list:
+            if not ('src' in transition and 'dst' in transition and
+                    'label' in transition and 'constraint' in transition):
+                continue
             edge_list = self.__fts.get_edge(transition['src'], transition['dst'])
             for edge in edge_list:
+                if 'label' not in edge.obj_dict['attributes']:
+                    continue
                 tmp = edge.obj_dict['attributes']['label'][1:-1].split('|')
-                if (transition['label'].strip() == tmp[0].strip() and 
+                if (transition['label'].strip() == tmp[0].strip() and
                         transition['constraint'] == str(self.__ctran.c_translate(tmp[-1]))):
                     edge.obj_dict['attributes']['color'] = color
                     edge.obj_dict['attributes']['style'] = 'bold'
