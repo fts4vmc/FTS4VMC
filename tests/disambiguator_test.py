@@ -46,23 +46,41 @@ class TestDisambiguator:
             false_tr.get_color() == 'green' and 
             hidden_st.get_fillcolor() == 'red')
 
-#    def test_disambiguate():
-#        import os
-#        import src.internals.analyser as analyser
-#        dot = os.listdir(os.path.join('tests','dot'))
-#        for source in dot:
-#            dead = [] 
-#            false = [] 
-#            hidden = []
-#            fts_source = open(os.path.join('tests','dot', source), 'r')
-#            fts = analyser.load_dot(fts_source)
-#            analyser.z3_analyse_full(fts)
-#            for transition in fts._set_dead:
-#                dead.append({'src':transition._in._id, 'dst':transition._out._id,
-#                    'label':str(transition._label), 'constraint':str(transition._constraint)})
-#            for transition in fts._set_false_optional:
-#                false.append({'src':transition._in._id, 'dst':transition._out._id,
-#                    'label':str(transition._label), 'constraint':str(transition._constraint)})
-#            for state in fts._set_hidden_deadlock:
-#                hidden.append(state._id)
-#            dis = Disambiguator.from_file(os.path.join('tests', 'ambiguous.dot'))
+    def test_file_not_found(self):
+        with pytest.raises(FileNotFoundError):
+            Disambiguator.from_file('nothing')
+
+    def test_wrong_file_type(self):
+        import os
+        with pytest.raises(Exception, match=r"Wrong file format"):
+            Disambiguator.from_file(os.path.join('src', 'static', 'js', 'script.js'))
+
+    def test_wrong_data_type(self):
+        import os
+        with pytest.raises(Exception, match=r"Invalid data"):
+            with open(os.path.join('src','templates', 'main.html')) as source:
+                Disambiguator(source.read())
+
+    def test_disambiguate(self, tmp_path):
+        import os
+        import src.internals.analyser as analyser
+        dot = os.listdir(os.path.join('tests','dot'))
+        for source in dot:
+            dead = []
+            false = []
+            hidden = []
+            with open(os.path.join('tests','dot', source), 'r') as fts_source:
+                fts = analyser.load_dot(fts_source)
+            fts_source.close()
+            analyser.z3_analyse_full(fts)
+            dis = Disambiguator.from_file(os.path.join('tests', 'dot', source))
+            dis.remove_transitions(fts._set_dead)
+            dis.set_true_list(fts._set_false_optional)
+            dis.solve_hidden_deadlocks(fts._set_hidden_deadlock)
+            with open(os.path.join(tmp_path, "fixed-"+source), 'w') as out:
+                out.write(dis.get_graph())
+            with open(os.path.join(tmp_path, "fixed-"+source), 'r') as fixed:
+                fts = analyser.load_dot(fixed)
+            analyser.z3_analyse_full(fts)
+            assert not (fts._set_dead or fts._set_false_optional or
+                    fts._set_hidden_deadlock)
