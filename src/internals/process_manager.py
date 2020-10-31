@@ -22,7 +22,7 @@ class ProcessManager:
 
     def __init__(self):
         if ProcessManager.__instance != None:
-            raise Exception("Error")
+            raise Exception("A ProcessManager instance already exists")
         else:
             ProcessManager.__instance = self
             self.proc = {}
@@ -31,7 +31,10 @@ class ProcessManager:
     def add_process(self, key, process):
         """Given a string key, and a multiprocessing.Process process,
         it adds the process inside the proc dictionary"""
-        self.proc[key] = process
+        if isinstance(process, multiprocessing.Process):
+            self.proc[key] = process
+        else:
+            raise Exception("process must be instance of multiprocessing.Process")
 
     def process_exists(self, key):
         """Returns True if the given key is present inside the proc dictionary,
@@ -41,7 +44,10 @@ class ProcessManager:
     def is_alive(self, key):
         """Returns True if the process associated with key is still running,
         False otherwise"""
-        return self.proc[key].is_alive()
+        if key in self.proc:
+            return self.proc[key].is_alive()
+        else:
+            return False
 
     def start_process(self, key):
         """Start the process associated with key"""
@@ -62,7 +68,10 @@ class ProcessManager:
     def add_queue(self, key, queue):
         """Given a string key, and a multiprocessing.Queue queue,
         it adds the queue inside the queue dictionary"""
-        self.queue[key] = queue
+        if isinstance(queue, multiprocessing.queues.Queue):
+            self.queue[key] = queue
+        else:
+            raise Exception("queue must be instance of multiprocessing.Queue")
 
     def get_queue(self, key):
         """Given a string key returns the associated queue if exists"""
@@ -73,4 +82,5 @@ class ProcessManager:
 
     def delete_queue(self, key):
         """Given a string key removes the associated queue"""
-        self.queue.pop(key, None)
+        if key in self.queue:
+            self.queue.pop(key, None)
