@@ -1,4 +1,5 @@
 import pydot
+import puremagic
 from src.internals.analyser import c_translator, Transition, State
 
 class Disambiguator(object):
@@ -17,8 +18,15 @@ class Disambiguator(object):
         self.__dead_name = name
 
     @classmethod
-    def from_file(self, filename, name = 'DEAD'):
-        with open(filename, 'r') as source:
+    def from_file(self, file_path, name = 'DEAD'):
+        with open(file_path, 'r') as source:
+            try:
+                if puremagic.from_file(file_path) != '.dot':
+                    raise Exception('Wrong file format')
+                    return None
+            except:
+                raise Exception('Wrong file format')
+                return None
             data = source.read()
             return self(data, name)
 
