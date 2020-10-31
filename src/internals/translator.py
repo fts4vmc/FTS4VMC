@@ -28,6 +28,8 @@ class DoubleMap:
         return self._analyser_to_vmc[analyser_state]
 
     def vmc_to_analyser(self,vmc_state):
+        print(self._vmc_to_analyser)
+        print(self._analyser_to_vmc)
         return self._vmc_to_analyser[vmc_state]
 
     def contains_analyser_id(self,id):
@@ -35,15 +37,18 @@ class DoubleMap:
 
     def contains_vmc_id(self,id):
         return self._vmc_to_analyser[id]
+
     def get_vmc_states(self):
         return list(self._vmc_to_analyser.keys())
 
 class Translator:
-    __slots__= '__fts', 'output', '_mts', '_id_map'
-
+    __slots__= '__fts', 'output', '_mts', '__id_map'
 
     def __init__(self):
         self.output = ''
+        #This map is the most important one since it will hold the correspondence
+        #between the analyser states' names and the vmc states' ones
+        self.__id_map = DoubleMap()
 
     def load_model(self,path):
         #path := path to DOT file
@@ -63,24 +68,25 @@ class Translator:
         #map (state,boolean_var) | boolean_var = true iff state has only one
         #transition
         single_transition = {}
-        #This map is the most important one since it will hold the correspondence
-        #between the analyser's states and the vmc's ones
-        self._id_map = DoubleMap()
+                
         
-        
-        self._id_map.add_states(self.__fts._initial._id, 'C0') 
-        initial_state = 'SYS = C0'#The initial state is the same
-        last_state_num = -1
+        #Used in the following for cycle to determine the current state's
+        #name when inserted into the MTS
+        last_state_num = 0
 
         for t in self.__fts._transitions:
             id = str(t._in._id)
             tmp_state_id = last_state_num + 1
-            if(self._id_map.add_states(id,'C' + str(tmp_state_id)) == True):
+            if(self.__id_map.add_states(id,'C' + str(tmp_state_id)) == True):
                 last_state_num += 1
                 
             analyser_id = id #analyser id preserved(it is required below)
-            id = self._id_map.analyser_to_vmc(id)
-            
+            id = self.__id_map.analyser_to_vmc(id)
+            #Check if the state is the initial one
+            if(t._in._id == self.__fts._initial._id):
+                self.__id_map.add_states(self.__fts._initial._id, 'C0')
+                initial_state = 'SYS = ' + id
+
             label = str(t._label)
             unlabeled = label.find('-')
             if unlabeled >= 0:
@@ -102,36 +108,45 @@ class Translator:
 
             dest_id = str(t._out._id)#Will hold the destination state
             tmp_state_id = last_state_num + 1
-            if(self._id_map.add_states(dest_id,'C' + str(tmp_state_id))):
+            if(self.__id_map.add_states(dest_id,'C' + str(tmp_state_id))):
                 last_state_num += 1
 
-            dest_id = self._id_map.analyser_to_vmc(dest_id)
+            dest_id = self.__id_map.analyser_to_vmc(dest_id)
 
-            if analyser_id not in adj:
+            if self.__id_map.analyser_to_vmc(analyser_id) not in adj:
+                print(analyser_id)
+                print(adj)
                 if len(self.__fts._states[analyser_id]._out) > 1:
                     tmp = id + ' = ' + label + '(may).' + dest_id
                 else:
                     tmp = id + ' = ' + label + '.' + dest_id
                 adj.update([(id,tmp)])
             else:
+                print('updated')
                 adj[id] += ' + ' + label  + '(may).' + dest_id
+                print(adj[id])
 
-        for s in self._id_map.get_vmc_states():
+        for s in self.__id_map.get_vmc_states():
             if(s in adj):
                 self.output += adj[s] + '\n'
             else:
                 self.output += s + ' = dead.nil\n'
         self.output += '\n' + initial_state + '\n\nConstraints{ LIVE }'
+        print(self.output)
+        print(self.__id_map)
 
     def get_output(self):
         if self.output != '':
             return self.output
         else: return 'Nothing to show: No translation has occurred'
 
+    #The following methods are used to load an mts and to translate it into dot
+    #format. Required in order to being able to display the counterexample graph
     def load_mts(self,mts):
         self._mts = mts
 
     def mts_to_dot(self,out_file):
+        print(self.__id_map)
         if self._mts == None:
             return 'Nothing to show: No translation has occurred'
         dot = pydot.Dot()
@@ -140,18 +155,19 @@ class Translator:
         for line in mts_lines[:len(mts_lines)-1]:
             if line != "\n":
                 state, edges_line = line.split('-->')
-                state_num_str = re.findall(r'\d+', state)
-                state_num = int(state_num_str[0])
-                state_num_str2, rest = (edges_line[:len(edges_line)-1]).split('{')
-                state_num_str2 = re.findall(r'\d+', state_num_str2)
-                state_num_2 = int(state_num_str[0])  
+                state = state.replace(" ","")
+                state_num = self.__id_map.vmc_to_analyser(state)
+
+                state2, rest = (edges_line[:len(edges_line)-1]).split('{')
+                state2 = state2.replace(" ","")
+                state_num_2 = self.__id_map.vmc_to_analyser(state2)
                 tmp_list = rest.split(', ')
                 if(len(tmp_list) == 2):#may, <something>
                     action, feature = rest.split(', ')
                     label = action + ' | ' + feature
                 else:#<something>
                     label = rest
-                new_edge = pydot.Edge(state_num_str[0],state_num_str2[0])
+                new_edge = pydot.Edge(state_num,state_num_2)
                 new_edge.obj_dict['attributes']['label'] = label 
                 dot.add_edge(new_edge)
         svg_graph = dot.create_svg()

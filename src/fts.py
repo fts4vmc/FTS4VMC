@@ -34,6 +34,8 @@ import src.file_manager as fm
 app.before_first_request(fm.start_deleter)
 atexit.register(fm.final_delete)
 
+
+
 @app.errorhandler(413)
 def request_entity_too_large(error):
     return 'File Too Large', 413
@@ -303,6 +305,7 @@ def apply_hdd():
     return {'text':'Unable to update file model'}, 400
 
 
+
 @app.route('/verify_property', methods=['POST'])
 def verify_property():
     pm = ProcessManager.get_instance()
@@ -321,12 +324,14 @@ def verify_property():
     if (len(actl_property) == 0):
         return {"text":'Missing property to be verified'}, 400
 
-    if os.path.isfile(fpath):
-        t = Translator()
-        t.load_model(fpath)
-        t.translate()
 
-        vmc_string = t.get_output()
+    if os.path.isfile(fpath):
+        global translator
+        translator = Translator()
+        translator.load_model(fpath)
+        translator.translate()
+
+        vmc_string = translator.get_output()
         
         session_tmp_folder = session['output'].split('-output')[0]
         try:
@@ -423,15 +428,15 @@ def clean_counterexample():
 @app.route('/counter_graph', methods=['POST'])
 def show_counter_graph():
     global vmc
+    global translator
     if sessions.check_session():
-        if vmc == None:
+        if vmc == None or translator == None:
             return {"text": 'No translation has been performed'}, 400
-        t = Translator()
         clean_counter = clean_counterexample()
         if clean_counter == 'NO':
             return {"text": 'The formula is TRUE'}, 200
-        t.load_mts(clean_counter)
-        t.mts_to_dot(session['counter_graph']) 
+        translator.load_mts(clean_counter)
+        translator.mts_to_dot(session['counter_graph']) 
         if(os.path.isfile(os.path.join(app.config['TMP_FOLDER'], 
             os.path.basename(session['counter_graph'])))):
             return {"graph": os.path.join('static','tmp', os.path.basename(session['counter_graph']))}, 200
