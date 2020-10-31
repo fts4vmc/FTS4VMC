@@ -9,8 +9,37 @@ import re
 import traceback
 import src.internals.analyser as analyser
 
+class DoubleMap:
+    __slots__ = '_analyser_to_vmc', '_vmc_to_analyser'
+
+    def __init__(self):
+        self._analyser_to_vmc = {}
+        self._vmc_to_analyser = {}
+
+    def add_states(self,analyser_state,vmc_state):
+        if(not (analyser_state in self._analyser_to_vmc)):
+            self._analyser_to_vmc.update([(analyser_state, vmc_state)])
+            self._vmc_to_analyser.update([(vmc_state, analyser_state)])
+            return True
+        else:
+            return False
+
+    def analyser_to_vmc(self,analyser_state):
+        return self._analyser_to_vmc[analyser_state]
+
+    def vmc_to_analyser(self,vmc_state):
+        return self._vmc_to_analyser[vmc_state]
+
+    def contains_analyser_id(self,id):
+        return self._analyser_to_vmc[id]
+
+    def contains_vmc_id(self,id):
+        return self._vmc_to_analyser[id]
+    def get_vmc_states(self):
+        return list(self._vmc_to_analyser.keys())
+
 class Translator:
-    __slots__= '__fts', 'output', '_mts'
+    __slots__= '__fts', 'output', '_mts', '_id_map'
 
 
     def __init__(self):
@@ -29,11 +58,28 @@ class Translator:
             raise Exception('No model loaded!')
             return None
         self.output = ''
-        initial_state = 'SYS = C' + str(self.__fts._initial._id)#The initial state is the same
-        adj = {}#Dictionary used to map the id of a state to it's "adjacency list"
-        single_transition = {}#map (state,boolean_var) | boolean_var = true iff state has only one transition
+        #Dictionary used to map the id of a state to it's "adjacency list"
+        adj = {}
+        #map (state,boolean_var) | boolean_var = true iff state has only one
+        #transition
+        single_transition = {}
+        #This map is the most important one since it will hold the correspondence
+        #between the analyser's states and the vmc's ones
+        self._id_map = DoubleMap()
+        
+        
+        self._id_map.add_states(self.__fts._initial._id, 'C0') 
+        initial_state = 'SYS = C0'#The initial state is the same
+        last_state_num = -1
+
         for t in self.__fts._transitions:
             id = str(t._in._id)
+            tmp_state_id = last_state_num + 1
+            if(self._id_map.add_states(id,'C' + str(tmp_state_id)) == True):
+                last_state_num += 1
+                
+            analyser_id = id #analyser id preserved(it is required below)
+            id = self._id_map.analyser_to_vmc(id)
             
             label = str(t._label)
             unlabeled = label.find('-')
@@ -54,16 +100,27 @@ class Translator:
                 l_pt2 = label[close_br+1:]
                 label = l_pt1 + l_pt2
 
-            if id not in adj:
-                if len(self.__fts._states[id]._out) > 1:
-                    tmp = 'C' + id + ' = ' + label + '(may).' + 'C' + str(t._out._id)
+            dest_id = str(t._out._id)#Will hold the destination state
+            tmp_state_id = last_state_num + 1
+            if(self._id_map.add_states(dest_id,'C' + str(tmp_state_id))):
+                last_state_num += 1
+
+            dest_id = self._id_map.analyser_to_vmc(dest_id)
+
+            if analyser_id not in adj:
+                if len(self.__fts._states[analyser_id]._out) > 1:
+                    tmp = id + ' = ' + label + '(may).' + dest_id
                 else:
-                    tmp = 'C' + id + ' = ' + label + '.C' + str(t._out._id)
+                    tmp = id + ' = ' + label + '.' + dest_id
                 adj.update([(id,tmp)])
             else:
-                adj[id] += ' + ' + label  + '(may).' + 'C' + str(t._out._id)
-        for a in adj:
-            self.output += adj[a] + '\n'
+                adj[id] += ' + ' + label  + '(may).' + dest_id
+
+        for s in self._id_map.get_vmc_states():
+            if(s in adj):
+                self.output += adj[s] + '\n'
+            else:
+                self.output += s + ' = dead.nil\n'
         self.output += '\n' + initial_state + '\n\nConstraints{ LIVE }'
 
     def get_output(self):
