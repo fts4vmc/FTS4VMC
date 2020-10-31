@@ -1,0 +1,53 @@
+digraph MINE_PUMP { # the FTS is encoded as a directed graph
+  # the following three lines are only used for display
+  node [shape=circle];
+  rankdir=LR;  FeatureModel [shape=plaintext, style=filled, color=yellow, label="FM = l and (c <=> (ct or cp))"];
+  FM="l and (c <=> (ct or cp))";    # the feature model of the FTS
+  name="MINE PUMP"; # the name of the FTS
+  S6 [initial=True] # states that the initial state of the FTS is "S6"
+  # all the transitions of the FTS; the label of a transition is 
+  # structured in two parts, separated with the "|" symbols:
+  #  - the first part is the action of the transition
+  #  - the second part is the feature expression of the transition
+  S6 -> S7 [label="receiveMsg | True"]
+  S7 -> S8 [label="commandMsg | c"]
+  S7 -> S16 [label="palarmMsg | m"]
+  S7 -> S20 [label="levelMsg | l"]
+  S8 -> S9 [label="stopCmd | ct"]
+  S9 -> S10 [label="isRunning | ct"]
+  S9 -> S11 [label="isNotRunning | ct"]
+  S10 -> S11 [label="pumpStop | ct"]
+  S11 -> S12 [label="setStop | ct"]
+  S12 -> S6 [label="- | True"]
+  S8 -> S13 [label="startCmd | cp"]
+  S13 -> S14 [label="isNotRunning | cp"]
+  S13 -> S15 [label="isRunning | cp"]
+  S13 -> S15 [label="isReady | cp"]
+  S14 -> S15 [label="setReady | cp"]
+  S15 -> S6 [label="- | True"]
+  S16 -> S17 [label="isRunning | m"]
+  S16 -> S18 [label="isNotRunning | m"]
+  S17 -> S18 [label="pumpStop | m"]
+  S18 -> S19 [label="setMethaneStop | m"]
+  S19 -> S6 [label="- | True"]
+  S20 -> S21 [label="highLevel | lh"]
+  S20 -> S6 [label="normalLevel | ln"]
+  S20 -> S27 [label="lowLevel | ll"]
+  S21 -> S22 [label="isReady | lh"]
+  S21 -> S22 [label="isLowStop | ll"]
+  S22 -> S23 [label="setReady | lh"]
+  S22 -> S23 [label="setMethaneStop | m"]
+  S23 -> S24 [label="isReady | lh"]
+  S23 -> S26 [label="isNotReady | lh"]
+  S24 -> S25 [label="pumpStart | lh"]
+  S25 -> S26 [label="setRunning | lh"]
+  S26 -> S6 [label="- | True"]
+  S21 -> S26 [label="isMethaneStop | m"]
+  S21 -> S26 [label="isRunning | lh"]
+  S21 -> S26 [label="isStopped | lh"]
+  S27 -> S28 [label="isRunning | ll"]
+  S27 -> S30 [label="isNotRunning | ll"]
+  S28 -> S29 [label="pumpStop | ll"]
+  S29 -> S30 [label="setLowStop | ll"]
+  S30 -> S6 [label="- | True"]
+}

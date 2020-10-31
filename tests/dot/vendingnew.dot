@@ -1,0 +1,26 @@
+digraph VENDING_MACHINE { # the FTS is encoded as a directed graph
+  # the following three lines are only used for display
+  node [shape=circle];
+  rankdir=LR;
+  FeatureModel [shape=plaintext, style=filled, color=yellow, label="FM = s or t"];
+  FM="s or t";    # the feature model of the FTS
+  name="VENDING MACHINE"; # the name of the FTS
+  1 [initial=True] # the initial state of the FTS is "1"
+  # all the transitions of the FTS; the label of a transition is 
+  # structured in two parts, separated with the "|" symbols:
+  #  - the first part is the action of the transition
+  #  - the second part is the feature expression of the transition
+  1 -> 2 [label="pay | not f"]
+  1 -> 3 [label="free | f"]
+  2 -> 3 [label="change | not f"]
+  3 -> 4 [label="cancel | c"]
+  3 -> 5 [label="soda | s"]
+  3 -> 6 [label="tea | t"]
+  4 -> 1 [label="return | c"]
+  5 -> 7 [label="serveSoda | s"]
+  6 -> 7 [label="serveTea | t"]
+  7 -> 8 [label="open | not f"]
+  7 -> 1 [label="take | f"]
+  8 -> 9 [label="take | not f"]
+  9 -> 1 [label="close | not f"]
+}
