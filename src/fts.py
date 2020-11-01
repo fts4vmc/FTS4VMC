@@ -10,7 +10,6 @@ from src.internals.disambiguator import Disambiguator
 from src.internals.analyser import z3_analyse_hdead, z3_analyse_full, load_dot
 from src.internals.process_manager import ProcessManager
 from flask import session, Flask, request, render_template
-from werkzeug.utils import secure_filename
 
 from src.internals.translator import Translator
 from src.internals.vmc_controller import VmcController
