@@ -57,13 +57,16 @@ class TestTranslator:
             assert t.get_output()+'\n' == result.read()
 
     def test_translation(self, tmp_path, fixed_dot, true):
+        import os
         from src.internals.vmc_controller import VmcController
         for source in fixed_dot:
             t = Translator()
             t.load_model(source)
             t.translate()
-            with open(source, 'w') as out:
+            path, dot = os.path.split(source)
+            path = os.path.join(path, 'vmc-'+dot)
+            with open(path, 'w') as out:
                 out.write(t.get_output())
             vmc = VmcController("./vmc65-linux")
-            vmc.run_vmc(source, true)
+            vmc.run_vmc(path, true)
             assert vmc.get_eval() == "TRUE"
