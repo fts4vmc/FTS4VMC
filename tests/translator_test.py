@@ -20,23 +20,20 @@ class TestTranslator:
             out.write(dis.get_graph())
         return os.path.join(tmp_path, 'fixed-vendingnew.dot')
 
-    def test_vending_new(self, vendingnew):
+    @pytest.fixture
+    def true(self, tmp_path):
         import os
-        t = Translator()
-        t.load_model(vendingnew)
-        t.translate()
-        with open(os.path.join('tests', 'vmc', 'vendingnew-vmc-test.txt')) as result:
-            assert t.get_output()+'\n' == result.read()
+        with open(os.path.join(tmp_path, "true.txt"), 'w') as true:
+            true.write("[true] true")
+        return os.path.join(tmp_path, "true.txt")
 
-    def test_translation(self, tmp_path):
+    @pytest.fixture
+    def fixed_dot(self, tmp_path):
         import os
         import src.internals.analyser as analyser
         from src.internals.disambiguator import Disambiguator
-        from src.internals.vmc_controller import VmcController
+        dots = []
         dot = os.listdir(os.path.join('tests','dot'))
-        with open(os.path.join(tmp_path, "true.txt"), 'w') as true:
-            true.write("[true] true")
-        true = open(os.path.join(tmp_path, "true.txt"), 'r')
         for source in dot:
             with open(os.path.join('tests','dot', source), 'r') as fts_source:
                 fts = analyser.load_dot(fts_source)
@@ -46,14 +43,27 @@ class TestTranslator:
             dis.remove_transitions(fts._set_dead)
             dis.set_true_list(fts._set_false_optional)
             dis.solve_hidden_deadlocks(fts._set_hidden_deadlock)
+            dots.append(os.path.join(tmp_path, "fixed-"+source))
             with open(os.path.join(tmp_path, "fixed-"+source), 'w') as out:
                 out.write(dis.get_graph())
+        return dots
+
+    def test_vending_new(self, vendingnew):
+        import os
+        t = Translator()
+        t.load_model(vendingnew)
+        t.translate()
+        with open(os.path.join('tests', 'vmc', 'vendingnew-vmc-test.txt')) as result:
+            assert t.get_output()+'\n' == result.read()
+
+    def test_translation(self, tmp_path, fixed_dot, true):
+        from src.internals.vmc_controller import VmcController
+        for source in fixed_dot:
             t = Translator()
-            t.load_model(os.path.join(tmp_path, "fixed-"+source))
+            t.load_model(source)
             t.translate()
-            with open(os.path.join(tmp_path, "vmc-"+source), 'w') as out:
+            with open(source, 'w') as out:
                 out.write(t.get_output())
             vmc = VmcController("./vmc65-linux")
-            vmc.run_vmc(os.path.join(tmp_path, "vmc-"+source), os.path.join(tmp_path, "true.txt"))
+            vmc.run_vmc(source, true)
             assert vmc.get_eval() == "TRUE"
-        true.close()
