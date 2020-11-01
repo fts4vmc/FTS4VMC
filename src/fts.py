@@ -313,6 +313,8 @@ def verify_property():
         queue = pm.get_queue(session['id'])
         if not queue:
             return {"text":"No ambiguities data available execute a full analysis first"}, 400
+        else:
+            session['ambiguities'] = queue.get()
     if (len(session['ambiguities']['hidden']) != 0):
         return {"text":"Hidden deadlocks detected. It is necessary to remove them before checking the property"}, 400
 
