@@ -1,0 +1,13 @@
+C1 = pay(may).C2 + free(may).C3
+C2 = change(must).C3
+C3 = cancel(may).C4 + soda(may).C5 + tea(may).C6
+C4 = return(must).C1
+C5 = serveSoda(must).C7
+C6 = serveTea(must).C7
+C7 = open(may).C8 + take(may).C1
+C8 = take(must).C9
+C9 = close(must).C1
+
+SYS = C1
+
+Constraints { LIVE }
