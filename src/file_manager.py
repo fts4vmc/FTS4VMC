@@ -54,7 +54,7 @@ def upload_file():
             with open(file_path, 'r') as source:
                 dot = source.read()
             graph = graphviz.Graph(dot)
-            payload['mts'] = graph.draw_mts()
+            payload['mts'] = graph.get_mts()
             graph.draw_graph(session['graph'])
             payload['graph'] = dot
             payload['edges'], payload['nodes'] = graph.get_graph_number()

@@ -49,7 +49,7 @@ class Graph():
                     return True
         return False
 
-    def draw_mts(self):
+    def get_mts(self):
         """Return a string containing the MTS expressed in dot format."""
         mts = pydot.graph_from_dot_data(self.__graph.to_string())[0]
         if 'FM' in mts.obj_dict['attributes'] and mts.obj_dict['attributes']['FM']:
