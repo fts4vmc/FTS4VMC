@@ -13,5 +13,4 @@ class TestDisambiguator:
             assert client.get('/').get_data(True)+'\n' == html.read()
     
     def test_yield_no_session(self, client):
-        import json
         assert client.get('/yield').get_json()['text'] == "\nSession timed-out"
