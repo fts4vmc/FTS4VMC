@@ -318,23 +318,16 @@ def verify_property():
     if (len(session['ambiguities']['hidden']) != 0):
         return {"text":"Hidden deadlocks detected. It is necessary to remove them before checking the property"}, 400
 
-    fname = secure_filename(request.form['name'])
-    #fpath = os.path.join(app.config['UPLOAD_FOLDER'], fname)
     fpath = session['model']
-
     actl_property = request.form['property']
     if (len(actl_property) == 0):
         return {"text":'Missing property to be verified'}, 400
-
 
     if os.path.isfile(fpath):
         global translator
         translator = Translator()
         translator.load_model(fpath)
         translator.translate()
-
-        vmc_string = translator.get_output()
-        
         session_tmp_folder = session['output'].split('-output')[0]
         try:
             os.mkdir(session_tmp_folder)
@@ -344,13 +337,10 @@ def verify_property():
 
         session_tmp_model = os.path.join(session_tmp_folder, 'model.txt')
         session_tmp_properties = os.path.join(session_tmp_folder, 'properties.txt')
-
-        vmc_file = open(session_tmp_model,"w+")
-        vmc_file.write(vmc_string)
-        vmc_file.close()
-        prop_file = open(session_tmp_properties,"w+")
-        prop_file.write(actl_property)
-        prop_file.close()
+        with open(session_tmp_model,"w+") as vmc_file:
+            vmc_file.write(translator.get_output())
+        with open(session_tmp_properties,"w+") as prop_file:
+            prop_file.write(actl_property)
 
         global vmc
         try:
@@ -369,7 +359,6 @@ def verify_property():
         except:
             shutil.rmtree(session_tmp_folder)
             return {'text': 'An error occured'}, 400
-        result = vmc.get_output()
         shutil.rmtree(session_tmp_folder)
         print(vmc.get_formula())
         print(vmc.get_eval())
