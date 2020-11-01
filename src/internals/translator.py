@@ -114,26 +114,20 @@ class Translator:
             dest_id = self.__id_map.analyser_to_vmc(dest_id)
 
             if self.__id_map.analyser_to_vmc(analyser_id) not in adj:
-                print(analyser_id)
-                print(adj)
                 if len(self.__fts._states[analyser_id]._out) > 1:
-                    tmp = id + ' = ' + label + '(may).' + dest_id
+                    tmp = id + ' = ' + label.strip() + '(may).' + dest_id
                 else:
-                    tmp = id + ' = ' + label + '.' + dest_id
+                    tmp = id + ' = ' + label.strip() + '(must).' + dest_id
                 adj.update([(id,tmp)])
             else:
-                print('updated')
-                adj[id] += ' + ' + label  + '(may).' + dest_id
-                print(adj[id])
+                adj[id] += ' + ' + label.strip()  + '(may).' + dest_id
 
         for s in self.__id_map.get_vmc_states():
             if(s in adj):
                 self.output += adj[s] + '\n'
             else:
                 self.output += s + ' = dead.nil\n'
-        self.output += '\n' + initial_state + '\n\nConstraints{ LIVE }'
-        print(self.output)
-        print(self.__id_map)
+        self.output += '\n' + initial_state + '\n\nConstraints { LIVE }'
 
     def get_output(self):
         if self.output != '':
