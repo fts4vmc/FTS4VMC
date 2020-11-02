@@ -16,7 +16,9 @@ from src.internals.vmc_controller import VmcController
 
 UPLOAD_FOLDER = os.path.relpath("uploads")
 TMP_FOLDER = os.path.join("src",'static','tmp')
-PATH_TO_VMC = os.path.relpath('vmc65-linux')
+VMC_LINUX = os.path.relpath('vmc65-linux')
+VMC_MAC = os.path.relpath('vmc-macos')
+VMC_WINDOWS = os.path.relpath('vmc-win7.exe')
 vmc = None #It will host VmcController
 
 app = Flask(__name__)
@@ -343,7 +345,16 @@ def verify_property():
 
         global vmc
         try:
-            vmc = VmcController(PATH_TO_VMC)
+            if sys.platform.startswith('linux'):
+                vmc = VmcController(VMC_LINUX)
+            elif sys.platform.startswith('win'):
+                vmc = VmcController(VMC_WINDOWS)
+            elif sys.platform.startswith('cygwin'):
+                vmc = VmcController(VMC_WINDOWS)
+            elif sys.platform.startswith('darwin'):
+                vmc = VmcController(VMC_MAC)
+            else:
+                return {"text": "VMC is not compatible with your operating system"}, 400
             vmc.run_vmc(session_tmp_model,session_tmp_properties)
         except ValueError as ve:
             if str(ve) == 'Invalid vmc_path':
