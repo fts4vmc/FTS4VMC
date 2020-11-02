@@ -407,10 +407,21 @@ function verify_property()
             type: 'POST'};
         request['success'] = function(response){
             $("#show_explanation").prop("disabled", false);
-            $("#console").text("The result is being displayed below.");
+            $("#console").text("OK");
             $("#vmc_formula").text(response['formula']);
             $("#vmc_eval").text(response['eval']);
+            if(response['eval'] == "TRUE"){
+                $("#vmc_eval").css("color","green");
+            }
+            else if(response['eval'] == "FALSE"){
+                $("#vmc_eval").css("color","red");
+            }
+            else{
+                $("#vmc_eval").css("color","purple");
+            }
             $("#vmc_details").text(response['details']);
+            $(".hideme").hide();
+            $("#evaluation_display").show();
         };
         request['beforeSend'] = function(response) {
             show_console();
