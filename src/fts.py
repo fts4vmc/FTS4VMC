@@ -16,7 +16,7 @@ from src.internals.vmc_controller import VmcController
 
 UPLOAD_FOLDER = os.path.relpath("uploads")
 TMP_FOLDER = os.path.join("src",'static','tmp')
-PATH_TO_VMC = './vmc65-linux'
+PATH_TO_VMC = os.path.relpath('vmc65-linux')
 vmc = None #It will host VmcController
 
 app = Flask(__name__)

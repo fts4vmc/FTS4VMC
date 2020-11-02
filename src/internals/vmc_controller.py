@@ -41,7 +41,8 @@ class VmcController:
             raise ValueError('Invalid model file')
         if(not os.path.isfile(properties)):
             raise ValueError('Invalid properties file')
-        self.output = subprocess.check_output(self.vmc_path + ' ' + model + ' ' + properties + ' +z', shell=True)
+        self.output = subprocess.check_output(os.path.abspath(self.vmc_path) +
+                ' ' + model + ' ' + properties + ' +z', shell=True)
         decoded = self.output.decode("utf-8")
         print(decoded)
         if separator in decoded:
