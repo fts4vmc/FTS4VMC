@@ -160,9 +160,7 @@ def hdead_analyser():
 def delete_model():
     file_path = session['model']
     sessions.close_session()
-    try:
-        os.remove(file_path)
-    except OSError as e:
+    if os.path.isfile(file_path):
         return {"text": "An error occured while deleting the file model"}, 400
     else:
         return {"text":"Model file deleted"}, 200

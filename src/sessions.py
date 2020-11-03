@@ -40,11 +40,14 @@ def new_session():
     session['timeout'] = now+600
     session['output'] = ''.join(random.SystemRandom().choice(
                 string.ascii_uppercase + string.digits) for _ in range(32))
-    session['graph'] = os.path.join(app.config['TMP_FOLDER'], session['output']+'.svg')
-    
-    session['counter_graph'] = os.path.join(app.config['TMP_FOLDER'], session['output'] + 'counterexamplegraph.svg')
-    session['model'] = os.path.join(app.config['UPLOAD_FOLDER'], session['output']+'.dot')
-    session['output'] = os.path.join(app.config['TMP_FOLDER'], session['output']+'-output')
+    session['graph'] = os.path.join(app.config['TMP_FOLDER'],
+            session['output']+'.svg')
+    session['counter_graph'] = os.path.join(app.config['TMP_FOLDER'],
+            session['output'] + 'counterexamplegraph.svg')
+    session['model'] = os.path.join(app.config['UPLOAD_FOLDER'],
+            session['output']+'.dot')
+    session['output'] = os.path.join(app.config['TMP_FOLDER'],
+            session['output']+'-output')
     session['ambiguities'] = {}
 
 def close_session():
@@ -59,6 +62,9 @@ def close_session():
     session.pop('id', None)
     session.pop('output', None)
     session.pop('ambiguities', None)
+    session.pop('graph', None)
+    session.pop('counter_graph', None)
+    session.pop('model', None)
 
 def delete_output_file():
     """Deletes output file for the current session"""
@@ -68,14 +74,13 @@ def delete_output_file():
                 session['output']+'log.txt',
                 session['output']+'summary.html', 
                 session['output']+'graph.svg',
-                session['output']+'model.dot'
+                session['output']+'model.dot',
+                session['graph'],
+                session['counter_graph'],
+                session['model']
                 ]
         for f in files:
             try:
                 os.remove(f)
             except:
                 pass
-        try:
-            os.remove(session['graph'])
-        except:
-            pass
