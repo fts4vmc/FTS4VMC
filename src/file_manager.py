@@ -89,7 +89,7 @@ def deleter():
     while True:
         time.sleep(timeout)
         delete_old_file('svg', timeout, app.config['TMP_FOLDER'])
-        delete_old_file('dot', timeout, os.path.join('uploads'))
+        delete_old_file('dot', timeout, app.config['UPLOAD_FOLDER'])
         delete_old_file('txt', timeout, app.config['TMP_FOLDER'])
         delete_old_file('html', timeout, app.config['TMP_FOLDER'])
         delete_old_file('dot', timeout, app.config['TMP_FOLDER'])
@@ -105,7 +105,7 @@ def start_deleter():
 def final_delete():
     """Deletes all temporary files, used on server shutdown"""
     delete_old_file('svg', 0, app.config['TMP_FOLDER'])
-    delete_old_file('dot', 0, os.path.join('uploads'))
+    delete_old_file('dot', 0, app.config['UPLOAD_FOLDER'])
     delete_old_file('txt', 0, app.config['TMP_FOLDER'])
     delete_old_file('html', 0, app.config['TMP_FOLDER'])
     delete_old_file('dot', 0, app.config['TMP_FOLDER'])

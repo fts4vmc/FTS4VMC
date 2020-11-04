@@ -62,6 +62,9 @@ class TestSessions():
             app.config['UPLOAD_FOLDER'] = tmp_path
             app.config['TMP_FOLDER'] = tmp_path
             sessions.new_session()
+            session['model'] = os.path.join(tmp_path, 'test.dot')
+            session['graph'] = os.path.join(tmp_path, 'test.svg')
+            session['counter_graph'] = os.path.join(tmp_path, 'counter_test.svg')
             for target in tmp:
                 Path(session[target]).touch()
             sessions.close_session()

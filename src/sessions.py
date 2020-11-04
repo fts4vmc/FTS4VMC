@@ -34,7 +34,7 @@ def new_session():
     """Deletes file related to the previous session and sets value for the
     new one"""
     if 'output' in session and session['output']:
-        delete_output_file()
+        delete_output_file(True)
     now = time.time()
     session['position'] = 0
     session['timeout'] = now+600
@@ -58,7 +58,7 @@ def close_session():
     session.pop('position', None)
     if 'id' in session and session['id']:
         pm.end_process(session['id'])
-    delete_output_file()
+    delete_output_file(True)
     session.pop('id', None)
     session.pop('output', None)
     session.pop('ambiguities', None)
@@ -66,7 +66,7 @@ def close_session():
     session.pop('counter_graph', None)
     session.pop('model', None)
 
-def delete_output_file():
+def delete_output_file(complete = False):
     """Deletes output file for the current session"""
     if 'output' in session:
         files = [
@@ -75,10 +75,14 @@ def delete_output_file():
                 session['output']+'summary.html', 
                 session['output']+'graph.svg',
                 session['output']+'model.dot',
-                session['graph'],
-                session['counter_graph'],
-                session['model']
                 ]
+        if complete:
+            if 'graph' in session:
+                files.append(session['graph'])
+            if 'counter_graph' in session:
+                files.append(session['counter_graph'])
+            if 'model' in session:
+                files.append(session['model'])
         for f in files:
             try:
                 os.remove(f)

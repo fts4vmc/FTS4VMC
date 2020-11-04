@@ -158,6 +158,8 @@ def hdead_analyser():
 
 @app.route('/delete_model', methods=['POST'])
 def delete_model():
+    if not 'model' in session:
+        return {"text":"Model file deleted"}, 200
     file_path = session['model']
     sessions.close_session()
     if os.path.isfile(file_path):
