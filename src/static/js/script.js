@@ -370,7 +370,7 @@ function create_summary(target, data)
   if(data['ambiguities']){
     main.append("<h3>Ambiguities found</h3>");
     if(data['ambiguities']['dead']){
-      main.append("<h4>Dead transition</h4>");
+      main.append("<h4>Dead transitions</h4>");
       list = $("<ul></ul>");
       main.append(list);
       for (transition of data['ambiguities']['dead']) {
@@ -379,7 +379,7 @@ function create_summary(target, data)
       }
     }
     if(data['ambiguities']['false']){
-      main.append("<h4>False optional</h4>");
+      main.append("<h4>False optional transitions</h4>");
       list = $("<ul></ul>");
       main.append(list);
       for (transition of data['ambiguities']['false']) {
@@ -388,7 +388,7 @@ function create_summary(target, data)
       }
     }
     if(data['ambiguities']['hidden']){
-      main.append("<h4>Hidden deadlock</h4>");
+      main.append("<h4>Hidden deadlock states</h4>");
       list = $("<ul></ul>");
       main.append(list);
       for (state of data['ambiguities']['hidden']) {

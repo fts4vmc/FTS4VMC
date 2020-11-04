@@ -40,10 +40,10 @@
               Remove all ambiguities
             </button>
             <button class="command operation" id="fopt" type="button" disabled>
-              Remove false optional
+              Remove false optional transitions
             </button>
             <button class="command operation" id="hdd" type="button" disabled>
-              Remove dead transition and hidden deadlock
+              Remove dead transitions and hidden deadlock states
             </button>
             <button class="command operation" id="apply" type="button" disabled>
               Apply transformation
@@ -93,7 +93,8 @@
             </div>
             <div id="evaluation_display" class="hideme" hidden>
               <h2>Results</h2>
-              The formula: <output id="vmc_formula" class="vmc_formula"readonly></output><br>is <output id="vmc_eval" class="vmc_eval" readonly></output><br><output id="vmc_details" class="vmc_details" readonly></output></p><br>
+              The formula: <output id="vmc_formula" class="vmc_formula"readonly></output><br>is <output id="vmc_eval" class="vmc_eval" readonly></output>
+              <br><output id="vmc_details" class="vmc_details" readonly></output></p><br>
             </div>
         </main>
         <div id="modal" class="modal">
