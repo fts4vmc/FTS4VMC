@@ -1,10 +1,15 @@
 import pytest
+import os
+import sys
 from src.internals.translator import Translator
+
+VMC_LINUX = os.path.relpath('vmc65-linux')
+VMC_MAC = os.path.relpath('vmc-macos')
+VMC_WINDOWS = os.path.relpath('vmc-win7.exe')
 
 class TestTranslator:
     @pytest.fixture
     def vendingnew(self, tmp_path):
-        import os
         import src.internals.analyser as analyser
         from src.internals.disambiguator import Disambiguator
         with open(os.path.join('tests','dot', 'vendingnew.dot'), 'r') as fts_source:
@@ -21,14 +26,12 @@ class TestTranslator:
 
     @pytest.fixture
     def true(self, tmp_path):
-        import os
         with open(os.path.join(tmp_path, "true.txt"), 'w') as true:
             true.write("[true] true")
         return os.path.join(tmp_path, "true.txt")
 
     @pytest.fixture
     def fixed_dot(self, tmp_path):
-        import os
         import src.internals.analyser as analyser
         from src.internals.disambiguator import Disambiguator
         dots = []
@@ -48,7 +51,6 @@ class TestTranslator:
         return dots
 
     def test_vending_new(self, vendingnew):
-        import os
         t = Translator()
         t.load_model(vendingnew)
         t.translate()
@@ -56,7 +58,6 @@ class TestTranslator:
             assert t.get_output()+'\n' == result.read()
 
     def test_translation(self, tmp_path, fixed_dot, true):
-        import os
         from src.internals.vmc_controller import VmcController
         for source in fixed_dot:
             t = Translator()
@@ -66,6 +67,13 @@ class TestTranslator:
             path = os.path.join(path, 'vmc-'+dot)
             with open(path, 'w') as out:
                 out.write(t.get_output())
-            vmc = VmcController("./vmc65-linux")
+            if sys.platform.startswith('linux'):
+                vmc = VmcController(VMC_LINUX)
+            elif sys.platform.startswith('win'):
+                vmc = VmcController(VMC_WINDOWS)
+            elif sys.platform.startswith('cygwin'):
+                vmc = VmcController(VMC_WINDOWS)
+            elif sys.platform.startswith('darwin'):
+                vmc = VmcController(VMC_MAC)
             vmc.run_vmc(path, true)
             assert vmc.get_eval() == "TRUE"
