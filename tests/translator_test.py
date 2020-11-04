@@ -7,7 +7,6 @@ class TestTranslator:
         import os
         import src.internals.analyser as analyser
         from src.internals.disambiguator import Disambiguator
-        dis = Disambiguator.from_file(os.path.join('tests', 'dot', 'vendingnew.dot'))
         with open(os.path.join('tests','dot', 'vendingnew.dot'), 'r') as fts_source:
             fts = analyser.load_dot(fts_source)
         fts_source.close()
