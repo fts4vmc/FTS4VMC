@@ -47,14 +47,6 @@ class TestTranslator:
                 out.write(dis.get_graph())
         return dots
 
-    def test_vending_new(self, vendingnew):
-        import os
-        t = Translator()
-        t.load_model(vendingnew)
-        t.translate()
-        with open(os.path.join('tests', 'vmc', 'vendingnew-vmc-test.txt')) as result:
-            assert t.get_output()+'\n' == result.read()
-
     def test_translation(self, tmp_path, fixed_dot, true):
         import os
         from src.internals.vmc_controller import VmcController
@@ -64,6 +56,7 @@ class TestTranslator:
             t.translate()
             path, dot = os.path.split(source)
             path = os.path.join(path, 'vmc-'+dot)
+            print (t.get_output())
             with open(path, 'w') as out:
                 out.write(t.get_output())
             vmc = VmcController("./vmc65-linux")
