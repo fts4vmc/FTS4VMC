@@ -82,7 +82,7 @@ label {
 }
 
 img {
-  max-width:90%;
+  max-width:100%;
   overflow: auto;
   display: none;
 }
@@ -134,4 +134,11 @@ main #evaluation_display #vmc_details {
 
 aside #property_text_area {
   resize: none
+}
+
+#image-div {
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  justify-content: center;
 }
