@@ -1,7 +1,7 @@
 import pytest
 import src.fts as fts
 
-class TestDisambiguator:
+class TestFTS:
     @pytest.fixture
     def client(self):
         fts.app.config['TESTING'] = True
