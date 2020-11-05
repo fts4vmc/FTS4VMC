@@ -42,7 +42,7 @@ $(function(){
         {url: '/remove_dead_hidden', name:'hdd', success:update_textarea_graph}, 
         solve);
     $("aside").on("click", "#verify_properties", verify_property);
-    $("aside").on("click", "#show_explanation", show_explanation);
+    $("aside").on("click", "#show_explanation", show_counter_graph);
     $("aside").on("click", "#apply", apply_transform);
     $("body").on("click", "#mconfirm", {url: '/hdead_analysis', 
       success:timed_update_textarea, show:hdead_show}, command);
@@ -465,22 +465,6 @@ function download()
     request['data']['main'] = $("#summary").html();
   }
   $.ajax(request);
-}
-
-function show_explanation()
-{
-    $("main > h3").text('FTS')
-    $("#console").text('debug');
-    request = {url: full_url('/explanation'), data:{msg: 'show_exp'} ,type: 'POST'};
-    
-    request['success'] = function(response){
-        $("#counter_graph_tab").prop("disabled", false);
-        $("#console").text(response['text']);
-    };
-    request['error'] = function(response) {
-        $("#console").text(response.responseJSON['text']);
-    }
-    $.ajax(request);
 }
 
 function apply_transform()
