@@ -20,10 +20,7 @@ class Translator:
     def get_id(self, state):
         if len(state._out._out) == 0:
             return 'nil'
-        if str(state._out).strip().isdigit():
-            return 'C'+str(state._out).strip()
-        else:
-            return str(state._out).strip()
+        return str(state._out).strip()
 
     def sanitize_label(self, label):
         if label == None:
@@ -43,8 +40,7 @@ class Translator:
         for k, s in self.__fts._states.items():
             line = ''
             if len(s._out) > 0:
-                if s._id.strip().isdigit():
-                    s._id = 'C'+s._id.strip()
+                s._id = s._id.strip()
                 line = s._id + ' = '
                 for t in s._out:
                     if str(t._constraint).lower() == 'true':
