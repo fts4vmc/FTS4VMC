@@ -505,19 +505,27 @@ function full_url(url)
 
 function load_counter_graph(response)
 {
-  if(response['graph'])
+  $("#counter_graph_tab").prop("disabled", false);
+  if(response['graph']) {
+    $("#counter-div > p").text(response['text']).show();
     $("#counter_image").attr('src', response['graph']+"?random="+new Date().getTime()).show();
-  $("#counter-div > p").text('').hide();
+  }
+  if(response['text'] && !response['graph']) {
+    $("#counter-div > p").text(response['text']).show();
+    $("#counter_image").hide();
+  }
 }
 
 function show_counter_graph()
 {
     request = {url:full_url('/counter_graph'), type:'POST'};
+    request['data'] = {};
+    request['data']['property'] = $("#property_text_area").val();
     request['success'] = load_counter_graph;
     request['error'] = function(response)
     {
         $("#counter-div > p").text(response.responseJSON['text']).show();
-        $("#counter_image").attr('src', '').hide;
+        $("#counter_image").attr('src', '').hide();
     };
     $.ajax(request);
     $(".hideme").hide();
