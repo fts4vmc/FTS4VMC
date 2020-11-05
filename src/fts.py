@@ -217,6 +217,7 @@ def apply_all():
                     session['ambiguities']['dead'] = []
                     session['ambiguities']['false'] = []
                     session['ambiguities']['hidden'] = []
+                    session.modified = True
                     return {'text': 'Model file updated correctly'}, 200
                 except:
                     return {'text':'Unable to update file model'}, 400
@@ -258,6 +259,7 @@ def apply_fopt():
                 try:
                     model.write(payload['graph']);
                     session['ambiguities']['false'] = []
+                    session.modified = True
                     return {'text': 'Model file updated correctly'}, 200
                 except:
                     return {'text':'Unable to update file model'}, 400
@@ -300,6 +302,7 @@ def apply_hdd():
                     model.write(payload['graph']);
                     session['ambiguities']['dead'] = []
                     session['ambiguities']['hidden'] = []
+                    session.modified = True
                     return {'text': 'Model file updated correctly'}, 200
                 except:
                     return {'text':'Unable to update file model'}, 400
@@ -320,7 +323,6 @@ def get_vmc():
 
     fpath = session['model']
     actl_property = request.form['property']
-    print ('ACTL:'+actl_property)
     if (len(actl_property) == 0):
         raise Exception('Missing property to be verified')
 
