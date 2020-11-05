@@ -26,7 +26,7 @@ def update_session_timeout():
             if target in session and os.path.isfile(session[target]):
                 try:
                     pathlib.Path(session[target]).touch()
-                except:
+                except FileNotFoundError:
                     pass
     return {'text':'ok'}, 200
 
