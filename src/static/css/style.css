@@ -142,3 +142,15 @@ aside #property_text_area {
   display: flex;
   justify-content: center;
 }
+
+#summary p {
+  font-size: x-large;
+}
+
+#summary h4 {
+  font-size: x-large;
+}
+
+#summary li {
+  font-size: large;
+}
