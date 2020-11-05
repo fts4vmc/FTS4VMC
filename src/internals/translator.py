@@ -72,15 +72,9 @@ class Translator:
         for line in mts_lines[:len(mts_lines)-1]:
             if line != "\n":
                 state, edges_line = line.split('-->')
-                if state.strip().isdigit():
-                    state = 'C'+state.strip()
-                else:
-                    state = state.strip()
+                state = state.strip()
                 state2, rest = (edges_line[:len(edges_line)-1]).split('{')
-                if state2.strip().isdigit():
-                    state2 = 'C'+state2.strip()
-                else:
-                    state2 = state2.strip()
+                state2 = state2.strip()
                 tmp_list = rest.split(', ')
                 if(len(tmp_list) == 2):#may, <something>
                     action, feature = rest.split(', ')
