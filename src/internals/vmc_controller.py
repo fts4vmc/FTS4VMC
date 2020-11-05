@@ -32,7 +32,6 @@ class VmcController:
         return idx != -1
     
     def _is_formula(self):
-        print(self.output)
         idx = self.output.find('Nothing to explain! first type in an UCTL formula!')
         return idx == -1
 
@@ -44,7 +43,6 @@ class VmcController:
         self.output = subprocess.check_output(os.path.abspath(self.vmc_path) +
                 ' ' + model + ' ' + properties + ' +z', shell=True)
         decoded = self.output.decode("utf-8")
-        print(decoded)
         if separator in decoded:
             self.output, self.explanation = decoded.split(separator,1) 
             self.explanation = separator +'\n' + self.explanation 
@@ -89,11 +87,6 @@ class VmcController:
         self.output = tmp_output
         self._formula = formula
                 
-
-    def get_output(self):
-        if(self.output == ''):
-            return 'Nothing to show.'
-        return self.output
 
     def get_formula(self):
         return self._formula
