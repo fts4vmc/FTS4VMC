@@ -27,7 +27,7 @@ class Translator:
             return 'empty'
         label = label.strip()
         if label == '-':
-            label = '_unlabeled_'
+            label = 'tau'
         label = label.replace('(','_')
         label = label.replace(')','_')
         return label.strip()
