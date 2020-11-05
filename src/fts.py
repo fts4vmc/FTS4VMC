@@ -307,25 +307,24 @@ def apply_hdd():
 
 
 
-@app.route('/verify_property', methods=['POST'])
-def verify_property():
+def get_vmc():
     pm = ProcessManager.get_instance()
     if not session['ambiguities']:
         queue = pm.get_queue(session['id'])
         if not queue:
-            return {"text":"No ambiguities data available execute a full analysis first"}, 400
+            raise Exception("No ambiguities data available execute a full analysis first")
         else:
             session['ambiguities'] = queue.get()
     if (len(session['ambiguities']['hidden']) != 0):
-        return {"text":"Hidden deadlocks detected. It is necessary to remove them before checking the property"}, 400
+        raise Exception("Hidden deadlocks detected. It is necessary to remove them before checking the property")
 
     fpath = session['model']
     actl_property = request.form['property']
+    print ('ACTL:'+actl_property)
     if (len(actl_property) == 0):
-        return {"text":'Missing property to be verified'}, 400
+        raise Exception('Missing property to be verified')
 
     if os.path.isfile(fpath):
-        global translator
         translator = Translator()
         translator.load_model(fpath)
         translator.translate()
@@ -338,12 +337,11 @@ def verify_property():
 
         session_tmp_model = os.path.join(session_tmp_folder, 'model.txt')
         session_tmp_properties = os.path.join(session_tmp_folder, 'properties.txt')
-        with open(session_tmp_model,"w+") as vmc_file:
+        with open(session_tmp_model,"w") as vmc_file:
             vmc_file.write(translator.get_output())
-        with open(session_tmp_properties,"w+") as prop_file:
+        with open(session_tmp_properties,"w") as prop_file:
             prop_file.write(actl_property)
 
-        global vmc
         try:
             if sys.platform.startswith('linux'):
                 vmc = VmcController(VMC_LINUX)
@@ -354,36 +352,41 @@ def verify_property():
             elif sys.platform.startswith('darwin'):
                 vmc = VmcController(VMC_MAC)
             else:
-                return {"text": "VMC is not compatible with your operating system"}, 400
+                raise Exception("VMC is not compatible with your operating system")
             vmc.run_vmc(session_tmp_model,session_tmp_properties)
         except ValueError as ve:
             if str(ve) == 'Invalid vmc_path':
                 shutil.rmtree(session_tmp_folder)
-                return {"text": "Unable to locate VMC executable"}, 400
+                raise Exception("Unable to locate VMC executable")
             if str(ve) == 'Invalid model file':
                 shutil.rmtree(session_tmp_folder)
-                return {"text": 'Invalid model file'}, 400
+                raise Exception('Invalid model file')
             if str(ve) == 'Invalid properties file':
                 shutil.rmtree(session_tmp_folder)
-                return {"text": 'Invalid properties file'}, 400
+                raise Exception('Invalid properties file')
         except:
             shutil.rmtree(session_tmp_folder)
-            return {'text': 'An error occured'}, 400
+            raise Exception('An error occured')
         shutil.rmtree(session_tmp_folder)
-        print(vmc.get_formula())
-        print(vmc.get_eval())
-        print(vmc.get_details())
+        return vmc, translator
+    raise Exception('File not found')
+
+@app.route('/verify_property', methods=['POST'])
+def verify_property():
+    try:
+        vmc, t = get_vmc()
         return {"formula": vmc.get_formula(), "eval": vmc.get_eval(), "details": vmc.get_details()}, 200
-    return {"text": 'File not found'}, 400
+    except Exception as e:
+        return {"text": str(e)}, 400
 
 @app.route('/explanation', methods=['POST'])
 def show_explanation():
-    global vmc
     if sessions.check_session():
-        if vmc == None:
-            return {"text": 'No translation has been performed'}, 400
-        return {"text": vmc.get_explanation()}, 200
-    return {"text": 'No translation has been performed'}, 400
+        try:
+            vmc, t = get_vmc()
+            return {"text": vmc.get_explanation()}, 200
+        except Exception as e:
+            return {"text": str(e)}, 400
 
 @app.route('/graph', methods=['POST'])
 def get_graph():
@@ -408,8 +411,7 @@ def reload_graph():
                 os.path.basename(session['graph']))}, 200
     return {"text":message}, 400
 
-def clean_counterexample():
-    global vmc
+def clean_counterexample(vmc):
     counter = vmc.get_explanation()
     lines = counter.split('\n')
     clean_counter = ''
@@ -418,28 +420,27 @@ def clean_counterexample():
         if "-->" in line:
             #if at least an occurrence of '-->' is found we can infer
             #that the formula was evaluated as FALSE
-            is_false = True
             clean_counter = clean_counter + line + '\n'
-    if is_false:
-        return clean_counter
-    else:
-        return 'NO'
+    return clean_counter
     
 
 @app.route('/counter_graph', methods=['POST'])
 def show_counter_graph():
-    global vmc
-    global translator
     if sessions.check_session():
-        if vmc == None or translator == None:
-            return {"text": 'No translation has been performed'}, 400
-        clean_counter = clean_counterexample()
-        if clean_counter == 'NO':
-            return {"text": 'The formula is TRUE'}, 200
-        translator.load_mts(clean_counter)
-        translator.mts_to_dot(session['counter_graph']) 
-        if(os.path.isfile(os.path.join(app.config['TMP_FOLDER'], 
-            os.path.basename(session['counter_graph'])))):
-            return {"graph": os.path.join('static','tmp', os.path.basename(session['counter_graph']))}, 200
-        else:
-            return {'text': 'No counter example graph available'}, 404
+        try:
+            vmc, t = get_vmc()
+            clean_counter = clean_counterexample(vmc)
+            if not clean_counter:
+                return {"text": 'The formula is TRUE, no counter example available'}, 200
+            t.load_mts(clean_counter)
+            t.mts_to_dot(session['counter_graph']) 
+            if(os.path.isfile(os.path.join(app.config['TMP_FOLDER'], 
+                os.path.basename(session['counter_graph'])))):
+                return {
+                        "text": "Here's an example where the provided property is false:",
+                        "graph": os.path.join('static','tmp', os.path.basename(session['counter_graph']))
+                        }, 200
+            else:
+                return {'text': 'No counter example graph available'}, 404
+        except Exception as e:
+            return {"text": str(e)}, 400
