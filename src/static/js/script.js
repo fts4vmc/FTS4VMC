@@ -403,7 +403,7 @@ function verify_property()
     $("main > h3").text('FTS')
     if($("#fts")[0].files[0]) {
         var prop = $("#property_text_area").val();
-        request = {url: full_url('/verify_property'), data: {name: $("#fts")[0].files[0].name, property: prop},
+        request = {url: full_url('/verify_property'), data: {property: prop},
             type: 'POST'};
         request['success'] = function(response){
             $("#show_explanation").prop("disabled", false);
