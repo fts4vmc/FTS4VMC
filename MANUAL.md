@@ -7,9 +7,8 @@
 [GRAPH-TAB]: ./manual_images/graph_tab.png
 [SUMMARY-TAB]: ./manual_images/summary_tab.png
 
-FTS4VMC is a tool to analyse feature transition system, detect and remove ambiguities,
-display equivalent modal transition system and verify properties expressed in process algebra
-compatible with the variability model checker [VMC][VMC].
+FTS4VMC is a tool to analyze featured transition system, detect and remove ambiguities,
+display transformed modal transition systems and verify properties expressed in a logic accepted by the Variability Model Checker [VMC][VMC].
 
 The tool takes as input a dot file containing a FTS, here's an example of compatible dot file:
 
@@ -174,6 +173,6 @@ By clicking on **View modal transition system** the user can quickly pass to an 
 
 ### <a name="vmc-section"></a> VMC ###
 
-Once an analysis is fully completed and the FTS is found alive it is possible to verify properties expressed using the process algebra compatible with the Variable Model Checker.  
+Once an analysis is fully completed and the FTS is found to be live it is possible to verify properties expressed in the logic accepted by the Variability Model Checker [VMC][VMC].  
 Properties can be written inside the textarea under the **Verify properties** button.  
 After checking if a property is either True or False you can ask a counterexample the see why the formula is False by clicking on the **Show explanation button**.
