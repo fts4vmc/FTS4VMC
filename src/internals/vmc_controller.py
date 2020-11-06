@@ -5,6 +5,9 @@ import subprocess
 #Separator used while evaluating VMC's output
 separator = '-------------------------------------------\nThe formula:' 
 
+class VmcException(Exception):
+    pass
+
 class VmcController:
     __slots__ = ['vmc_path',
                 'output',#VMC's output
@@ -72,9 +75,9 @@ class VmcController:
         if(not self._is_formula()):
             self._formula = formula
             self._eval = 'INVALID'
-            self._details = 'Nothing to explain! first type in an UCTL formula!'
+            self._details = 'Nothing to explain. The provided formula is not valid'
+            self.explanation = 'Nothing to explain. The provided formula is not valid'
             return
-
         
         #Rewriting output
         tmp_output = ''

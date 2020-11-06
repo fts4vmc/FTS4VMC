@@ -12,14 +12,13 @@ from src.internals.process_manager import ProcessManager
 from flask import session, Flask, request, render_template
 
 from src.internals.translator import Translator
-from src.internals.vmc_controller import VmcController
+from src.internals.vmc_controller import VmcController, VmcException
 
 UPLOAD_FOLDER = os.path.relpath("uploads")
 TMP_FOLDER = os.path.join("src",'static','tmp')
 VMC_LINUX = os.path.relpath('vmc65-linux')
 VMC_MAC = os.path.relpath('vmc-macos')
 VMC_WINDOWS = os.path.relpath('vmc-win7.exe')
-vmc = None #It will host VmcController
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -315,16 +314,16 @@ def get_vmc():
     if not session['ambiguities']:
         queue = pm.get_queue(session['id'])
         if not queue:
-            raise Exception("No ambiguities data available execute a full analysis first")
+            raise VmcException("No ambiguities data available execute a full analysis first")
         else:
             session['ambiguities'] = queue.get()
     if (len(session['ambiguities']['hidden']) != 0):
-        raise Exception("Hidden deadlocks detected. It is necessary to remove them before checking the property")
+        raise VmcException("Hidden deadlocks detected. It is necessary to remove them before checking the property")
 
     fpath = session['model']
     actl_property = request.form['property']
     if (len(actl_property) == 0):
-        raise Exception('Missing property to be verified')
+        raise VmcException('Missing property to be verified')
 
     if os.path.isfile(fpath):
         translator = Translator()
@@ -354,32 +353,34 @@ def get_vmc():
             elif sys.platform.startswith('darwin'):
                 vmc = VmcController(VMC_MAC)
             else:
-                raise Exception("VMC is not compatible with your operating system")
+                raise VmcException("VMC is not compatible with your operating system")
             vmc.run_vmc(session_tmp_model,session_tmp_properties)
         except ValueError as ve:
             if str(ve) == 'Invalid vmc_path':
                 shutil.rmtree(session_tmp_folder)
-                raise Exception("Unable to locate VMC executable")
+                raise VmcException("Unable to locate VMC executable")
             if str(ve) == 'Invalid model file':
                 shutil.rmtree(session_tmp_folder)
-                raise Exception('Invalid model file')
+                raise VmcException('Invalid model file')
             if str(ve) == 'Invalid properties file':
                 shutil.rmtree(session_tmp_folder)
-                raise Exception('Invalid properties file')
+                raise VmcException('Invalid properties file')
         except:
             shutil.rmtree(session_tmp_folder)
-            raise Exception('An error occured')
+            raise VmcException('An error occured')
         shutil.rmtree(session_tmp_folder)
         return vmc, translator
-    raise Exception('File not found')
+    raise VmcException('File not found')
 
 @app.route('/verify_property', methods=['POST'])
 def verify_property():
     try:
         vmc, t = get_vmc()
         return {"formula": vmc.get_formula(), "eval": vmc.get_eval(), "details": vmc.get_details()}, 200
-    except Exception as e:
+    except VmcException as e:
         return {"text": str(e)}, 400
+    except Exception as e:
+        return {"text": "An error occured"}, 400
 
 @app.route('/explanation', methods=['POST'])
 def show_explanation():
@@ -387,8 +388,10 @@ def show_explanation():
         try:
             vmc, t = get_vmc()
             return {"text": vmc.get_explanation()}, 200
-        except Exception as e:
+        except VmcException as e:
             return {"text": str(e)}, 400
+        except Exception as e:
+            return {"text": "An error occured"}, 400
 
 @app.route('/graph', methods=['POST'])
 def get_graph():
@@ -444,5 +447,7 @@ def show_counter_graph():
                         }, 200
             else:
                 return {'text': 'No counter example graph available'}, 404
-        except Exception as e:
+        except VmcException as e:
             return {"text": str(e)}, 400
+        except Exception as e:
+            return {"text": "An error occured"}, 400
