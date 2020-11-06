@@ -30,7 +30,7 @@ class Translator:
             label = 'tau'
         label = label.replace('(','_')
         label = label.replace(')','_')
-        return label.strip()
+        return label
 
     def translate(self):
         if self.__fts == None:
@@ -45,13 +45,13 @@ class Translator:
                 for t in s._out:
                     if str(t._constraint).lower() == 'true':
                         line = line + self.sanitize_label(t._label) + '(must).' 
-                        line = line + self.get_id(t) + ' + '
+                        line = line + self.get_id(t) + ' +\n\t'
                     else:
                         line = line + self.sanitize_label(t._label) + '(may).' 
-                        line = line + self.get_id(t) + ' + '
-                line = line[:-3]
+                        line = line + self.get_id(t) + ' +\n\t'
+                line = line.strip()[:-2]+'\n'
                 self.output += line + '\n'
-        self.output += 'SYS = ' + self.__fts._initial._id + '\n\nConstraints { LIVE }\n'
+        self.output += '\nSYS = ' + self.__fts._initial._id + '\n\nConstraints { LIVE }\n'
 
     def get_output(self):
         if self.output != '':
