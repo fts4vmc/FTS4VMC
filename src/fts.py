@@ -439,6 +439,8 @@ def show_counter_graph():
         try:
             vmc, t = get_vmc()
             clean_counter = clean_counterexample(vmc)
+            if not vmc._is_formula():
+                return {"text": 'The formula is not valid, no counter example available'}, 200
             if not clean_counter:
                 return {"text": 'The formula is TRUE, no counter example available'}, 200
             t.load_mts(clean_counter)
