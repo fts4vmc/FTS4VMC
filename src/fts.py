@@ -5,7 +5,7 @@ import subprocess
 import atexit
 import shutil
 import src.internals.graph as graphviz
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Queue, Lock
 from src.internals.disambiguator import Disambiguator
 from src.internals.analyser import z3_analyse_hdead, z3_analyse_full, load_dot
 from src.internals.process_manager import ProcessManager
@@ -125,6 +125,7 @@ def index():
 def full_analyser():
     pm = ProcessManager.get_instance()
     queue = Queue()
+    lock = Lock()
     sessions.update_session_timeout()
     file_path = session['model']
     if os.path.isfile(file_path):
@@ -133,6 +134,7 @@ def full_analyser():
         session['id'] = str(thread.name)
         pm.add_process(session['id'], thread)
         pm.add_queue(session['id'], queue)
+        pm.add_lock(session['id'], lock)
         pm.start_process(session['id'])
         session['position'] = 0
         return "Processing data..."
@@ -142,6 +144,7 @@ def full_analyser():
 def hdead_analyser():
     pm = ProcessManager.get_instance()
     queue = Queue()
+    lock = Lock()
     sessions.update_session_timeout()
     file_path = session['model']
     if os.path.isfile(file_path):
@@ -151,6 +154,7 @@ def hdead_analyser():
         pm.add_process(key=session['id'], process=thread)
         pm.add_queue(session['id'], queue)
         pm.start_process(session['id'])
+        pm.add_lock(session['id'], lock)
         session['position'] = 0
         return "Processing data..."
     return {"text": 'File not found'}, 400

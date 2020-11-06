@@ -6,29 +6,46 @@ import pathlib
 from src.fts import app
 from flask import session
 from src.internals.process_manager import ProcessManager
+import multiprocessing
 
 def check_session():
     """Check if the current session is still valid by verifying if the
     timeout value is still bigger than the current time."""
-    if ('timeout' in session and session['timeout'] is not None 
-            and session['timeout'] > time.time()):
-        return True
-    return False
+    pm = ProcessManager.get_instance()
+    if 'id' in session:
+        lock =  pm.get_lock(session['id'])
+        if not lock:
+            return False
+    else:
+        return False
+    with lock:
+        return ('timeout' in session and session['timeout'] is not None
+                and session['timeout'] > time.time())
 
 @app.route('/keep_alive', methods=['POST'])
 def update_session_timeout():
     """Updates timeout for valid sessions and updates last modification
     time for existing files related to the session"""
-    tmp = ['output', 'graph', 'model', 'counter_graph']
-    if check_session():
-        session['timeout'] = time.time()+600
-        for target in tmp:
-            if target in session and os.path.isfile(session[target]):
-                try:
-                    pathlib.Path(session[target]).touch()
-                except FileNotFoundError:
-                    pass
-    return {'text':'ok'}, 200
+    pm = ProcessManager.get_instance()
+    if 'id' in session:
+        lock =  pm.get_lock(session['id'])
+        if not lock:
+            return {'text':'Session expired no update'}, 200
+    else:
+        return {'text':'Session expired no update'}, 200
+    with lock:
+        tmp = ['output', 'graph', 'model', 'counter_graph']
+        if ('timeout' in session and session['timeout'] is not None
+                and session['timeout'] > time.time()):
+            session['timeout'] = time.time()+900
+            for target in tmp:
+                if target in session and os.path.isfile(session[target]):
+                    try:
+                        pathlib.Path(session[target]).touch()
+                    except FileNotFoundError:
+                        pass
+            return {'text':'ok'}, 200
+        return {'text':'Session expired no update'}, 200
 
 def new_session():
     """Deletes file related to the previous session and sets value for the
@@ -37,7 +54,7 @@ def new_session():
         delete_output_file(True)
     now = time.time()
     session['position'] = 0
-    session['timeout'] = now+600
+    session['timeout'] = now+900
     session['output'] = ''.join(random.SystemRandom().choice(
                 string.ascii_uppercase + string.digits) for _ in range(32))
     session['graph'] = os.path.join(app.config['TMP_FOLDER'],
@@ -58,6 +75,7 @@ def close_session():
     session.pop('position', None)
     if 'id' in session and session['id']:
         pm.end_process(session['id'])
+    pm.delete_lock(session['id'])
     delete_output_file(True)
     session.pop('id', None)
     session.pop('output', None)

@@ -27,6 +27,7 @@ class ProcessManager:
             ProcessManager.__instance = self
             self.proc = {}
             self.queue = {}
+            self.lock = {}
 
     def add_process(self, key, process):
         """Given a string key, and a multiprocessing.Process process,
@@ -84,3 +85,23 @@ class ProcessManager:
         """Given a string key removes the associated queue"""
         if key in self.queue:
             self.queue.pop(key, None)
+
+    def add_lock(self, key, lock):
+        """Given a string key, and a multiprocessing.Lock lock,
+        it adds the lock inside the lock dictionary"""
+        if isinstance(lock, multiprocessing.synchronize.Lock):
+            self.lock[key] = lock
+        else:
+            raise Exception("lock must be instance of multiprocessing.Lock")
+
+    def get_lock(self, key):
+        """Given a string key returns the associated lock if exists"""
+        if key in self.lock:
+            return self.lock[key]
+        else:
+            return None
+
+    def delete_lock(self, key):
+        """Given a string key removes the associated lock"""
+        if key in self.lock:
+            self.lock.pop(key, None)
