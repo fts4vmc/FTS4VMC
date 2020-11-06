@@ -11,6 +11,20 @@ These software are required:
 + Graphviz open source graph visualization software. [Link](https://graphviz.org/download/ "Graphviz")
 + Python 3. [Link](https://www.python.org/downloads/ "Python 3")
 
+A path to the dot binaries must be present in the environment variable PATH for graph rendering.  
+
+For Windows:
+```
+# With Graphviz's dot in C:\\Users\WIN10\Downloads\Graphviz\bin\
+$ set PATH = %PATH%;C:\\Users\WIN10\Downloads\Graphviz\bin\
+```
+
+For Linux and Mac:
+```bash
+# With Graphviz's dot in /home/user/Downloads/Graphviz/bin/
+$ export $PATH = $PATH:/home/user/Downloads/Graphviz/bin
+```
+
 Necessary python modules can be installed with the following command:
 ```bash
 $ pip3 install -r requirements.txt
@@ -27,7 +41,10 @@ $ python3 -m venv venv
 
 To activate the environment:
 ```bash
+#On Linux and Mac
 $ . venv/bin/activate
+#On Windows
+$ venv\Scripts\activate.bat
 ```
 
 More details about Python's virtual environment can be found [here](https://docs.python.org/3/library/venv.html "venv").
@@ -61,17 +78,28 @@ The source code is organized with the following structure:
 
 Launch app on Flask web server:
 ```bash
+# For Linux and Mac
 $ export FLASK_APP=src/fts.py
 $ export FLASK_ENV=development
+
+# For Windows
+$ set FLASK_APP=src/fts.py
+$ set FLASK_ENV=development
+
 $ flask run
  * Running on http://127.0.0.1:5000/
 ```
 
 ## Building docker image ##
 
+An alternative deployment method is building the Docker image or using the compiled one from Docker hub.  
+
+For Windows and Mac is required [Docker Desktop](https://www.docker.com/products/docker-desktop) for Linux it can be installed through the packet manager of your distribution or by building manually the program.
+
 From root of the repository execute the following command:
 
 ```bash
+# For Linux
 $ docker build -t fts4vmc -f docker/Dockerfile .
 ```
 
@@ -80,14 +108,18 @@ $ docker build -t fts4vmc -f docker/Dockerfile .
 For manually built image:
 
 ```bash
+# For Linux
 $ docker run -p <host port>:5000 fts4vmc
 ```
 For running image hosted on docker hub:
 
 ```bash
+# For Linux
 $ docker run -p <host port>:5000 gior26/fts4vmc
 ```
 ## Testing ##
+
+From the root directory of FTS4VMC use the following command to launch all tests.
 
 ```bash
 $ pip3 install pytest
