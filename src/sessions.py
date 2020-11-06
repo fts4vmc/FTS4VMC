@@ -14,13 +14,27 @@ def check_session():
     pm = ProcessManager.get_instance()
     if 'id' in session:
         lock =  pm.get_lock(session['id'])
-        if not lock:
-            return False
+        if lock:
+            with lock:
+                return ('timeout' in session and session['timeout'] is not None
+                    and session['timeout'] > time.time())
     else:
-        return False
-    with lock:
         return ('timeout' in session and session['timeout'] is not None
-                and session['timeout'] > time.time())
+            and session['timeout'] > time.time())
+
+def update():
+    tmp = ['output', 'graph', 'model', 'counter_graph']
+    if ('timeout' in session and session['timeout'] is not None
+            and session['timeout'] > time.time()):
+        session['timeout'] = time.time()+900
+        for target in tmp:
+            if target in session and os.path.isfile(session[target]):
+                try:
+                    pathlib.Path(session[target]).touch()
+                except FileNotFoundError:
+                    pass
+        return {'text':'ok'}, 200
+    return {'text':'Session expired no update'}, 200
 
 @app.route('/keep_alive', methods=['POST'])
 def update_session_timeout():
@@ -29,23 +43,11 @@ def update_session_timeout():
     pm = ProcessManager.get_instance()
     if 'id' in session:
         lock =  pm.get_lock(session['id'])
-        if not lock:
-            return {'text':'Session expired no update'}, 200
+        if lock:
+            with lock:
+                return update()
     else:
-        return {'text':'Session expired no update'}, 200
-    with lock:
-        tmp = ['output', 'graph', 'model', 'counter_graph']
-        if ('timeout' in session and session['timeout'] is not None
-                and session['timeout'] > time.time()):
-            session['timeout'] = time.time()+900
-            for target in tmp:
-                if target in session and os.path.isfile(session[target]):
-                    try:
-                        pathlib.Path(session[target]).touch()
-                    except FileNotFoundError:
-                        pass
-            return {'text':'ok'}, 200
-        return {'text':'Session expired no update'}, 200
+        return update()
 
 def new_session():
     """Deletes file related to the previous session and sets value for the
