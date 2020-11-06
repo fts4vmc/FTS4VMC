@@ -75,7 +75,7 @@ def close_session():
     session.pop('position', None)
     if 'id' in session and session['id']:
         pm.end_process(session['id'])
-    pm.delete_lock(session['id'])
+        pm.delete_lock(session['id'])
     delete_output_file(True)
     session.pop('id', None)
     session.pop('output', None)
