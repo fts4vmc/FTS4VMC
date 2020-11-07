@@ -85,27 +85,27 @@ class c_translator(object):
   def c_translate_and(self, parse_tree):
     subs = tuple(self.c_translate_not(el) for el in parse_tree if((len(el) > 0) and (el[0].name == "c_not")))
     #print("    c_and: {}".format([spc_debug(el) for el in subs]))
-    if(len(subs) is 1): return subs[0]
+    if(len(subs) == 1): return subs[0]
     else: return z3.And(*subs)
   def c_translate_xor(self, parse_tree):
     subs = tuple(self.c_translate_and(el) for el in parse_tree if((len(el) > 0) and (el[0].name == "c_and")))
     #print("   c_xor: {}".format([spc_debug(el) for el in subs]))
-    if(len(subs) is 1): return subs[0]
+    if(len(subs) == 1): return subs[0]
     else: return z3.Xor(*subs)
   def c_translate_or(self, parse_tree):
     subs = tuple(self.c_translate_xor(el) for el in parse_tree if((len(el) > 0) and (el[0].name == "c_xor")))
     #print("  c_or: {}".format([spc_debug(el) for el in subs]))
-    if(len(subs) is 1): return subs[0]
+    if(len(subs) == 1): return subs[0]
     else: return z3.Or(*subs)
   def c_translate_implies(self, parse_tree):
     subs = tuple(self.c_translate_or(el) for el in parse_tree if((len(el) > 0) and (el[0].name == "c_or")))
     #print(" c_implies: {}".format([spc_debug(el) for el in subs]))
-    if(len(subs) is 1): return subs[0]
+    if(len(subs) == 1): return subs[0]
     else: return z3.Implies(subs[0], subs[1])
   def c_translate_iff(self, parse_tree):
     subs = tuple(self.c_translate_implies(el) for el in parse_tree if((len(el) > 0) and (el[0].name == "c_implies")))
     #print("c_iff: {}".format([spc_debug(el) for el in subs]))
-    if(len(subs) is 1): return subs[0]
+    if(len(subs) == 1): return subs[0]
     else: return subs[0] == subs[1]
 
   def c_translate(self, s): return self.c_translate_iff(C.parse(s)[1])
