@@ -14,8 +14,7 @@ class Translator:
         try:
             self.__fts = analyser.load_dot(open(path,"r"))
         except Exception as e:
-            traceback.print_exc()
-            sys.exit(0)
+            raise Exception('Invalid FTS file')
 
     def get_id(self, state):
         if len(state._out._out) == 0:
@@ -24,7 +23,7 @@ class Translator:
 
     def sanitize_label(self, label):
         if label == None:
-            return 'empty'
+            label = 'tau'
         label = label.strip()
         if label == '-':
             label = 'tau'
