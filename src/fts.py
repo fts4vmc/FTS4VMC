@@ -386,22 +386,13 @@ def verify_property():
     except Exception as e:
         return {"text": "An error occured"}, 400
 
-@app.route('/explanation', methods=['POST'])
-def show_explanation():
-    if sessions.check_session():
-        try:
-            vmc, t = get_vmc()
-            return {"text": vmc.get_explanation()}, 200
-        except VmcException as e:
-            return {"text": str(e)}, 400
-        except Exception as e:
-            return {"text": "An error occured"}, 400
-
 @app.route('/graph', methods=['POST'])
 def get_graph():
     message = """No graph data available, the graph may be too big render.
         You can render it locally by downloading the graph source code and use
         the following command: dot -Tsvg model.dot -o output.svg"""
+    if 'src' in request.form and request.form['src']:
+        graphviz.Graph(request.form['src']).draw_graph(session['graph'])
     if sessions.check_session(): 
         if os.path.isfile(session['graph']):
             return {"source":os.path.join('static', 'tmp',

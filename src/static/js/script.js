@@ -66,7 +66,7 @@ function load_mts()
     $("#mts").text("View modal transition system");
     $("#tmp-source").attr('name', 'MTS')
   }
-  request = {url:full_url('/reload_graph'), type:'POST'};
+  request = {url:full_url('/graph'), type:'POST'};
   request['success'] = load_graph;
   request['data'] = {'src': tmp};
   request['error'] = function(resp)
