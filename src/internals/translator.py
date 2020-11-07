@@ -22,7 +22,7 @@ class Translator:
         return str(state._out).strip()
 
     def sanitize_label(self, label):
-        if label == None:
+        if label == None or label.strip() == '':
             label = 'tau'
         label = label.strip()
         if label == '-':
