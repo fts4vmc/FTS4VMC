@@ -407,30 +407,6 @@ def get_graph():
             return {"source":os.path.join('static', 'tmp',
                 os.path.basename(session['graph']))}, 200
     return {"text":message}, 400
-
-@app.route('/reload_graph', methods=['POST'])
-def reload_graph():
-    message = """No graph data available, the graph may be too big render.
-        You can render it locally by downloading the graph source code and use
-        the following command: dot -Tsvg model.dot -o output.svg"""
-    graphviz.Graph(request.form['src']).draw_graph(session['graph'])
-    if sessions.check_session(): 
-        if os.path.isfile(session['graph']):
-            return {"source":os.path.join('static', 'tmp',
-                os.path.basename(session['graph']))}, 200
-    return {"text":message}, 400
-
-def clean_counterexample(vmc):
-    counter = vmc.get_explanation()
-    lines = counter.split('\n')
-    clean_counter = ''
-    is_false = False
-    for line in lines:
-        if "-->" in line:
-            #if at least an occurrence of '-->' is found we can infer
-            #that the formula was evaluated as FALSE
-            clean_counter = clean_counter + line + '\n'
-    return clean_counter
     
 
 @app.route('/counter_graph', methods=['POST'])
@@ -438,7 +414,7 @@ def show_counter_graph():
     if sessions.check_session():
         try:
             vmc, t = get_vmc()
-            clean_counter = clean_counterexample(vmc)
+            clean_counter = vmc.clean_counterexample()
             if not vmc._is_formula():
                 return {"text": 'The formula is not valid, no counter example available'}, 200
             if not clean_counter:
