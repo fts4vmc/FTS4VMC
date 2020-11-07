@@ -38,7 +38,7 @@ atexit.register(fm.final_delete)
 
 @app.errorhandler(413)
 def request_entity_too_large(error):
-    return 'File Too Large', 413
+    return {'text': 'File Too Large'}, 413
 
 def full_analysis_worker(fts_file, out_file, queue):
     dead = [] 
