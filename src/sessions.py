@@ -46,8 +46,7 @@ def update_session_timeout():
         if lock:
             with lock:
                 return update()
-    else:
-        return update()
+    return update()
 
 def new_session():
     """Deletes file related to the previous session and sets value for the
