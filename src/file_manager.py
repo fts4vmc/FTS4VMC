@@ -80,7 +80,7 @@ def delete_old_file(fmt, timeout, path):
                 if os.stat(f).st_mtime + timeout < time.time():
                     os.remove(f)
             except:
-                pass
+                continue
 
 def deleter():
     """Wait for 900 seconds then delete all temporary files older then

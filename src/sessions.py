@@ -32,7 +32,7 @@ def update():
                 try:
                     pathlib.Path(session[target]).touch()
                 except FileNotFoundError:
-                    pass
+                    continue
         return {'text':'ok'}, 200
     return {'text':'Session expired no update'}, 200
 
@@ -107,4 +107,4 @@ def delete_output_file(complete = False):
             try:
                 os.remove(f)
             except:
-                pass
+                continue
