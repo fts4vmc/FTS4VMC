@@ -510,9 +510,17 @@ function load_counter_graph(response)
     $("#counter-div > p").text(response['text']).show();
     $("#counter_image").attr('src', response['graph']+"?random="+new Date().getTime()).show();
   }
-  if(response['text'] && !response['graph']) {
+  else if(response['text'] && !response['graph']) {
     $("#counter-div > p").text(response['text']).show();
     $("#counter_image").hide();
+  }
+  else if(response['explanation']) {
+    $("#counter_image").hide();
+    $("#counter-div > p").text('');
+    for(line in response['explanation']){
+      $("#counter-div > p").append(response['explanation'][line]+'<br>');
+    }
+    $("#counter-div > p").show();
   }
 }
 

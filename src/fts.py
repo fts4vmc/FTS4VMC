@@ -409,7 +409,10 @@ def show_counter_graph():
             if not vmc._is_formula():
                 return {"text": 'The formula is not valid, no counter example available'}, 200
             if not clean_counter:
-                return {"text": 'The formula is TRUE, no counter example available'}, 200
+                if vmc.get_eval() == 'FALSE':
+                    return {"explanation": vmc.get_explanation()}
+                else:
+                    return {"text": 'The formula is TRUE, no counter example available'}, 200
             t.load_mts(clean_counter)
             t.mts_to_dot(session['counter_graph']) 
             if(os.path.isfile(os.path.join(app.config['TMP_FOLDER'], 
@@ -423,4 +426,5 @@ def show_counter_graph():
         except VmcException as e:
             return {"text": str(e)}, 400
         except Exception as e:
+            print(str(e))
             return {"text": "An error occured"}, 400

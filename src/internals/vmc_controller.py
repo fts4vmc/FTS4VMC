@@ -106,6 +106,10 @@ class VmcController:
     def get_formula(self):
         return self._formula
 
+    def get_explanation(self):
+        lines = '-------------------------------------------'
+        return self.explanation.replace(lines, '').split('\n')
+
     def get_eval(self):
         return self._eval
 
