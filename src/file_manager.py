@@ -2,7 +2,7 @@ import os
 import time
 import puremagic
 from flask import session, request
-from src.fts import app
+from src.config import Config
 import src.sessions as sessions
 import src.internals.graph as graphviz
 from src.internals.process_manager import ProcessManager
@@ -10,6 +10,7 @@ from multiprocessing import Process
 from src.internals.analyser import load_dot
 
 ALLOWED_EXTENSIONS = {'.dot'}
+config = Config()
 
 def is_fts(file_path):
     """Check if the given file_path refers to an dot file containing an FTS.
@@ -21,7 +22,6 @@ def is_fts(file_path):
         except:
             return False
 
-@app.route('/upload', methods=['POST'])
 def upload_file():
     """This function allows file uploading while checking if the provided
     file is valid and creating necessary folders if not present"""
@@ -29,8 +29,8 @@ def upload_file():
     dot = ""
     sessions.close_session()
     sessions.new_session()
-    if not os.path.exists(app.config['UPLOAD_FOLDER']):
-        os.makedirs(app.config['UPLOAD_FOLDER']);
+    if not os.path.exists(config.UPLOAD_FOLDER):
+        os.makedirs(config.UPLOAD_FOLDER);
     if not os.path.exists(os.path.dirname(session['output'])):
         os.makedirs(os.path.dirname(session['output']))
     if request.method == 'POST':
@@ -88,11 +88,11 @@ def deleter():
     timeout = 900
     while True:
         time.sleep(timeout)
-        delete_old_file('svg', timeout, app.config['TMP_FOLDER'])
-        delete_old_file('dot', timeout, app.config['UPLOAD_FOLDER'])
-        delete_old_file('txt', timeout, app.config['TMP_FOLDER'])
-        delete_old_file('html', timeout, app.config['TMP_FOLDER'])
-        delete_old_file('dot', timeout, app.config['TMP_FOLDER'])
+        delete_old_file('svg', timeout, config.TMP_FOLDER)
+        delete_old_file('dot', timeout, config.UPLOAD_FOLDER)
+        delete_old_file('txt', timeout, config.TMP_FOLDER)
+        delete_old_file('html', timeout, config.TMP_FOLDER)
+        delete_old_file('dot', timeout, config.TMP_FOLDER)
 
 def start_deleter():
     """Launch the deleter process as a daemon this ensure that the deleter
@@ -104,13 +104,12 @@ def start_deleter():
 
 def final_delete():
     """Deletes all temporary files, used on server shutdown"""
-    delete_old_file('svg', 0, app.config['TMP_FOLDER'])
-    delete_old_file('dot', 0, app.config['UPLOAD_FOLDER'])
-    delete_old_file('txt', 0, app.config['TMP_FOLDER'])
-    delete_old_file('html', 0, app.config['TMP_FOLDER'])
-    delete_old_file('dot', 0, app.config['TMP_FOLDER'])
+    delete_old_file('svg', 0, config.TMP_FOLDER)
+    delete_old_file('dot', 0, config.UPLOAD_FOLDER)
+    delete_old_file('txt', 0, config.TMP_FOLDER)
+    delete_old_file('html', 0, config.TMP_FOLDER)
+    delete_old_file('dot', 0, config.TMP_FOLDER)
 
-@app.route('/download', methods=['POST'])
 def download():
     """The function returns the path to the requested file
 

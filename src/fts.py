@@ -10,23 +10,16 @@ from src.internals.disambiguator import Disambiguator
 from src.internals.analyser import z3_analyse_hdead, z3_analyse_full, load_dot
 from src.internals.process_manager import ProcessManager
 from flask import session, Flask, request, render_template
+from src.config import Config
 
 from src.internals.translator import Translator
 from src.internals.vmc_controller import VmcController, VmcException
 
-UPLOAD_FOLDER = os.path.relpath("uploads")
-TMP_FOLDER = os.path.join("src",'static','tmp')
-VMC_LINUX = os.path.relpath('vmc65-linux')
-VMC_MAC = os.path.relpath('vmc-macos')
-VMC_WINDOWS = os.path.relpath('vmc-win7.exe')
-
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['TMP_FOLDER'] = TMP_FOLDER
+app.config.from_object(Config())
 #Secret key used to cipher session cookies
 app.secret_key = b'\xb1\xa8\xc0W\x0c\xb3M\xd6\xa0\xf4\xabSmz=\x83'
 #Maximum uploaded file size 1MB
-app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024
 
 import src.sessions as sessions
 import src.file_manager as fm
@@ -356,13 +349,13 @@ def get_vmc():
 
         try:
             if sys.platform.startswith('linux'):
-                vmc = VmcController(VMC_LINUX)
+                vmc = VmcController(app.config['VMC_LINUX'])
             elif sys.platform.startswith('win'):
-                vmc = VmcController(VMC_WINDOWS)
+                vmc = VmcController(app.config['VMC_WINDOWS'])
             elif sys.platform.startswith('cygwin'):
-                vmc = VmcController(VMC_WINDOWS)
+                vmc = VmcController(app.config['VMC_WINDOWS'])
             elif sys.platform.startswith('darwin'):
-                vmc = VmcController(VMC_MAC)
+                vmc = VmcController(app.config['VMC_MAC'])
             else:
                 raise VmcException("VMC is not compatible with your operating system")
             vmc.run_vmc(session_tmp_model,session_tmp_properties)
@@ -435,3 +428,11 @@ def show_counter_graph():
         except Exception as e:
             print(str(e))
             return {"text": "An error occured"}, 400
+
+@app.route('/download', methods=['POST'])
+def download():
+    return fm.download()
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    return fm.upload_file()
