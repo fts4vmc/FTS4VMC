@@ -5,7 +5,7 @@ import subprocess
 import atexit
 import shutil
 import src.internals.graph as graphviz
-from multiprocessing import Process, Queue, Lock
+from multiprocessing import Process, Queue, Lock, Event
 from src.internals.disambiguator import Disambiguator
 from src.internals.analyser import z3_analyse_hdead, z3_analyse_full, load_dot
 from src.internals.process_manager import ProcessManager
@@ -40,13 +40,14 @@ atexit.register(fm.final_delete)
 def request_entity_too_large(error):
     return {'text': 'File Too Large'}, 413
 
-def full_analysis_worker(fts_file, out_file, queue):
+def full_analysis_worker(fts_file, out_file, queue, event):
     dead = [] 
     false = [] 
     hidden = []
     fts_source = open(fts_file, 'r')
     sys.stdout = open(out_file, 'w')
     fts = load_dot(fts_source)
+    event.set()
     z3_analyse_full(fts)
     for transition in fts._set_dead:
         dead.append({'src':transition._in._id, 'dst':transition._out._id,
@@ -61,11 +62,12 @@ def full_analysis_worker(fts_file, out_file, queue):
     sys.stdout.close()
     fts_source.close()
 
-def hdead_analysis_worker(fts_file, out_file, queue):
+def hdead_analysis_worker(fts_file, out_file, queue, event):
     hidden = []
     fts_source = open(fts_file, 'r')
     sys.stdout = open(out_file, 'w')
     fts = load_dot(fts_source)
+    event.set()
     z3_analyse_hdead(fts)
     for state in fts._set_hidden_deadlock:
         hidden.append(state._id)
@@ -84,38 +86,39 @@ def get_output():
         sessions.delete_output_file()
         return {"text":''}, 404
     else:
-        with open(session['output']) as out:
-            if pm.is_alive(session['id']):
+        if pm.is_alive(session['id']):
+            with open(session['output']) as out:
                 out.seek(session['position'])
                 result = out.read(4096)
                 session['position'] = out.tell()
-                return {"text":result}, 206
-            else:
+            return {"text":result}, 206
+        else:
+            with open(session['output']) as out:
                 out.seek(session['position'])
                 result = out.read()
-                os.remove(session['output'])
-                queue = ProcessManager.get_instance().get_queue(session['id'])
-                payload = {}
-                payload['text'] = result
-                graph = graphviz.Graph.from_file(session['model'])
-                payload['edges'], payload['nodes'] = graph.get_graph_number()
-                payload['mts'] = graph.get_mts()
-                if(queue):
-                    tmp = queue.get()
-                    session['ambiguities'] = tmp['ambiguities']
-                    payload['ambiguities'] = tmp['ambiguities']
-                    ProcessManager.get_instance().delete_queue(session['id'])
-                    try:
-                        dis = Disambiguator.from_file(session['model'])
-                        dis.highlight_ambiguities(tmp['ambiguities']['dead'], 
-                                tmp['ambiguities']['false'], 
-                                tmp['ambiguities']['hidden'])
-                        payload['graph'] = dis.get_graph()
-                        graphviz.Graph(dis.get_graph()).draw_graph(session['graph'])
-                        return payload, 200
-                    except:
-                        return payload, 200
-                return payload, 200
+            os.remove(session['output'])
+            queue = ProcessManager.get_instance().get_queue(session['id'])
+            payload = {}
+            payload['text'] = result
+            graph = graphviz.Graph.from_file(session['model'])
+            payload['edges'], payload['nodes'] = graph.get_graph_number()
+            payload['mts'] = graph.get_mts()
+            if(queue):
+                tmp = queue.get()
+                session['ambiguities'] = tmp['ambiguities']
+                payload['ambiguities'] = tmp['ambiguities']
+                ProcessManager.get_instance().delete_queue(session['id'])
+                try:
+                    dis = Disambiguator.from_file(session['model'])
+                    dis.highlight_ambiguities(tmp['ambiguities']['dead'], 
+                            tmp['ambiguities']['false'], 
+                            tmp['ambiguities']['hidden'])
+                    payload['graph'] = dis.get_graph()
+                    graphviz.Graph(dis.get_graph()).draw_graph(session['graph'])
+                    return payload, 200
+                except:
+                    return payload, 200
+            return payload, 200
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -126,17 +129,19 @@ def full_analyser():
     pm = ProcessManager.get_instance()
     queue = Queue()
     lock = Lock()
+    event = Event()
     sessions.update_session_timeout()
     file_path = session['model']
     if os.path.isfile(file_path):
         thread = Process(target=full_analysis_worker,
-                args=[file_path, session['output'], queue])
+                args=[file_path, session['output'], queue, event])
         session['id'] = str(thread.name)
         pm.add_process(session['id'], thread)
         pm.add_queue(session['id'], queue)
         pm.add_lock(session['id'], lock)
         pm.start_process(session['id'])
         session['position'] = 0
+        event.wait()
         return "Processing data..."
     return {"text": 'File not found'}, 400
 
@@ -145,17 +150,19 @@ def hdead_analyser():
     pm = ProcessManager.get_instance()
     queue = Queue()
     lock = Lock()
+    event = Event()
     sessions.update_session_timeout()
     file_path = session['model']
     if os.path.isfile(file_path):
         thread = Process(target=hdead_analysis_worker,
-                args=[file_path, session['output'], queue])
+                args=[file_path, session['output'], queue, event])
         session['id'] = str(thread.name)
         pm.add_process(key=session['id'], process=thread)
         pm.add_queue(session['id'], queue)
         pm.start_process(session['id'])
         pm.add_lock(session['id'], lock)
         session['position'] = 0
+        event.wait()
         return "Processing data..."
     return {"text": 'File not found'}, 400
 
