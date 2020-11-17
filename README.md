@@ -13,14 +13,6 @@ These software are required:
 
 A path to the dot binaries must be present in the environment variable PATH for graph rendering.  
 
-[//]: # (For Windows:
-```
-# With Graphviz's dot in C:\\Users\WIN10\Downloads\Graphviz\bin\
-$ set PATH = %PATH%;C:\\Users\WIN10\Downloads\Graphviz\bin\
-```
-)
-
-
 For Linux and Mac:
 ```bash
 # With Graphviz's dot in /home/user/Downloads/Graphviz/bin/
@@ -46,9 +38,6 @@ To activate the environment:
 #On Linux and Mac
 $ . venv/bin/activate
 ```
-
-[//]:# (On Windows
-$ venv\Scripts\activate.bat)
 
 More details about Python's virtual environment can be found [here](https://docs.python.org/3/library/venv.html "venv").
 
@@ -87,12 +76,6 @@ $ export FLASK_ENV=development
 $ flask run
  * Running on http://127.0.0.1:5000/
 ```
-[//]: # (
-# For Windows
-$ set FLASK_APP=src/fts.py
-$ set FLASK_ENV=development
-)
-
 
 ## Docker ##
 
