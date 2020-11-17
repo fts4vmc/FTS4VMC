@@ -13,11 +13,13 @@ These software are required:
 
 A path to the dot binaries must be present in the environment variable PATH for graph rendering.  
 
-For Windows:
+[//]: # (For Windows:
 ```
 # With Graphviz's dot in C:\\Users\WIN10\Downloads\Graphviz\bin\
 $ set PATH = %PATH%;C:\\Users\WIN10\Downloads\Graphviz\bin\
 ```
+)
+
 
 For Linux and Mac:
 ```bash
@@ -43,9 +45,10 @@ To activate the environment:
 ```bash
 #On Linux and Mac
 $ . venv/bin/activate
-#On Windows
-$ venv\Scripts\activate.bat
 ```
+
+[//]:# (On Windows
+$ venv\Scripts\activate.bat)
 
 More details about Python's virtual environment can be found [here](https://docs.python.org/3/library/venv.html "venv").
 
@@ -74,32 +77,34 @@ The source code is organized with the following structure:
 
 ## Usage ##
 
-**WARNING**: Currently it is used the flask web server to deploy the application and it should be used only on localhost.
+**WARNING**: Currently it is used the flask web server to deploy the application and it should be used only on localhost, this deployment option is available for Linux and Mac.
 
 Launch app on Flask web server:
 ```bash
 # For Linux and Mac
 $ export FLASK_APP=src/fts.py
 $ export FLASK_ENV=development
-
-# For Windows
-$ set FLASK_APP=src/fts.py
-$ set FLASK_ENV=development
-
 $ flask run
  * Running on http://127.0.0.1:5000/
 ```
+[//]: # (
+# For Windows
+$ set FLASK_APP=src/fts.py
+$ set FLASK_ENV=development
+)
 
-## Building docker image ##
 
-An alternative deployment method is building the Docker image or using the compiled one from Docker hub.  
+## Docker ##
 
-For Windows and Mac is required [Docker Desktop](https://www.docker.com/products/docker-desktop) for Linux it can be installed through the packet manager of your distribution or by building manually the program.
+An alternative deployment method is building the Docker image or using the compiled one from Docker hub, this option works for all operative systems supported by Docker.  
+
+For Windows and Mac is required [Docker Desktop](https://www.docker.com/products/docker-desktop), for Linux it can be installed through the packet manager of your distribution or by building manually the program.
+
+### Building the docker image ###
 
 From root of the repository execute the following command:
 
 ```bash
-# For Linux
 $ docker build -t fts4vmc -f docker/Dockerfile .
 ```
 
@@ -108,13 +113,12 @@ $ docker build -t fts4vmc -f docker/Dockerfile .
 For manually built image:
 
 ```bash
-# For Linux
 $ docker run -p <host port>:5000 fts4vmc
 ```
-For running image hosted on docker hub:
+
+For running the image hosted on docker hub:
 
 ```bash
-# For Linux
 $ docker run -p <host port>:5000 gior26/fts4vmc
 ```
 ## Testing ##
