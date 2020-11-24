@@ -25,9 +25,6 @@
             </button>
             <!-- Analisys handling -->
             <hr>
-            <button class="command operation" id="mts" type="button" disabled>
-              View modal transition system
-            </button>
             <button class="command operation" id="full" type="button" disabled>
               Full ambiguities analysis
             </button>
@@ -43,13 +40,17 @@
               Remove all ambiguities
             </button>
             <button class="command operation" id="fopt" type="button" disabled>
-              Remove false optional
+              Remove false optional transitions
             </button>
             <button class="command operation" id="hdd" type="button" disabled>
-              Remove dead transition and hidden deadlock
+              Remove dead transitions and hidden deadlock states
             </button>
             <button class="command operation" id="apply" type="button" disabled>
               Apply transformation
+            </button>
+            <hr>
+            <button class="command operation" id="mts" type="button" disabled>
+              View modal transition system
             </button>
             <button class="command operation" id="verify_properties" type="button" disabled>Verify property</button>
             <textarea disabled id="property_text_area" name="property_text_area" rows="20" cols="50">Insert an ACTL formula to verify</textarea>
@@ -90,9 +91,10 @@
               <p class="hideme"></p>
               <img class="hideme" id="counter_image" />
             </div>
-            <div id="evaluation_display">
-              <h2>Formulas evaluation results</h2>
-              The formula: <output id="vmc_formula" class="vmc_formula"readonly></output><br>is <output id="vmc_eval" class="vmc_eval" readonly></output><br><output id="vmc_details" class="vmc_details" readonly></output></p>
+            <div id="evaluation_display" class="hideme" hidden>
+              <h2>Results</h2>
+              The formula: <output id="vmc_formula" class="vmc_formula"readonly></output><br>is <output id="vmc_eval" class="vmc_eval" readonly></output>
+              <br><output id="vmc_details" class="vmc_details" readonly></output></p><br>
             </div>
         </main>
         <div id="modal" class="modal">
