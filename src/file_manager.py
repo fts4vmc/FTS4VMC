@@ -3,6 +3,7 @@ import time
 import puremagic
 from flask import session, request
 from src.config import Config
+from src.fts import app
 import src.sessions as sessions
 import src.internals.graph as graphviz
 from src.internals.process_manager import ProcessManager
