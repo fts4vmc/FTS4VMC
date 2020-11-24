@@ -6,14 +6,15 @@ from src.internals.disambiguator import Disambiguator
 def main(source, target):
     with open(source, 'r') as fts_source:
         fts = analyser.load_dot(fts_source)
-    fts_source.close()
     analyser.z3_analyse_full(fts)
+    fts.report()
     dis = Disambiguator.from_file(source)
     dis.remove_transitions(fts._set_dead)
     dis.set_true_list(fts._set_false_optional)
     dis.solve_hidden_deadlocks(fts._set_hidden_deadlock)
     with open(target, 'w') as out:
         out.write(dis.get_graph())
+
 
 if len(sys.argv) < 2 or len(sys.argv) >= 2 and sys.argv[1] == None:
     print ("Usage: python3 disambiguate.py [source file] [output file]")

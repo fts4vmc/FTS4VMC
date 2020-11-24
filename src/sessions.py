@@ -4,9 +4,12 @@ import string
 import random
 import pathlib
 from src.fts import app
+from src.config import Config
 from flask import session
 from src.internals.process_manager import ProcessManager
 import multiprocessing
+
+config = Config()
 
 def check_session():
     """Check if the current session is still valid by verifying if the
@@ -58,13 +61,13 @@ def new_session():
     session['timeout'] = now+900
     session['output'] = ''.join(random.SystemRandom().choice(
                 string.ascii_uppercase + string.digits) for _ in range(32))
-    session['graph'] = os.path.join(app.config['TMP_FOLDER'],
+    session['graph'] = os.path.join(config.TMP_FOLDER,
             session['output']+'.svg')
-    session['counter_graph'] = os.path.join(app.config['TMP_FOLDER'],
+    session['counter_graph'] = os.path.join(config.TMP_FOLDER,
             session['output'] + 'counterexamplegraph.svg')
-    session['model'] = os.path.join(app.config['UPLOAD_FOLDER'],
+    session['model'] = os.path.join(config.UPLOAD_FOLDER,
             session['output']+'.dot')
-    session['output'] = os.path.join(app.config['TMP_FOLDER'],
+    session['output'] = os.path.join(config.TMP_FOLDER,
             session['output']+'-output')
     session['ambiguities'] = {}
 

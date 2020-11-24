@@ -28,8 +28,8 @@ class TestSessions():
 
     def test_update_expired_session(self, tmp_path):
         with app.test_request_context():
-            app.config['UPLOAD_FOLDER'] = tmp_path
-            app.config['TMP_FOLDER'] = tmp_path
+            sessions.config.UPLOAD_FOLDER = tmp_path
+            sessions.config.TMP_FOLDER= tmp_path
             sessions.new_session()
             session['timeout'] = time.time() -1
             print (os.listdir(tmp_path))
@@ -37,8 +37,8 @@ class TestSessions():
 
     def test_update_session_no_file(self, tmp_path):
         with app.test_request_context():
-            app.config['UPLOAD_FOLDER'] = tmp_path
-            app.config['TMP_FOLDER'] = tmp_path
+            sessions.config.UPLOAD_FOLDER = tmp_path
+            sessions.config.TMP_FOLDER= tmp_path
             sessions.new_session()
             print (os.listdir(tmp_path))
             assert len(os.listdir(tmp_path)) == 0
@@ -47,8 +47,8 @@ class TestSessions():
         from pathlib import Path
         tmp = ['output', 'graph', 'model', 'counter_graph']
         with app.test_request_context():
-            app.config['UPLOAD_FOLDER'] = tmp_path
-            app.config['TMP_FOLDER'] = tmp_path
+            sessions.config.UPLOAD_FOLDER = tmp_path
+            sessions.config.TMP_FOLDER= tmp_path
             sessions.new_session()
             for target in tmp:
                 Path(session[target]).touch()
@@ -59,8 +59,8 @@ class TestSessions():
         from pathlib import Path
         tmp = ['output', 'graph', 'model', 'counter_graph']
         with app.test_request_context():
-            app.config['UPLOAD_FOLDER'] = tmp_path
-            app.config['TMP_FOLDER'] = tmp_path
+            sessions.config.UPLOAD_FOLDER = tmp_path
+            sessions.config.TMP_FOLDER= tmp_path
             sessions.new_session()
             session['model'] = os.path.join(tmp_path, 'test.dot')
             session['graph'] = os.path.join(tmp_path, 'test.svg')
