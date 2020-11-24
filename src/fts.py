@@ -428,11 +428,3 @@ def show_counter_graph():
         except Exception as e:
             print(str(e))
             return {"text": "An error occured"}, 400
-
-@app.route('/download', methods=['POST'])
-def download():
-    return fm.download()
-
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    return fm.upload_file()

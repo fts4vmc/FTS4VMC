@@ -22,6 +22,7 @@ def is_fts(file_path):
         except:
             return False
 
+@app.route('/upload', methods=['POST'])
 def upload_file():
     """This function allows file uploading while checking if the provided
     file is valid and creating necessary folders if not present"""
@@ -110,6 +111,7 @@ def final_delete():
     delete_old_file('html', 0, config.TMP_FOLDER)
     delete_old_file('dot', 0, config.TMP_FOLDER)
 
+@app.route('/download', methods=['POST'])
 def download():
     """The function returns the path to the requested file
 
