@@ -64,7 +64,7 @@ function load_mts()
     $("#tmp-source").attr('name', 'MTS')
   }
   request = {url:full_url('/graph'), type:'POST'};
-  request['success'] = load_graph;
+  request['success'] = show_graph;
   request['data'] = {'src': tmp};
   request['error'] = function(resp)
   {
