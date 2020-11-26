@@ -17,9 +17,9 @@ $(function(){
     $("#fts").prop("disabled", false);
     $("#load").prop("disabled", false);
     $("main").on("click", "#graph_tab", show_graph);
-    $("main").on("click", "#console_tab", show_console);
-    $("main").on("click", "#summary_tab", show_summary);
-    $("main").on("click", "#source_tab", show_source);
+    $("main").on("click", "#console_tab", {target: ".console"}, show_tab);
+    $("main").on("click", "#summary_tab", {target: "#summary"}, show_tab);
+    $("main").on("click", "#source_tab", {target: ".source"}, show_tab);
     $("main").on("click", "#counter_graph_tab", show_counter_graph);
     $("aside").on("click", "#mts", load_mts);
     $("aside").on("click", "#full", {url: '/full_analysis', 
@@ -76,22 +76,13 @@ function load_mts()
   $.ajax(request);
 }
 
-function show_console()
+function show_tab(target)
 {
     $(".hideme").hide();
-    $(".console").show();
-}
-
-function show_summary()
-{
-    $(".hideme").hide();
-    $("#summary").show();
-}
-
-function show_source()
-{
-    $(".hideme").hide();
-    $(".source").show();
+    if(target && target.data && target.data.target) {
+      target = target.data.target;
+    }
+    $(target).show();
 }
 
 function update_textarea_graph(show, response)
@@ -191,7 +182,7 @@ function command(event)
             $("#modal").hide();
         };
         request['beforeSend'] = function(response) {
-            show_console();
+            show_tab(".console");
             $("#console").text("Processing data...");
         };
         request['error'] = function(response) {
@@ -226,7 +217,7 @@ function solve(event)
             $("#modal").hide();
         };
         request['beforeSend'] = function(response) {
-            show_console();
+            show_tab(".console");
             $("#console").text("Processing data...");
         };
         request['error'] = function(response) {
@@ -370,7 +361,7 @@ function verify_property()
             $("#evaluation_display").show();
         };
         request['beforeSend'] = function(response) {
-            show_console();
+            show_tab(".console");
             $("#console").text("Processing data...");
         };
         request['error'] = function(response) {
