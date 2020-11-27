@@ -2,7 +2,7 @@
 $(function(){
     var hdead_show = [ $("#full"), $("#hdead"), $("#delete"), $("#mts"),
         $("#stop"), $("#download"), $("#fts"), $("#verify_properties"),
-        $("#property_text_area")
+        $("#property_text_area"), $("#disambiguate")
     ];
     var full_show = [$("#disambiguate"), $("#fopt"), $("#hdd"), 
         $("#full"), $("#hdead"), $("#delete"), $("#stop"),
