@@ -155,3 +155,31 @@ aside #property_text_area {
 #summary li {
   font-size: large;
 }
+
+#summary tr {
+  font-size:large;
+}
+
+#summary tr:nth-child(odd) {
+  background-color:darkgray;
+}
+
+#summary tr:nth-child(even) {
+  background-color:lightgray;
+}
+
+#summary table tr:first-of-type {
+  background-color:black;
+  color:white;
+  padding:10px;
+  font-size:larger;
+}
+
+#summary table {
+  width:100%;
+  border-collapse: collapse;
+}
+
+#summary table, #summary td, #summary th, #summary tr {
+  border:1px solid black;
+}
