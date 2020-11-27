@@ -201,39 +201,34 @@ function command(event)
 
 function solve(event)
 {
-    $("main > h3").text('FTS')
+    $("main > h3").text('FTS');
     var request = {};
-    if($("#fts")[0].files[0]) {
-        request['url'] = full_url(event.data.url);
-        request['data'] = {name: $("#fts")[0].files[0].name};
-        request['type'] = 'POST';
-        request['success'] = function(response){
-            update_textarea_graph(event.data.show, response);
-            $("#apply").prop('disabled', false);
-            $("#apply").attr('value', event.data.name);
-            $("#mts").text("View modal transition system");
-            $("#tmp-source").attr('name', 'MTS');
-            if(response['graph']) {
-                $("#source").text(response['graph']);
-                $("#tmp-source").val(response['mts']);
-            }
-            $("#message").text("");
-            $("#modal").hide();
-        };
-        request['beforeSend'] = function(response) {
-            show_tab(".console");
-            $("#console").text("Processing data...");
-        };
-        request['error'] = function(response) {
-            if(response.responseJSON) {
-                $("#console").text(response.responseJSON['text']);
-            }
-            $("#message").text("");
-        };
-        $.ajax(request);
-    } else {
-        $("#console").text("Invalid file");
-    }
+    request['url'] = full_url(event.data.url);
+    request['type'] = 'POST';
+    request['success'] = function(response){
+        update_textarea_graph(event.data.show, response);
+        $("#apply").prop('disabled', false);
+        $("#apply").attr('value', event.data.name);
+        $("#mts").text("View modal transition system");
+        $("#tmp-source").attr('name', 'MTS');
+        if(response['graph']) {
+            $("#source").text(response['graph']);
+            $("#tmp-source").val(response['mts']);
+        }
+        $("#message").text("");
+        $("#modal").hide();
+    };
+    request['beforeSend'] = function(response) {
+        show_tab(".console");
+        $("#console").text("Processing data...");
+    };
+    request['error'] = function(response) {
+        if(response.responseJSON) {
+            $("#console").text(response.responseJSON['text']);
+        }
+        $("#message").text("");
+    };
+    $.ajax(request);
 }
 
 // Requests data at /yield to append inside the textarea,
@@ -345,40 +340,41 @@ function create_summary(target, data)
 
 function verify_property()
 {
-    $("main > h3").text('FTS')
-    if($("#fts")[0].files[0]) {
-        var prop = $("#property_text_area").val();
-        request = {url: full_url('/verify_property'), data: {property: prop},
-            type: 'POST'};
-        request['success'] = function(response){
+    $("main > h3").text('FTS');
+    var prop = $("#property_text_area").val();
+    var request = {url: full_url('/verify_property'), data: {property: prop},
+        type: 'POST'};
+    request['success'] = function(response){
+        $("#console").text(response['formula']+":"+response['eval']+" "+
+          response['details'])
+        $("#vmc_formula").text(response['formula']);
+        $("#vmc_eval").text(response['eval']);
+        if(response['eval'] == "TRUE"){
+            $("#vmc_eval").css("color","green");
+            $("#show_explanation").prop("disabled", true);
+            $("#counter_graph_tab").prop("disabled", true);
+        }
+        else if(response['eval'] == "FALSE"){
+            $("#vmc_eval").css("color","red");
             $("#show_explanation").prop("disabled", false);
-            $("#console").text("OK");
-            $("#vmc_formula").text(response['formula']);
-            $("#vmc_eval").text(response['eval']);
-            if(response['eval'] == "TRUE"){
-                $("#vmc_eval").css("color","green");
-            }
-            else if(response['eval'] == "FALSE"){
-                $("#vmc_eval").css("color","red");
-            }
-            else{
-                $("#vmc_eval").css("color","purple");
-            }
-            $("#vmc_details").text(response['details']);
-            $(".hideme").hide();
-            $("#evaluation_display").show();
-        };
-        request['beforeSend'] = function(response) {
-            show_tab(".console");
-            $("#console").text("Processing data...");
-        };
-        request['error'] = function(response) {
-            $("#console").text(response.responseJSON['text']);
-        };
-        $.ajax(request);
-    } else {
-        $("#console").text("Invalid file");
-    }
+        }
+        else{
+            $("#vmc_eval").css("color","purple");
+            $("#show_explanation").prop("disabled", true);
+            $("#counter_graph_tab").prop("disabled", true);
+        }
+        $("#vmc_details").text(response['details']);
+        $(".hideme").hide();
+        $("#evaluation_display").show();
+    };
+    request['beforeSend'] = function(response) {
+        show_tab(".console");
+        $("#console").text("Processing data...");
+    };
+    request['error'] = function(response) {
+        $("#console").text(response.responseJSON['text']);
+    };
+    $.ajax(request);
 }
 
 function apply_transform()
