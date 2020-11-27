@@ -1,3 +1,4 @@
+"use strict";
 $(function(){
     $("aside").on("click", "#download", download);
     $("aside").on("click", "#load", upload_file);
@@ -22,7 +23,7 @@ function upload_file(event)
     if($("#fts")[0].files[0]) {
         var file = new FormData();
         file.append('file', $("#fts")[0].files[0]);
-        request = {url: full_url('/upload'), data: file, processData: false,
+        var request = {url: full_url('/upload'), data: file, processData: false,
             contentType: false, type: 'POST'};
         request['success'] = function(response) {
             $("#console").text(response['text']);
@@ -36,6 +37,8 @@ function upload_file(event)
             $("#mts").prop("disabled", false);
             $("#download").prop("disabled", false);
             $("#verify_properties").prop("disabled", true);
+            $("#load").prop("disabled", true);
+            $("#fts").prop("disabled", true);
         };
         request['error'] = function(response) {
           if(response.responseJSON && response.responseJSON['text'])
@@ -57,7 +60,7 @@ function upload_file(event)
 
 function download()
 {
-  request = {url:full_url('/download'), type:'POST'};
+  var request = {url:full_url('/download'), type:'POST'};
   request['success'] = function(response) {
     $("a").attr('href', response['source']);
     $("a").attr('download', response['name']);
