@@ -312,27 +312,31 @@ function create_summary(target, data)
     main.append("<h3>Ambiguities found</h3>");
     if(data['ambiguities']['dead']){
       main.append("<h4>Dead transitions</h4>");
-      list = $("<ul></ul>");
-      main.append(list);
-      for (transition of data['ambiguities']['dead']) {
-        list.append("<li>("+transition.src+", "+transition.dst+"): "+
-          transition.label+" | "+transition.constraint+"</li>");
+      var dead = $("<table></table>");
+      dead.append("<tr><th>Source state</th><th>Destination state</th>"+
+        "<th>Label</th><th>Feature expression</th></tr>");
+      main.append(dead);
+      for (var transition of data['ambiguities']['dead']) {
+        dead.append("<tr><td>"+transition.src+"</td><td>"+transition.dst+"</td>"+
+          "<td>"+transition.label+"</td><td>"+transition.constraint+"</td></tr>");
       }
     }
     if(data['ambiguities']['false']){
       main.append("<h4>False optional transitions</h4>");
-      list = $("<ul></ul>");
-      main.append(list);
-      for (transition of data['ambiguities']['false']) {
-        list.append("<li>("+transition.src+", "+transition.dst+"): "+
-          transition.label+" | "+transition.constraint+"</li>");
+      var fopt = $("<table></table>");
+      main.append(fopt);
+      fopt.append("<tr><th>Source state</th><th>Destination state</th>"+
+        "<th>Label</th><th>Feature expression</th></tr>");
+      for (var transition of data['ambiguities']['false']) {
+        fopt.append("<tr><td>"+transition.src+"</td><td>"+transition.dst+"</td>"+
+          "<td>"+transition.label+"</td><td>"+transition.constraint+"</td></tr>");
       }
     }
     if(data['ambiguities']['hidden']){
       main.append("<h4>Hidden deadlock states</h4>");
-      list = $("<ul></ul>");
+      var list = $("<ul></ul>");
       main.append(list);
-      for (state of data['ambiguities']['hidden']) {
+      for (var state of data['ambiguities']['hidden']) {
         list.append("<li>"+state+"</li>");
       }
     }
