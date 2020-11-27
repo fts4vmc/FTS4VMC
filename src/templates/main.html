@@ -15,47 +15,60 @@
             <label class="command operation" for="fts" id="fts-label">Select FTS Model
                 <input type="file" name="fts" id="fts" class="command operation">
             </label>
-            <button class="command operation" id="load" type="button" disabled>
+            <button title="Upload the selected file to server" 
+              class="command operation" id="load" type="button" disabled>
               Upload model
             </button>
-            <button class="command operation" id="delete" type="button" disabled>
-              Delete model and close
+            <button title="Delete uploaded model and close session" 
+              class="command operation" id="delete" type="button" disabled>
+              Delete model 
             </button>
-            <button class="command operation" id="download" type="button" disabled>
+            <button title="Download a txt file for console tab, a dot file for source, a svg file for graph and a html file for summary"
+              class="command operation" id="download" type="button" disabled>
               Download displayed result
             </button>
             <!-- Analisys handling -->
             <hr>
-            <button class="command operation" id="full" type="button" disabled>
+            <button title="Start an analysis process looking for dead transitions, false optional transitions and hidden deadlock states"
+              class="command operation" id="full" type="button" disabled>
               Full ambiguities analysis
             </button>
-            <button class="command operation" id="hdead" type="button" disabled>
+            <button title="Start an analysis process looking for hidden deadlock states"
+              class="command operation" id="hdead" type="button" disabled>
               Liveness analysis
             </button>
-            <button class="command operation" id="stop" type="button" disabled>
+            <button title="Stop the current analysis process" 
+              class="command operation" id="stop" type="button" disabled>
               Stop processing
             </button>
             <!-- Disambiguation handling -->
             <hr>
-            <button class="command operation" id="disambiguate" type="button" disabled>
+            <button title="Preview the removal of previously detected ambiguities from the FTS"
+              class="command operation" id="disambiguate" type="button" disabled>
               Remove all ambiguities
             </button>
-            <button class="command operation" id="fopt" type="button" disabled>
+            <button title="Preview the removal of false optional transitions from the FTS"
+              class="command operation" id="fopt" type="button" disabled>
               Remove false optional transitions
             </button>
-            <button class="command operation" id="hdd" type="button" disabled>
+            <button title="Preview the removal of dead transitions and hidden deadlock states from the FTS"
+              class="command operation" id="hdd" type="button" disabled>
               Remove dead transitions and hidden deadlock states
             </button>
-            <button class="command operation" id="apply" type="button" disabled>
+            <button title="Update the FTS source code applying the last disambiguation operation performed"
+              class="command operation" id="apply" type="button" disabled>
               Apply transformation
             </button>
             <hr>
-            <button class="command operation" id="mts" type="button" disabled>
+            <button title="Show respectively MTS or FTS and updates the Source code tab"
+              class="command operation" id="mts" type="button" disabled>
               View modal transition system
             </button>
-            <button class="command operation" id="verify_properties" type="button" disabled>Verify property</button>
+            <button title="Verify a property expressed as a v-ACTL formula using VMC"
+              class="command operation" id="verify_properties" type="button" disabled>Verify property</button>
             <textarea disabled id="property_text_area" name="property_text_area" rows="20" cols="50" placeholder="Insert an v-ACTL formula to verify"></textarea>
-            <button class="command operation" id="show_explanation" type="button" disabled>Show explanation</button>
+            <button title="Shows a counterexample explaining why the given formula is false for the current MTS"
+              class="command operation" id="show_explanation" type="button" disabled>Show explanation</button>
             <table class="hideme" id="legend">
               <caption>Legend</caption>
               <tr><td id="dead">dead transition</td></tr>
@@ -67,16 +80,38 @@
             <h2>FTS4VMC</h2>
             <h3>FTS</h3>
             <div class="tab">
-                <button type="button" id="console_tab">Console</button>
-                <button type="button" id="source_tab">Source</button>
-                <button type="button" id="graph_tab">Graph</button>
-                <button type="button" id="summary_tab">Summary</button>
-                <button type="button" id="counter_graph_tab" disabled>Counterexample graph</button>
+                <button title="Console log" type="button" id="console_tab">Console</button>
+                <button title="FTS/MTS source code" type="button" id="source_tab">Source</button>
+                <button title="FTS/MTS as graph" type="button" id="graph_tab">Graph</button>
+                <button title="Summary of detected ambiguities" type="button" id="summary_tab">Summary</button>
+                <button title="Counterexample for the property"type="button" id="counter_graph_tab" disabled>Counterexample graph</button>
                 <button type="button" id="message"></button>
                 <a id="downloader"href="" download="" style="display: none">Download</a>
             </div>
             <div class="console hideme" name="console">
-              <textarea id="console" class="console" readonly></textarea>
+              <textarea id="console" class="console" readonly>
+FTS4VMC is a tool for:
+- Removal of anomalies from featured transition system
+- Verification of properties in v-ACTL in a family-based manner using VMC
+To start click on "Select FTS Model" and choose a file,
+currently are supported FTS defined as directed graph in dot format.
+
+Here's an example:
+digraph TEST{
+#feature model formula used for evaluation of valid products
+FM="f1 xor f2";
+name="TEST";
+node [shape=circle];
+#Node used to display the feature model
+FeatureModel [color=yellow, label="FM = f1 xor f2", shape=plaintext, style=filled];
+#Initial state of FTS
+C0 [initial=True];
+C0 -> C0  [label="a | f2"];
+C0 -> C1  [label="a | True"];
+C1 -> C2  [label="a | f1"];
+C2 -> C2  [label="a | f2"];
+}
+              </textarea>
             </div>
             <div id="image-div" name="image">
               <p class="hideme"></p>
