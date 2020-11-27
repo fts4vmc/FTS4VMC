@@ -88,19 +88,27 @@ function show_tab(target)
 
 function update_textarea_graph(show, response)
 {
+  update_textarea(show, response, true);
+}
+
+//Updates the main's textarea with the response value.
+function update_textarea(show, response, graph=false)
+{
     $("#console").text(response['text']);
     show_command(show);
     create_summary($("#summary"), response)
-    request = {url:full_url('/graph'), type:'POST'};
-    request['success'] = load_graph;
-    request['error'] = function(resp)
-    {
+    if(graph) {
+      var request = {url:full_url('/graph'), type:'POST'};
+      request['success'] = load_graph;
+      request['error'] = function(resp)
+      {
         if(resp.responseJSON) {
-            $("#image-div > p").text(resp.responseJSON['text']);
+          $("#image-div > p").text(resp.responseJSON['text']);
         }
         $("#image").attr('src', '');
-    };
-    $.ajax(request);
+      };
+      $.ajax(request);
+    }
 }
 
 function load_graph(response)
@@ -135,13 +143,6 @@ function show_command(show)
     }
 }
 
-//Updates the main's textarea with the response value.
-function update_textarea(show, response)
-{
-    $("#console").text(response['text']);
-    show_command(show);
-    create_summary($("#summary"), response)
-}
 
 //Updates the main's textarea with the response value,
 //and initiates the polling of process output.
