@@ -1,3 +1,4 @@
+"use strict";
 $(function(){
     var hdead_show = [ $("#full"), $("#hdead"), $("#delete"), $("#mts"),
         $("#stop"), $("#download"), $("#fts"), $("#verify_properties"),
@@ -49,7 +50,7 @@ $(function(){
 
 function load_mts()
 {
-  tmp = $("#tmp-source").val();
+  var tmp = $("#tmp-source").val();
   $("#tmp-source").val($("#source").text())
   $("#source").text(tmp);
   if($("main > h3").text() == 'FTS')
@@ -63,7 +64,7 @@ function load_mts()
     $("#mts").text("View modal transition system");
     $("#tmp-source").attr('name', 'MTS')
   }
-  request = {url:full_url('/graph'), type:'POST'};
+  var request = {url:full_url('/graph'), type:'POST'};
   request['success'] = show_graph;
   request['data'] = {'src': tmp};
   request['error'] = function(resp)
@@ -111,7 +112,7 @@ function load_graph(response)
 
 function show_graph()
 {
-    request = {url:full_url('/graph'), type:'POST'};
+    var request = {url:full_url('/graph'), type:'POST'};
     request['success'] = load_graph;
     request['error'] = function(response)
     {
@@ -128,7 +129,7 @@ function show_command(show)
 {
     if(show) {
         $(".operation").prop("disabled", true);
-        for (element of show) {
+        for (var element of show) {
             element.prop("disabled", false);
         }
     }
@@ -168,8 +169,8 @@ function command(event)
 {
     $("main > h3").text('FTS')
     if($("#fts")[0].files[0]) {
-        request = {url: full_url(event.data.url), data: {name: $("#fts")[0].files[0].name},
-            type: 'POST'};
+        var request = {url: full_url(event.data.url), data: {
+          name: $("#fts")[0].files[0].name}, type: 'POST'};
         request['success'] = function(response){
             event.data.success(event.data.show, response);
             $("#mts").text("View modal transition system");
@@ -200,9 +201,11 @@ function command(event)
 function solve(event)
 {
     $("main > h3").text('FTS')
+    var request = {};
     if($("#fts")[0].files[0]) {
-        request = {url: full_url(event.data.url), data: {name: $("#fts")[0].files[0].name},
-            type: 'POST'};
+        request['url'] = full_url(event.data.url);
+        request['data'] = {name: $("#fts")[0].files[0].name};
+        request['type'] = 'POST';
         request['success'] = function(response){
             update_textarea_graph(event.data.show, response);
             $("#apply").prop('disabled', false);
@@ -241,7 +244,8 @@ function solve(event)
 // console behaviour.
 function process_update(show, wait)
 {
-    request = {url: full_url('/yield')};
+    var request = {url: full_url('/yield')};
+    var statusCode = {};
     request['complete'] = function(response) {
         if(response) {
             $('#console').scrollTop(
@@ -249,7 +253,6 @@ function process_update(show, wait)
             );
         }
     };
-    statusCode = {};
     statusCode['206'] = function(response) {
         $("#console").append(response['text']);
         if(response['text'])
@@ -272,7 +275,7 @@ function process_update(show, wait)
         create_summary($("#summary"), resp)
         $("#message").text("");
         show_command(show);
-        req = {url:full_url('/graph'), type:'POST'};
+        var req = {url:full_url('/graph'), type:'POST'};
         req['success'] = load_graph;
         req['error'] = function(resp)
         {
@@ -288,7 +291,7 @@ function process_update(show, wait)
 
 function keep_alive()
 {
-    request = {url: full_url('/keep_alive'), type:'POST'};
+    var request = {url: full_url('/keep_alive'), type:'POST'};
     $.ajax(request);
     setTimeout(keep_alive.bind(null), 300000);
 }
@@ -296,7 +299,7 @@ function keep_alive()
 function create_summary(target, data)
 {
   target.empty();
-  main = $("<div></div>");
+  var main = $("<div></div>");
   target.append(main);
   if(data['nodes']){
     main.append("<p>Number of states: "+data['nodes']+"</p>");
@@ -376,7 +379,7 @@ function verify_property()
 function apply_transform()
 {
     $("main > h3").text('FTS')
-    request = {};
+    var request = {};
     if($("#apply").attr('value') == 'all')
       request['url'] = full_url('/apply_all');
     else if($("#apply").attr('value') == 'fopt')
@@ -423,7 +426,7 @@ function load_counter_graph(response)
   else if(response['explanation']) {
     $("#counter_image").hide();
     $("#counter-div > p").text('');
-    for(line in response['explanation']){
+    for(var line in response['explanation']){
       $("#counter-div > p").append(response['explanation'][line]+'<br>');
     }
     $("#counter-div > p").show();
@@ -432,7 +435,7 @@ function load_counter_graph(response)
 
 function show_counter_graph()
 {
-    request = {url:full_url('/counter_graph'), type:'POST'};
+    var request = {url:full_url('/counter_graph'), type:'POST'};
     request['data'] = {};
     request['data']['property'] = $("#property_text_area").val();
     request['success'] = load_counter_graph;
