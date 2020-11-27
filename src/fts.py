@@ -428,3 +428,4 @@ def show_counter_graph():
         except Exception as e:
             print(str(e))
             return {"text": "An error occured"}, 400
+    return {"text": "Session timed-out"}, 400
