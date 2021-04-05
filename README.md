@@ -16,7 +16,7 @@ A path to the dot binaries must be present in the environment variable PATH for 
 For Linux and Mac:
 ```bash
 # With Graphviz's dot in /home/user/Downloads/Graphviz/bin/
-$ export $PATH = $PATH:/home/user/Downloads/Graphviz/bin
+$ export PATH=$PATH:/home/user/Downloads/Graphviz/bin
 ```
 
 Necessary python modules can be installed with the following command:
@@ -110,5 +110,5 @@ From the root directory of FTS4VMC use the following command to launch all tests
 
 ```bash
 $ pip3 install pytest
-$ pytest 
+$ python3 -m pytest
 ```
