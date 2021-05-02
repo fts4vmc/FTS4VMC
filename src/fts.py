@@ -90,7 +90,7 @@ def get_output():
                 out.seek(session['position'])
                 result = out.read()
             os.remove(session['output'])
-            queue = ProcessManager.get_instance().get_queue(session['id'])
+            queue = pm.get_queue(session['id'])
             payload = {}
             payload['text'] = result
             graph = graphviz.Graph.from_file(session['model'])
