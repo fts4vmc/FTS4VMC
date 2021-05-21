@@ -1,5 +1,4 @@
 import os
-import re
 import subprocess
 
 #Separator used while evaluating VMC's output
