@@ -379,7 +379,7 @@ def get_vmc():
 @app.route('/verify_property', methods=['POST'])
 def verify_property():
     try:
-        vmc, t = get_vmc()
+        vmc, tran = get_vmc()
         return {"formula": vmc.get_formula(), "eval": vmc.get_eval(), "details": vmc.get_details()}, 200
     except VmcException as e:
         return {"text": str(e)}, 400
@@ -404,7 +404,7 @@ def get_graph():
 def show_counter_graph():
     if sessions.check_session():
         try:
-            vmc, t = get_vmc()
+            vmc, tran = get_vmc()
             clean_counter = vmc.clean_counterexample()
             if not vmc._is_formula():
                 return {"text": 'The formula is not valid, no counter example available'}, 200
@@ -413,8 +413,8 @@ def show_counter_graph():
                     return {"explanation": vmc.get_explanation()}
                 else:
                     return {"text": 'The formula is TRUE, no counter example available'}, 200
-            t.load_mts(clean_counter)
-            t.mts_to_dot(session['counter_graph']) 
+            tran.load_mts(clean_counter)
+            tran.mts_to_dot(session['counter_graph'])
             if(os.path.isfile(os.path.join(app.config['TMP_FOLDER'], 
                 os.path.basename(session['counter_graph'])))):
                 return {
