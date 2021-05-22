@@ -41,7 +41,8 @@ class VmcController:
     
     #Returns True if the formula is actually an UCTL formula
     def _is_formula(self):
-        return 'Nothing to explain!' not in self.output
+        return not ('Nothing to explain!' in self.output or
+                '### Error found at line' in self.output)
 
     #model: file containing an FTS
     #properties: file containing a formula
