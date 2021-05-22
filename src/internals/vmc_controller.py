@@ -29,23 +29,19 @@ class VmcController:
 
     #Returns True if the last formula was evaluated as TRUE by VMC
     def _is_true(self):
-        idx = self.output.find('is: TRUE')
-        return idx != -1
+        return 'is: TRUE' in self.output
 
     #Returns True if the last formula's evaluation holds for all the MTS' variants
     def _holds_for_variants(self):
-        idx = self.output.find('The formula holds also for all the MTS variants')
-        return idx != -1
+        return 'The formula holds also for all the MTS variants' in self.output
 
     #Returns True if the last formula's evaluation doen not hold for any of the MTS' variants
     def _holds_for_no_variant(self):
-        idx = self.output.find('The formula does NOT hold for any MTS variant')
-        return idx != -1
+        return 'The formula does NOT hold for any MTS variant' in self.output
     
     #Returns True if the formula is actually an UCTL formula
     def _is_formula(self):
-        idx = self.output.find('Nothing to explain! first type in an UCTL formula!')
-        return idx == -1
+        return 'Nothing to explain!' not in self.output
 
     #model: file containing an FTS
     #properties: file containing a formula
@@ -86,7 +82,6 @@ class VmcController:
         else:
             self._eval = 'FALSE'
             tmp_output += ' is FALSE'
-
  
         if(self._holds_for_variants()):
             self._details = 'and holds for all the MTS variants'
@@ -96,7 +91,6 @@ class VmcController:
         else:
             tmp_output += 'and, even if the formula is ' + self._eval + ' for the MTS, its validity is not necessarily preserved by the MTS variants'
             self._details = ' even if the formula is ' + self._eval + ' for the MTS, its validity is not necessarily preserved by the MTS variants'
-
 
         self.output = tmp_output
         self._formula = formula
