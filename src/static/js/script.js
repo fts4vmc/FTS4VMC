@@ -305,7 +305,15 @@ function create_summary(target, data)
   }
   if(data['ambiguities']){
     main.append("<h3>Ambiguities found</h3>");
-    if(data['ambiguities']['dead']){
+    if(data['ambiguities']['hidden'] && data['ambiguities']['hidden'].length > 0){
+      main.append("<h4>Hidden deadlock states</h4>");
+      var list = $("<ul></ul>");
+      main.append(list);
+      for (var state of data['ambiguities']['hidden']) {
+        list.append("<li>"+state+"</li>");
+      }
+    }
+    if(data['ambiguities']['dead'] && data['ambiguities']['dead'].length > 0){
       main.append("<h4>Dead transitions</h4>");
       var dead = $("<table></table>");
       dead.append("<tr><th>Source state</th><th>Destination state</th>"+
@@ -316,7 +324,7 @@ function create_summary(target, data)
           "<td>"+transition.label+"</td><td>"+transition.constraint+"</td></tr>");
       }
     }
-    if(data['ambiguities']['false']){
+    if(data['ambiguities']['false'] && data['ambiguities']['false'].length > 0){
       main.append("<h4>False optional transitions</h4>");
       var fopt = $("<table></table>");
       main.append(fopt);
@@ -325,14 +333,6 @@ function create_summary(target, data)
       for (var transition of data['ambiguities']['false']) {
         fopt.append("<tr><td>"+transition.src+"</td><td>"+transition.dst+"</td>"+
           "<td>"+transition.label+"</td><td>"+transition.constraint+"</td></tr>");
-      }
-    }
-    if(data['ambiguities']['hidden']){
-      main.append("<h4>Hidden deadlock states</h4>");
-      var list = $("<ul></ul>");
-      main.append(list);
-      for (var state of data['ambiguities']['hidden']) {
-        list.append("<li>"+state+"</li>");
       }
     }
   }
