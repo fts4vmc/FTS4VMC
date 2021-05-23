@@ -120,11 +120,6 @@ main #evaluation_display{
   text-align: center;
 }
 
-main #evaluation_display #vmc_formula {
-  background-color: lightgreen;
-  font-style: italic;
-}
-
 main #evaluation_display #vmc_eval {
   font-weight: bold;
 }
