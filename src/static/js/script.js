@@ -351,15 +351,21 @@ function verify_property()
         $("#vmc_eval").text(response['eval']);
         if(response['eval'] == "TRUE"){
             $("#vmc_eval").css("color","green");
+            $("#vmc_formula").css("background-color","lightgreen");
+            $("#vmc_details").css("background-color","lightgreen");
             $("#show_explanation").prop("disabled", true);
             $("#counter_graph_tab").prop("disabled", true);
         }
         else if(response['eval'] == "FALSE"){
             $("#vmc_eval").css("color","red");
+            $("#vmc_formula").css("background-color","lightpink");
+            $("#vmc_details").css("background-color","lightpink");
             $("#show_explanation").prop("disabled", false);
         }
         else{
             $("#vmc_eval").css("color","purple");
+            $("#vmc_formula").css("background-color","plum");
+            $("#vmc_details").css("background-color","plum");
             $("#show_explanation").prop("disabled", true);
             $("#counter_graph_tab").prop("disabled", true);
         }
