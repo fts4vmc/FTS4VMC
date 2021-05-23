@@ -10,7 +10,7 @@ class VmcException(Exception):
 class VmcController:
     __slots__ = ['vmc_path',
                 'output',#VMC's output
-                '_formula',#an UCTL formula extracted from 'properties' file passed to run_vmc(...)
+                '_formula',#UCTL formula from 'properties' file passed to run_vmc
                 '_eval',#result of the evaluation of the current _formula
                 '_details',#does the formula's evaluation holds for all the MTS' variants
                 'explanation' #why is the formula FALSE?
@@ -35,7 +35,7 @@ class VmcController:
     def _holds_for_variants(self):
         return 'The formula holds also for all the MTS variants' in self.output
 
-    #Returns True if the last formula's evaluation doen not hold for any of the MTS' variants
+    #Returns True if the last formula's evaluation does not hold for any MTS' variants
     def _holds_for_no_variant(self):
         return 'The formula does NOT hold for any MTS variant' in self.output
     
@@ -51,7 +51,8 @@ class VmcController:
             raise ValueError('Invalid model file')
         if(not os.path.isfile(properties)):
             raise ValueError('Invalid properties file')
-        self.output = subprocess.check_output(os.path.abspath(self.vmc_path) +#Running vmc
+        #Running vmc
+        self.output = subprocess.check_output(os.path.abspath(self.vmc_path) +
                 ' ' + model + ' ' + properties + ' +z', shell=True)
         decoded = self.output.decode("utf-8")
         if separator in decoded:
@@ -113,8 +114,10 @@ class VmcController:
     def clean_counterexample(self):
         clean_counter = ''
         for line in self.explanation.split('\n'):
+            line = line.strip()
             if "-->" in line:
                 #if at least an occurrence of '-->' is found we can infer
                 #that the formula was evaluated as FALSE
-                clean_counter = clean_counter + line + '\n'
+                if line not in clean_counter:
+                    clean_counter = clean_counter + line + '\n'
         return clean_counter
