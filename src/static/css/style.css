@@ -145,6 +145,10 @@ aside #property_text_area {
   justify-content: center;
 }
 
+#summary {
+  padding: 30px;
+}
+
 #summary p {
   font-size: x-large;
 }
