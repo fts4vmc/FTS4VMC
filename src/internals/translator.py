@@ -41,7 +41,9 @@ class Translator:
             if len(s._out) > 0:
                 s._id = s._id.strip()
                 line = s._id + ' = '
-                for t in s._out:
+                sout = list(s._out)
+                sout.sort(key=str)
+                for t in sout:
                     if str(t._constraint).lower() == 'true':
                         line = line + self.sanitize_label(t._label) + '(must).' 
                         line = line + self.get_id(t) + ' +\n\t'
