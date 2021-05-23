@@ -73,7 +73,7 @@ class VmcController:
             self._formula = formula
             self._eval = 'INVALID'
             self._details = 'Nothing to explain. The provided formula is not valid'
-            self.explanation = 'Nothing to explain. The provided formula is not valid'
+            self.explanation = self._details
             return
         
         #Rewriting output
@@ -88,12 +88,13 @@ class VmcController:
  
         if(self._holds_for_variants()):
             self._details = 'and holds for all the MTS variants'
-            tmp_output += ' and holds for all the MTS variants'
+            tmp_output += self._details
         elif(self._holds_for_no_variant()):
             self._details = 'and does NOT hold for any MTS variant'
         else:
-            tmp_output += 'and, even if the formula is ' + self._eval + ' for the MTS, its validity is not necessarily preserved by the MTS variants'
-            self._details = ' even if the formula is ' + self._eval + ' for the MTS, its validity is not necessarily preserved by the MTS variants'
+            text = ' for the MTS, its validity is not necessarily preserved by the MTS variants'
+            tmp_output += 'and, even if the formula is ' + self._eval + text
+            self._details = ' even if the formula is ' + self._eval + text
 
         self.output = tmp_output
         self._formula = formula
