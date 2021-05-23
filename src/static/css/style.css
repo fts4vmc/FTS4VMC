@@ -30,6 +30,7 @@ main textarea {
     color: white;
     border-radius: 5px;
     resize: none;
+    font-size: larger;
 }
 
 html {
