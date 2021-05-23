@@ -53,7 +53,8 @@ class VmcController:
             raise ValueError('Invalid properties file')
         #Running vmc
         self.output = subprocess.check_output(os.path.abspath(self.vmc_path) +
-                ' ' + model + ' ' + properties + ' +z', shell=True)
+                ' ' + model + ' ' + properties + ' +z',stderr=subprocess.STDOUT,
+                shell=True)
         decoded = self.output.decode("utf-8")
         if separator in decoded:
             self.output, self.explanation = decoded.split(separator,1) 
