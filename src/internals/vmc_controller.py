@@ -68,6 +68,8 @@ class VmcController:
         formula = ''
         with open(properties,"r") as prop_file:
             formula = prop_file.read()
+            if '\n' in formula:
+                formula = formula.split('\n')[0]
 
         if(not self._is_formula()):
             self._formula = formula
