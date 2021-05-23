@@ -86,7 +86,6 @@ class Translator:
                         label = t1.strip()
                 else:#<something>
                     label = rest
-                    optional = False
                 new_edge = pydot.Edge(state, state2)
                 new_edge.obj_dict['attributes']['label'] = label 
                 dot.add_edge(new_edge)
