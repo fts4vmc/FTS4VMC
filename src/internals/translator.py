@@ -62,7 +62,8 @@ class Translator:
     def load_mts(self, mts):
         self._mts = mts
 
-    def mts_to_dot(self,out_file):
+    def mts_to_dot(self, out_file):
+        optional = False
         if self._mts == None:
             return 'Nothing to show: No translation has occurred'
         dot = pydot.Dot()
@@ -76,12 +77,19 @@ class Translator:
                 state2 = state2.strip()
                 tmp_list = rest.split(', ')
                 if(len(tmp_list) == 2):#may, <something>
-                    action, feature = rest.split(', ')
-                    label = action + ' | ' + feature
+                    optional = True
+                    t1, t2 = rest.split(', ')
+                    if t1.strip() == 'may':
+                        label = t2.strip()
+                    else:
+                        label = t1.strip()
                 else:#<something>
                     label = rest
+                    optional = False
                 new_edge = pydot.Edge(state, state2)
                 new_edge.obj_dict['attributes']['label'] = label 
+                if optional:
+                    new_edge.obj_dict['attributes']['style'] = "dashed"
                 dot.add_edge(new_edge)
         svg_graph = dot.create_svg()
         if out_file:
