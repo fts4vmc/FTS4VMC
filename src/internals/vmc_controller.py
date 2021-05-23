@@ -73,8 +73,11 @@ class VmcController:
 
         if(not self._is_formula()):
             self._formula = formula
-            self._eval = 'INVALID'
-            self._details = 'Nothing to explain. The provided formula is not valid'
+            self._eval = 'SYNTACTICALLY WRONG'
+            if '### Error found at' in self.output:
+                self._details = self.output.split('###')[1]
+            else:
+                self._details = 'The provided formula contains syntact errors'
             self.explanation = self._details
             return
         
