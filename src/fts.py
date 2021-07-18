@@ -397,7 +397,9 @@ def get_graph():
         if os.path.isfile(session['graph']):
             return {"source":os.path.join('static', 'tmp',
                 os.path.basename(session['graph']))}, 200
-    return {"text":message}, 400
+        else:
+            return {"text":message}, 400
+    return {"source":os.path.join('static', 'fts_example.svg')}, 200
     
 
 @app.route('/counter_graph', methods=['POST'])
