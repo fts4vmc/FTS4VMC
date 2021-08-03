@@ -127,8 +127,8 @@ class Disambiguator(object):
         for transition in transition_list:
             if (transition.get_source() == state and
                     'label' in transition.obj_dict['attributes']):
-                tmp.append('not (' + transition.obj_dict['attributes']['label'][1:-1].split('|')[-1] + ')')
-        tmp_label = dead_state + " | " + " or ".join(tmp)
+                tmp.append(transition.obj_dict['attributes']['label'][1:-1].split('|')[-1].strip())
+        tmp_label = dead_state + " | not(" + " or ".join(tmp)+")"
         self.__fts.add_edge(pydot.Edge(src=state, dst=dead_state, obj_dict=None, label=tmp_label))
 
     def solve_hidden_deadlocks(self, state_list):
@@ -182,7 +182,7 @@ class Disambiguator(object):
         self.__set_color(false, "green")
 
         for state in hidden:
-            self.__fts.add_node(pydot.Node(name=state, style = 'filled', fillcolor = 'red', fontcolor = 'white'))
+            self.__fts.add_node(pydot.Node(name=state, style = '', color = 'red', fontcolor = 'red'))
 
     def get_graph(self):
         """Return the source of the graph in string form"""

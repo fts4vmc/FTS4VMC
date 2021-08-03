@@ -13,7 +13,7 @@ $(function(){
         $("#delete"), $("#fts"), $("#download")];
     if(!window.location.pathname.endsWith('/'))
         window.history.pushState("", "FTS4VMC", window.location.pathname.concat('/'));
-    $(window).on("beforeunload", {url: '/delete_model', success:update_textarea,
+    $(window).on("beforeunload", {url: '/delete_model', success:delete_textarea,
           show: [$("#load"), $("#fts")]}, command);
     $("#fts").prop("disabled", false);
     $("#load").prop("disabled", false);
@@ -28,7 +28,7 @@ $(function(){
     $("aside").on("click", "#hdead", {url: '/hdead_analysis',
         success:timed_update_textarea, show:hdead_show}, modal_command);
     $("aside").on("click", "#delete", 
-        {url: '/delete_model', success:update_textarea,
+        {url: '/delete_model', success:delete_textarea,
           show: [$("#load"), $("#fts")]}, command);
     $("aside").on("click", "#stop", {url: '/stop', success:update_textarea, 
         show:stop_show}, command);
@@ -84,6 +84,12 @@ function show_tab(target)
       target = target.data.target;
     }
     $(target).show();
+}
+
+function delete_textarea(show, response)
+{
+  $("main > h2").text("FTS4VMC");
+  update_textarea(show, response);
 }
 
 function update_textarea_graph(show, response)
@@ -340,7 +346,6 @@ function create_summary(target, data)
 
 function verify_property()
 {
-    $("main > h3").text('FTS');
     var prop = $("#property_text_area").val();
     var request = {url: full_url('/verify_property'), data: {property: prop},
         type: 'POST'};

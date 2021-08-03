@@ -31,7 +31,7 @@ class TestDisambiguator:
         dead_tr = dis._Disambiguator__fts.get_edge('C1', 'DEAD')[0]
         assert (dead_tr.get_source() == 'C1' and 
                 dead_tr.get_destination() == 'DEAD' and
-                dead_tr.get_label() == 'DEAD | not ( f1)')
+                dead_tr.get_label() == 'DEAD | not(f1)')
 
     def test_highlight(self, graph):
         dis = graph
@@ -44,7 +44,7 @@ class TestDisambiguator:
         hidden_st = dis._Disambiguator__fts.get_node('C1')[0]
         assert (dead_tr.get_color() == 'blue' and 
             false_tr.get_color() == 'green' and 
-            hidden_st.get_fillcolor() == 'red')
+            hidden_st.get_color() == 'red')
 
     def test_file_not_found(self):
         with pytest.raises(FileNotFoundError):
