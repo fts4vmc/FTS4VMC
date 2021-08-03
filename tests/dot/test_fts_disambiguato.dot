@@ -9,5 +9,5 @@ C0 -> C0  [label="a | f2"];
 C0 -> C1  [label="a | True"];
 C1 -> C2  [label="a | f1"];
 C2 -> C3  [label="a  | True"];
-C1 -> DEAD  [label="DEAD | not ( f1)"];
+C1 -> DEAD  [label="DEAD | not(f1)"];
 }
