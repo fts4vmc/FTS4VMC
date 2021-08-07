@@ -52,6 +52,8 @@ def full_analysis_worker(fts_file, out_file, queue, event):
         hidden.append(state._id)
     queue.put({'ambiguities':{'dead': dead, 'false': false, 'hidden': hidden}})
     fts.report()
+    sys.stdout.flush()
+    fts_source.flush()
     sys.stdout.close()
     fts_source.close()
 
@@ -66,6 +68,8 @@ def hdead_analysis_worker(fts_file, out_file, queue, event):
         hidden.append(state._id)
     queue.put({'ambiguities':{'dead':[], 'false':[], 'hidden': hidden}})
     fts.report()
+    sys.stdout.flush()
+    fts_source.flush()
     sys.stdout.close()
     fts_source.close()
 
@@ -344,8 +348,10 @@ def get_vmc():
         session_tmp_properties = os.path.join(session_tmp_folder, 'properties.txt')
         with open(session_tmp_model,"w") as vmc_file:
             vmc_file.write(translator.get_output())
+            vmc_file.flush()
         with open(session_tmp_properties,"w") as prop_file:
             prop_file.write(actl_property)
+            prop_file.flush()
 
         try:
             if sys.platform.startswith('linux'):
