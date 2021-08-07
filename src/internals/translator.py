@@ -12,9 +12,12 @@ class Translator:
 
     def load_model(self, path):
         try:
-            self.__fts = analyser.load_dot(open(path,"r"))
+            file = open(path, "r")
+            self.__fts = analyser.load_dot(file)
         except Exception as e:
             raise Exception('Invalid FTS file')
+        finally:
+            file.close()
 
     def get_id(self, state):
         if len(state._out._out) == 0:
@@ -93,3 +96,4 @@ class Translator:
         if out_file:
             with open(out_file,'wb') as of:
                 of.write(svg_graph)
+                of.flush()
