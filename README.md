@@ -18,6 +18,11 @@ For Linux and Mac:
 # With Graphviz's dot in /home/user/Downloads/Graphviz/bin/
 $ export PATH=$PATH:/home/user/Downloads/Graphviz/bin
 ```
+For Windows:
+```bash
+# With Graphviz's dot in C:\Program Files\Graphviz\bin\
+$ set PATH=%PATH%;C:\Program Files\Graphviz\bin\
+```
 
 Necessary python modules can be installed with the following command:
 ```bash
@@ -37,6 +42,8 @@ To activate the environment:
 ```bash
 #On Linux and Mac
 $ . venv/bin/activate
+#On Windows
+$ venv\Scripts\activate.bat
 ```
 
 More details about Python's virtual environment can be found [here](https://docs.python.org/3/library/venv.html "venv").
@@ -68,11 +75,18 @@ The source code is organized with the following structure:
 
 **WARNING**: Currently it is used the flask web server to deploy the application and it should be used only on localhost, this deployment option is available for Linux and Mac.
 
-Launch app on Flask web server:
+Launch app on Flask web server on Linux and Mac:
 ```bash
-# For Linux and Mac
 $ export FLASK_APP=src/fts.py
 $ export FLASK_ENV=development
+$ flask run
+ * Running on http://127.0.0.1:5000/
+```
+
+On Windows:
+```bash
+$ set FLASK_APP=src\fts.py
+$ set FLASK_ENV=development
 $ flask run
  * Running on http://127.0.0.1:5000/
 ```
