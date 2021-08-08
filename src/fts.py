@@ -34,6 +34,7 @@ def request_entity_too_large(error):
     return {'text': 'File Too Large'}, 413
 
 def full_analysis_worker(fts_file, out_file, queue, event):
+    atexit.unregister(fm.final_delete)
     dead = [] 
     false = [] 
     hidden = []
@@ -55,6 +56,7 @@ def full_analysis_worker(fts_file, out_file, queue, event):
     queue.put({'ambiguities':{'dead': dead, 'false': false, 'hidden': hidden}})
 
 def hdead_analysis_worker(fts_file, out_file, queue, event):
+    atexit.unregister(fm.final_delete)
     hidden = []
     with open(fts_file, 'r') as fts_source:
         fts = load_dot(fts_source)
