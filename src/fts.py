@@ -62,7 +62,7 @@ def hdead_analysis_worker(fts_file, out_file, queue, event):
         fts = load_dot(fts_source)
     with open(out_file, 'w') as sys.stdout:
         event.set()
-        z3_analyse_full(fts)
+        z3_analyse_hdead(fts)
         fts.report()
         sys.stdout.flush()
     for state in fts._set_hidden_deadlock:
