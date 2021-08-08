@@ -37,11 +37,13 @@ def full_analysis_worker(fts_file, out_file, queue, event):
     dead = [] 
     false = [] 
     hidden = []
-    fts_source = open(fts_file, 'r')
-    sys.stdout = open(out_file, 'w')
-    fts = load_dot(fts_source)
-    event.set()
-    z3_analyse_full(fts)
+    with open(fts_file, 'r') as fts_source:
+        fts = load_dot(fts_source)
+    with open(out_file, 'w') as sys.stdout:
+        event.set()
+        z3_analyse_full(fts)
+        fts.report()
+        sys.stdout.flush()
     for transition in fts._set_dead:
         dead.append({'src':transition._in._id, 'dst':transition._out._id,
             'label':str(transition._label), 'constraint':str(transition._constraint)})
@@ -51,27 +53,19 @@ def full_analysis_worker(fts_file, out_file, queue, event):
     for state in fts._set_hidden_deadlock:
         hidden.append(state._id)
     queue.put({'ambiguities':{'dead': dead, 'false': false, 'hidden': hidden}})
-    fts.report()
-    sys.stdout.flush()
-    fts_source.flush()
-    sys.stdout.close()
-    fts_source.close()
 
 def hdead_analysis_worker(fts_file, out_file, queue, event):
     hidden = []
-    fts_source = open(fts_file, 'r')
-    sys.stdout = open(out_file, 'w')
-    fts = load_dot(fts_source)
-    event.set()
-    z3_analyse_hdead(fts)
+    with open(fts_file, 'r') as fts_source:
+        fts = load_dot(fts_source)
+    with open(out_file, 'w') as sys.stdout:
+        event.set()
+        z3_analyse_full(fts)
+        fts.report()
+        sys.stdout.flush()
     for state in fts._set_hidden_deadlock:
         hidden.append(state._id)
     queue.put({'ambiguities':{'dead':[], 'false':[], 'hidden': hidden}})
-    fts.report()
-    sys.stdout.flush()
-    fts_source.flush()
-    sys.stdout.close()
-    fts_source.close()
 
 @app.route('/yield')
 def get_output():
