@@ -2,7 +2,8 @@ import os
 import subprocess
 
 #Separator used while evaluating VMC's output
-separator = '-------------------------------------------\nThe formula:' 
+separator_unix = '-------------------------------------------\nThe formula:'
+separator_win  = '-------------------------------------------\r\nThe formula:'
 
 class VmcException(Exception):
     pass
@@ -47,6 +48,7 @@ class VmcController:
     #model: file containing an FTS
     #properties: file containing a formula
     def run_vmc(self, model, properties):
+        separator = separator_unix
         if(not os.path.isfile(model)):
             raise ValueError('Invalid model file')
         if(not os.path.isfile(properties)):
@@ -56,6 +58,9 @@ class VmcController:
                 ' ' + model + ' ' + properties + ' +z',stderr=subprocess.STDOUT,
                 shell=True)
         decoded = self.output.decode("utf-8")
+        # If on Windows use a different separator
+        if separator_win in decoded:
+            separator = separator_win
         if separator in decoded:
             self.output, self.explanation = decoded.split(separator,1) 
             self.explanation = separator +'\n' + self.explanation 
