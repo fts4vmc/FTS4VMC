@@ -26,7 +26,7 @@ $ set PATH=%PATH%;C:\Program Files\Graphviz\bin\
 
 Necessary python modules can be installed with the following command:
 ```bash
-$ pip3 install -r requirements.txt
+$ pip install -r requirements.txt
 ```
 
 If you don't want to install these module system-wide read the next section for creating and activating a virtual environment then execute the previous command.
@@ -35,7 +35,7 @@ If you don't want to install these module system-wide read the next section for 
 
 To prevent damaging user's libraries it is suggested to install the required packages under a virtual environment using:
 ```bash
-$ python3 -m venv venv
+$ python -m venv venv
 ```
 
 To activate the environment:
@@ -124,5 +124,5 @@ From the root directory of FTS4VMC use the following command to launch all tests
 
 ```bash
 $ pip3 install pytest
-$ python3 -m pytest
+$ python -m pytest
 ```
