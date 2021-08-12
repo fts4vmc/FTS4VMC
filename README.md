@@ -4,12 +4,28 @@ FTS4VMC is a tool to verify properties using family-based model checking taking 
 It also provides detection and removal of ambiguities inside the FTS, written mostly in Python it uses Flask as web framework.  
 More details on how to use the tool can be found [here](https://github.com/fts4vmc/FTS4VMC/blob/master/MANUAL.md "User manual").
 
+This section contains instruction on how to deploy FTS4VMC to see the manual on how to use FTS4VMC click [here](MANUAL.md).
+
 ## Dependencies ##
 
 These software are required:
 
 + Graphviz open source graph visualization software. [Link](https://graphviz.org/download/ "Graphviz")
 + Python 3. [Link](https://www.python.org/downloads/ "Python 3")
+
+On some OS the **python** and **pip** commands refer to Python 2, to make sure you're using Python 3 try the following commands:
+```bash
+$ python -V
+ Python 3.9.2
+$ pip -V
+ pip 20.3.4 from /usr/lib/python3/dist-packages/pip (python 3.9)
+```
+If the previous commands refer to Python 2 you may need to upgrade your Python installation or check if the commands **python3** and **pip3** are available.
+
+Source code can be obtained by either downloading the repository as ZIP file or using the following command:
+```bash
+$ git clone https://github.com/fts4vmc/FTS4VMC.git
+```
 
 A path to the dot binaries must be present in the environment variable PATH for graph rendering.  
 
@@ -23,13 +39,12 @@ For Windows:
 # With Graphviz's dot in C:\Program Files\Graphviz\bin\
 $ set PATH=%PATH%;C:\Program Files\Graphviz\bin\
 ```
+If you don't want to install these module system-wides read the next [section](#virtual-environment) for creating and activating a virtual environment before executing the next command.
 
 Necessary python modules can be installed with the following command:
 ```bash
 $ pip install -r requirements.txt
 ```
-
-If you don't want to install these module system-wide read the next section for creating and activating a virtual environment then execute the previous command.
 
 ### Virtual environment ###
 
@@ -44,6 +59,14 @@ To activate the environment:
 $ . venv/bin/activate
 #On Windows
 $ venv\Scripts\activate.bat
+```
+
+To deactivate:
+```bash
+#On Linux and Mac
+$ deactivate
+#On Windows
+$ venv\Scripts\deactivate.bat
 ```
 
 More details about Python's virtual environment can be found [here](https://docs.python.org/3/library/venv.html "venv").
@@ -73,7 +96,7 @@ The source code is organized with the following structure:
 
 ## Usage ##
 
-**WARNING**: Currently it is used the flask web server to deploy the application and it should be used only on localhost, this deployment option is available for Linux and Mac.
+**WARNING**: Currently it is used the flask web server to deploy the application and it should be used only on localhost.
 
 Launch app on Flask web server on Linux and Mac:
 ```bash
@@ -123,6 +146,6 @@ $ docker run -p <host port>:5000 gior26/fts4vmc
 From the root directory of FTS4VMC use the following command to launch all tests.
 
 ```bash
-$ pip3 install pytest
+$ pip install pytest
 $ python -m pytest
 ```
