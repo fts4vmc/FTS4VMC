@@ -4,8 +4,6 @@ FTS4VMC is a tool to verify properties using family-based model checking taking 
 It also provides detection and removal of ambiguities inside the FTS, written mostly in Python it uses Flask as web framework.  
 More details on how to use the tool can be found [here](https://github.com/fts4vmc/FTS4VMC/blob/master/MANUAL.md "User manual").
 
-This section contains instruction on how to deploy FTS4VMC to see the manual on how to use FTS4VMC click [here](MANUAL.md).
-
 ## Dependencies ##
 
 These software are required:
