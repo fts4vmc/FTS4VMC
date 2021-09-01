@@ -69,13 +69,19 @@ class VmcController:
         else:
             self.output = decoded
 
-        #Checking formula
         formula = ''
         with open(properties,"r") as prop_file:
             formula = prop_file.read()
             if '\n' in formula:
                 formula = formula.split('\n')[0]
+        if(self._check_formula(formula)):
+            self._rewrite_output(formula)
+        else:
+            return
 
+    #Verify if the given string containing the formula is syntactically
+    #correct, if it is return True, False otherwise.
+    def _check_formula(self, formula):
         if(not self._is_formula()):
             self._formula = formula
             self._eval = 'SYNTACTICALLY WRONG'
@@ -84,9 +90,11 @@ class VmcController:
             else:
                 self._details = 'The provided formula contains syntact errors'
             self.explanation = self._details
-            return
+            return False
+        return True
         
-        #Rewriting output
+    #Rewrite output
+    def _rewrite_output(self, formula):
         tmp_output = ''
         tmp_output += 'The Formula: ' + formula
         if(self._is_true()):
