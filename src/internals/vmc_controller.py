@@ -10,11 +10,11 @@ class VmcException(Exception):
 
 class VmcController:
     __slots__ = ['vmc_path',
-                'output',#VMC's output
-                '_formula',#UCTL formula from 'properties' file passed to run_vmc
-                '_eval',#result of the evaluation of the current _formula
-                '_details',#does the formula's evaluation holds for all the MTS' variants
-                'explanation' #why is the formula FALSE?
+                'output',       #VMC's output
+                '_formula',     #formula from 'properties' file passed to run_vmc
+                '_eval',        #result of the evaluation of the current _formula
+                '_details',     #does the formula's evaluation holds for all the MTS' variants
+                'explanation'   #why is the formula FALSE?
                 ]
 
     def __init__(self,vmc_path):
@@ -40,7 +40,7 @@ class VmcController:
     def _holds_for_no_variant(self):
         return 'The formula does NOT hold for any MTS variant' in self.output
     
-    #Returns True if the formula is actually an UCTL formula
+    #Returns True if the formula is actually an v-ACTLive[] formula
     def _is_formula(self):
         return not ('Nothing to explain!' in self.output or
                 '### Error found at line' in self.output)
