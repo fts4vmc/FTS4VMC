@@ -19,7 +19,6 @@ app = Flask(__name__)
 app.config.from_object(Config())
 #Secret key used to cipher session cookies
 app.secret_key = b'\xb1\xa8\xc0W\x0c\xb3M\xd6\xa0\xf4\xabSmz=\x83'
-#Maximum uploaded file size 1MB
 
 import src.sessions as sessions
 import src.file_manager as fm

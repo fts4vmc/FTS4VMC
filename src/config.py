@@ -7,4 +7,5 @@ class Config(object):
     VMC_LINUX = os.path.relpath('vmc65-linux')
     VMC_MAC = os.path.relpath('vmc-macos')
     VMC_WINDOWS = os.path.relpath('vmc-win7.exe')
+#Maximum uploaded file size 1MB
     MAX_CONTENT_LENGTH = 2 * 1024 * 1024
