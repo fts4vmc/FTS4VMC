@@ -62,38 +62,33 @@ class Translator:
             return self.output
         else: return 'Nothing to show: No translation has occurred'
 
-    #The following methods are used to load an mts and to translate it into dot
-    #format. Required in order to being able to display the counterexample graph
-    def load_mts(self, mts):
-        self._mts = mts
-
-    def mts_to_dot(self, out_file):
-        optional = False
-        if self._mts == None:
-            return 'Nothing to show: No translation has occurred'
-        dot = pydot.Dot()
-        edges = dict()
-        mts_lines = self._mts.split('\n')
-        for line in mts_lines[:len(mts_lines)-1]:
-            if line != "\n":
-                state, edges_line = line.split('-->')
-                state = state.strip()
-                state2, rest = (edges_line[:len(edges_line)-1]).split('{')
-                state2 = state2.strip()
-                tmp_list = rest.split(', ')
-                if(len(tmp_list) == 2):#may, <something>
-                    t1, t2 = rest.split(', ')
-                    if t1.strip() == 'may':
-                        label = t2.strip()
-                    else:
-                        label = t1.strip()
-                else:#<something>
-                    label = rest
-                new_edge = pydot.Edge(state, state2)
-                new_edge.obj_dict['attributes']['label'] = label 
-                dot.add_edge(new_edge)
-        svg_graph = dot.create_svg()
-        if out_file:
-            with open(out_file,'wb') as of:
-                of.write(svg_graph)
-                of.flush()
+def mts_to_dot(mts, out_file):
+    optional = False
+    if mts == None:
+        return 'Nothing to show: No translation has occurred'
+    dot = pydot.Dot()
+    edges = dict()
+    mts_lines = mts.split('\n')
+    for line in mts_lines[:len(mts_lines)-1]:
+        if line != "\n":
+            state, edges_line = line.split('-->')
+            state = state.strip()
+            state2, rest = (edges_line[:len(edges_line)-1]).split('{')
+            state2 = state2.strip()
+            tmp_list = rest.split(', ')
+            if(len(tmp_list) == 2):#may, <something>
+                t1, t2 = rest.split(', ')
+                if t1.strip() == 'may':
+                    label = t2.strip()
+                else:
+                    label = t1.strip()
+            else:#<something>
+                label = rest
+            new_edge = pydot.Edge(state, state2)
+            new_edge.obj_dict['attributes']['label'] = label
+            dot.add_edge(new_edge)
+    svg_graph = dot.create_svg()
+    if out_file:
+        with open(out_file,'wb') as of:
+            of.write(svg_graph)
+            of.flush()

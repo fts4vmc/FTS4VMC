@@ -12,7 +12,7 @@ from src.internals.process_manager import ProcessManager
 from flask import session, Flask, request, render_template
 from src.config import Config
 
-from src.internals.translator import Translator
+from src.internals.translator import Translator, mts_to_dot
 from src.internals.vmc_controller import VmcController, VmcException
 
 app = Flask(__name__)
@@ -417,8 +417,7 @@ def show_counter_graph():
                     return {"explanation": vmc.get_explanation()}
                 else:
                     return {"text": 'The formula is TRUE, no counter example available'}, 200
-            tran.load_mts(clean_counter)
-            tran.mts_to_dot(session['counter_graph'])
+            mts_to_dot(clean_counter, session['counter_graph'])
             if(os.path.isfile(os.path.join(app.config['TMP_FOLDER'], 
                 os.path.basename(session['counter_graph'])))):
                 return {
