@@ -311,9 +311,7 @@ def apply_hdd():
                     return {'text':'Unable to update file model'}, 400
     return {'text':'Unable to update file model'}, 400
 
-
-
-def get_vmc():
+def translate_model():
     pm = ProcessManager.get_instance()
     if not session['ambiguities']:
         queue = pm.get_queue(session['id'])
@@ -333,59 +331,77 @@ def get_vmc():
         translator = Translator()
         translator.load_model(fpath)
         translator.translate()
-        session_tmp_folder = session['output'].split('-output')[0]
+        folder = session['output'].split('-output')[0]
         try:
-            os.mkdir(session_tmp_folder)
+            os.mkdir(folder)
         except FileExistsError:
             #if the directory is already present continue
             pass
 
-        session_tmp_model = os.path.join(session_tmp_folder, 'model.txt')
-        session_tmp_properties = os.path.join(session_tmp_folder, 'properties.txt')
-        with open(session_tmp_model,"w") as vmc_file:
-            vmc_file.write(translator.get_output())
-            vmc_file.flush()
-        with open(session_tmp_properties,"w") as prop_file:
+        model = os.path.join(folder, 'model.txt')
+        properties = os.path.join(folder, 'properties.txt')
+        with open(model,"w") as mts:
+            mts.write(translator.get_output())
+            mts.flush()
+        with open(properties,"w") as prop_file:
             prop_file.write(actl_property)
             prop_file.flush()
+    else:
+        raise VmcException('Unable to translate, FTS model not found.')
 
-        try:
-            if sys.platform.startswith('linux'):
-                vmc = VmcController(app.config['VMC_LINUX'])
-            elif sys.platform.startswith('win'):
-                vmc = VmcController(app.config['VMC_WINDOWS'])
-            elif sys.platform.startswith('cygwin'):
-                vmc = VmcController(app.config['VMC_WINDOWS'])
-            elif sys.platform.startswith('darwin'):
-                vmc = VmcController(app.config['VMC_MAC'])
-            else:
-                raise VmcException("VMC is not compatible with your operating system")
-            vmc.run_vmc(session_tmp_model,session_tmp_properties)
-        except ValueError as ve:
-            if str(ve) == 'Invalid vmc_path':
-                shutil.rmtree(session_tmp_folder)
-                raise VmcException("Unable to locate VMC executable")
-            if str(ve) == 'Invalid model file':
-                shutil.rmtree(session_tmp_folder)
-                raise VmcException('Invalid model file')
-            if str(ve) == 'Invalid properties file':
-                shutil.rmtree(session_tmp_folder)
-                raise VmcException('Invalid properties file')
-        except:
-            shutil.rmtree(session_tmp_folder)
-            raise VmcException('An error occured')
-        shutil.rmtree(session_tmp_folder)
-        return vmc, translator
-    raise VmcException('File not found')
+
+def run_vmc():
+    pm = ProcessManager.get_instance()
+    if not session['ambiguities']:
+        queue = pm.get_queue(session['id'])
+        if not queue:
+            raise VmcException("No ambiguities data available execute a full analysis first")
+        else:
+            session['ambiguities'] = queue.get()
+    if (len(session['ambiguities']['hidden']) != 0):
+        raise VmcException("Hidden deadlocks detected. It is necessary to remove them before checking the property")
+
+    folder = session['output'].split('-output')[0]
+    model = os.path.join(folder, 'model.txt')
+    properties = os.path.join(folder, 'properties.txt')
+
+    try:
+        if sys.platform.startswith('linux'):
+            vmc = VmcController(app.config['VMC_LINUX'])
+        elif sys.platform.startswith('win'):
+            vmc = VmcController(app.config['VMC_WINDOWS'])
+        elif sys.platform.startswith('cygwin'):
+            vmc = VmcController(app.config['VMC_WINDOWS'])
+        elif sys.platform.startswith('darwin'):
+            vmc = VmcController(app.config['VMC_MAC'])
+        else:
+            raise VmcException("VMC is not compatible with your operating system")
+        vmc.run_vmc(model,properties)
+    except ValueError as ve:
+        err = str(ve).strip()
+        if os.path.isdir(folder):
+            shutil.rmtree(folder)
+        if err == 'Invalid vmc_path':
+            raise VmcException("Unable to locate VMC executable")
+        if err == 'Invalid model file':
+            raise VmcException('Invalid model file')
+        if err == 'Invalid properties file':
+            raise VmcException('Invalid properties file')
+    except:
+        shutil.rmtree(folder)
+        raise VmcException('An error occured')
+    shutil.rmtree(folder)
+    return vmc
 
 @app.route('/verify_property', methods=['POST'])
 def verify_property():
     try:
-        vmc, tran = get_vmc()
+        translate_model()
+        vmc = run_vmc()
         return {"formula": vmc.get_formula(), "eval": vmc.get_eval(), "details": vmc.get_details()}, 200
     except VmcException as e:
         return {"text": str(e)}, 400
-    except Exception as e:
+    except:
         return {"text": "An error occured"}, 400
 
 @app.route('/graph', methods=['POST'])
@@ -408,7 +424,8 @@ def get_graph():
 def show_counter_graph():
     if sessions.check_session():
         try:
-            vmc, tran = get_vmc()
+            translate_model()
+            vmc = run_vmc()
             clean_counter = vmc.clean_counterexample()
             if not vmc._is_formula():
                 return {"text": 'The formula is not valid, no counter example available'}, 200
