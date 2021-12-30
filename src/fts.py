@@ -96,15 +96,14 @@ def get_output():
             payload['edges'], payload['nodes'] = graph.get_graph_number()
             payload['mts'] = graph.get_mts()
             if(queue):
-                tmp = queue.get()
-                session['ambiguities'] = tmp['ambiguities']
-                payload['ambiguities'] = tmp['ambiguities']
+                tmp = queue.get()['ambiguities']
+                session['ambiguities'] = tmp
+                payload['ambiguities'] = tmp
                 ProcessManager.get_instance().delete_queue(session['id'])
                 try:
                     dis = Disambiguator.from_file(session['model'])
-                    dis.highlight_ambiguities(tmp['ambiguities']['dead'], 
-                            tmp['ambiguities']['false'], 
-                            tmp['ambiguities']['hidden'])
+                    dis.highlight_ambiguities(tmp['dead'], tmp['false'],
+                            tmp['hidden'])
                     payload['graph'] = dis.get_graph()
                     graphviz.Graph(dis.get_graph()).draw_graph(session['graph'])
                     return payload, 200
