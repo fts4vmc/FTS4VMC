@@ -14,3 +14,6 @@ class Config(object):
     MAX_CONTENT_LENGTH = 2 * 1024 * 1024
 #Maximum number of edges for rendering graph using dot
     RENDER_GRAPH_EDGE_LIMIT = 300
+#Define the direction used to render dot graphs
+#Accepted value are: TB, BT, LR, RL
+    RENDER_GRAPH_DIRECTION = 'TB'

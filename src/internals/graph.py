@@ -19,7 +19,7 @@ class Graph():
             self.__graph = pydot.graph_from_dot_data(data)[0]
         except:
             raise Exception("Invalid data")
-        self.__graph.obj_dict['attributes']['rankdir'] = 'TB'
+        self.__graph.obj_dict['attributes']['rankdir'] = config.RENDER_GRAPH_DIRECTION
 
     @classmethod
     def from_file(self, file_path):
