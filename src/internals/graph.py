@@ -1,6 +1,9 @@
 import pydot
 import os
 import puremagic
+from src.config import Config
+
+config = Config()
 
 class Graph():
     __slots__ = '__graph'
@@ -37,11 +40,12 @@ class Graph():
             return self(data)
 
     def draw_graph(self, target):
-        """Render the graph in svg if there are less than 300 edges.
+        """Render the graph in svg if there are less than
+            config.RENDER_GRAPH_EDGE_LIMIT edges.
 
         Arguments:
         target -- Path were the svg image is saved"""
-        if(len(self.__graph.get_edges()) <= 300):
+        if(len(self.__graph.get_edges()) <= config.RENDER_GRAPH_EDGE_LIMIT):
             svg = self.__graph.create_svg()
             if target:
                 with open(target,'wb') as out:
