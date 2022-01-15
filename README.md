@@ -1,8 +1,16 @@
+[tutorial]: <https://www.youtube.com/watch?v=nck8vyk3JuA> "FTS4VMC setup and usage tutorial"
+[SPLC2021]: <https://www.youtube.com/watch?v=OEuZ8BC-43U> "Static Analysis and Family based Model Checking with VMC"
+
 # FTS4VMC #
 
 FTS4VMC is a tool to verify properties using family-based model checking taking as input featured transition system (FTS).  
 It also provides detection and removal of ambiguities inside the FTS, written mostly in Python it uses Flask as web framework.  
 More details on how to use the tool can be found [here](https://github.com/fts4vmc/FTS4VMC/blob/master/MANUAL.md "User manual").
+
+## Tutorials
+
++ FTS4VMC Quickstart [Video][tutorial]
++ Complete tutorial from SPLC 2021 [Video][SPLC2021]
 
 ## Dependencies ##
 
