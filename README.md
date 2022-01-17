@@ -82,6 +82,8 @@ More details about Python's virtual environment can be found [here](https://docs
 The source code is organized with the following structure:
 
 + *fts.py*: this file contains the definitions of functions used to upload files and execute analysis also includes bindings between functions and URLs.
++ *config.py*: this file contains the definitions of variable used in FTS4VMC
+  to configure the server.
 + *sessions.py*: this file contains functions used to manage the users' session data.
 + *file_manager.py*: this file contains functions used to handle uploaded file and delete old ones.
 
