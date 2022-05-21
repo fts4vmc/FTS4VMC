@@ -62,10 +62,10 @@ class Graph():
             mts.del_node('FeatureModel')
         for edge in mts.get_edges():
             attr = edge.obj_dict['attributes']
-            if ('label' in attr and attr['label'][1:-1].split('|')[-1].strip() 
+            if ('label' in attr and attr['label'][1:-1].split('|')[-1].strip()
                     != 'True'):
                 attr['style'] = "dashed"
-            attr['label'] = attr['label'][1:-1].split('|')[0] 
+            attr['label'] = attr['label'][1:-1].split('|')[0]
         return mts.to_string()
 
     def get_graph_number(self):

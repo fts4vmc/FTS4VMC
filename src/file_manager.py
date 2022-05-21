@@ -32,7 +32,7 @@ def upload_file():
     sessions.close_session()
     sessions.new_session()
     if not os.path.exists(config.UPLOAD_FOLDER):
-        os.makedirs(config.UPLOAD_FOLDER);
+        os.makedirs(config.UPLOAD_FOLDER)
     if not os.path.exists(os.path.dirname(session['output'])):
         os.makedirs(os.path.dirname(session['output']))
     if request.method == 'POST':
@@ -130,15 +130,15 @@ def download():
     payload = 'empty'
     mimetype = ''
     format = ''
-    if(request.form['target'] == 'source'): 
+    if(request.form['target'] == 'source'):
         payload = request.form['main']
         mimetype = 'text/plain'
         format = "model.dot"
-    elif(request.form['target'] == 'summary'): 
+    elif(request.form['target'] == 'summary'):
         payload = request.form['main']
         mimetype = 'text/html'
         format = "summary.html"
-    elif(request.form['target'] == 'graph'): 
+    elif(request.form['target'] == 'graph'):
         mime = 'image/svg+xml'
         format = "graph.svg"
         path = os.path.join('static', 'tmp', os.path.basename(session['graph']))
@@ -146,7 +146,7 @@ def download():
             return {"source":path, 'name':format}, 200
         else:
             return {"text":"File not found"}, 404
-    elif(request.form['target'] == 'console'): 
+    elif(request.form['target'] == 'console'):
         payload = request.form['main']
         mimetype = 'text/plain'
         format="log.txt"
@@ -155,7 +155,7 @@ def download():
 
     with open(session['output']+format, 'w') as tmp:
         tmp.write(payload)
-        path = os.path.join('static', 'tmp', os.path.basename(session['output']+format));
+        path = os.path.join('static', 'tmp', os.path.basename(session['output']+format))
         if os.path.isfile(os.path.join('src', path)):
             return {"source":path, "name":format}, 200
         else:

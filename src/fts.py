@@ -34,8 +34,8 @@ def request_entity_too_large(error):
 
 def full_analysis_worker(fts_file, out_file, queue, event):
     atexit.unregister(fm.final_delete)
-    dead = [] 
-    false = [] 
+    dead = []
+    false = []
     hidden = []
     with open(fts_file, 'r') as fts_source:
         fts = load_dot(fts_source)
@@ -95,7 +95,7 @@ def get_output():
             graph = graphviz.Graph.from_file(session['model'])
             payload['edges'], payload['nodes'] = graph.get_graph_number()
             payload['mts'] = graph.get_mts()
-            if(queue):
+            if queue:
                 tmp = queue.get()['ambiguities']
                 session['ambiguities'] = tmp
                 payload['ambiguities'] = tmp
@@ -188,7 +188,7 @@ def disambiguate():
         queue = pm.get_queue(session['id'])
         if not queue:
             return {"text": "No ambiguities data available execute a full analysis first"}, 400
-        else: 
+        else:
             session['ambiguities'] = queue.get()
     payload = {}
     file_path = session['model']
@@ -214,7 +214,7 @@ def apply_all():
         if os.path.isfile(session['model']):
             with open(session['model'], 'w') as model:
                 try:
-                    model.write(payload['graph']);
+                    model.write(payload['graph'])
                     session['ambiguities']['dead'] = []
                     session['ambiguities']['false'] = []
                     session['ambiguities']['hidden'] = []
@@ -234,7 +234,7 @@ def solve_fopt():
         queue = pm.get_queue(session['id'])
         if not queue:
             return {"text": "No ambiguities data available execute a full analysis first"}, 400
-        else: 
+        else:
             session['ambiguities'] = queue.get()
     payload = {}
     file_path = session['model']
@@ -258,7 +258,7 @@ def apply_fopt():
         if os.path.isfile(session['model']):
             with open(session['model'], 'w') as model:
                 try:
-                    model.write(payload['graph']);
+                    model.write(payload['graph'])
                     session['ambiguities']['false'] = []
                     session.modified = True
                     return {'text': 'Model file updated correctly'}, 200
@@ -275,7 +275,7 @@ def solve_hdd():
         queue = pm.get_queue(session['id'])
         if not queue:
             return {"text": "No ambiguities data available execute a full analysis first"}, 400
-        else: 
+        else:
             session['ambiguities'] = queue.get()
     payload = {}
     file_path = session['model']
@@ -300,7 +300,7 @@ def apply_hdd():
         if os.path.isfile(session['model']):
             with open(session['model'], 'w') as model:
                 try:
-                    model.write(payload['graph']);
+                    model.write(payload['graph'])
                     session['ambiguities']['dead'] = []
                     session['ambiguities']['hidden'] = []
                     session.modified = True
@@ -317,12 +317,13 @@ def translate_model():
             raise VmcException("No ambiguities data available execute a full analysis first")
         else:
             session['ambiguities'] = queue.get()
-    if (len(session['ambiguities']['hidden']) != 0):
-        raise VmcException("Hidden deadlocks detected. It is necessary to remove them before checking the property")
+    if len(session['ambiguities']['hidden']) != 0:
+        raise VmcException("Hidden deadlocks detected."+
+                " It is necessary to remove them before checking the property")
 
     fpath = session['model']
     actl_property = request.form['property']
-    if (len(actl_property) == 0):
+    if len(actl_property) == 0:
         raise VmcException('Missing property to be verified')
 
     if os.path.isfile(fpath):
@@ -356,8 +357,9 @@ def run_vmc():
             raise VmcException("No ambiguities data available execute a full analysis first")
         else:
             session['ambiguities'] = queue.get()
-    if (len(session['ambiguities']['hidden']) != 0):
-        raise VmcException("Hidden deadlocks detected. It is necessary to remove them before checking the property")
+    if len(session['ambiguities']['hidden']) != 0:
+        raise VmcException("Hidden deadlocks detected."+
+                " It is necessary to remove them before checking the property")
 
     folder = session['output'].split('-output')[0]
     model = os.path.join(folder, 'model.txt')
@@ -396,7 +398,8 @@ def verify_property():
     try:
         translate_model()
         vmc = run_vmc()
-        return {"formula": vmc.get_formula(), "eval": vmc.get_eval(), "details": vmc.get_details()}, 200
+        return {"formula": vmc.get_formula(), "eval": vmc.get_eval(),
+                "details": vmc.get_details()}, 200
     except VmcException as e:
         return {"text": str(e)}, 400
     except:
@@ -409,14 +412,14 @@ def get_graph():
         the following command: dot -Tsvg model.dot -o output.svg"""
     if 'src' in request.form and request.form['src']:
         graphviz.Graph(request.form['src']).draw_graph(session['graph'])
-    if sessions.check_session(): 
+    if sessions.check_session():
         if os.path.isfile(session['graph']):
             return {"source":os.path.join('static', 'tmp',
                 os.path.basename(session['graph']))}, 200
         else:
             return {"text":message}, 400
     return {"source":os.path.join('static', 'fts_example.svg')}, 200
-    
+
 
 @app.route('/counter_graph', methods=['POST'])
 def show_counter_graph():
@@ -433,11 +436,12 @@ def show_counter_graph():
                 else:
                     return {"text": 'The formula is TRUE, no counter example available'}, 200
             mts_to_dot(clean_counter, session['counter_graph'])
-            if(os.path.isfile(os.path.join(app.config['TMP_FOLDER'], 
+            if(os.path.isfile(os.path.join(app.config['TMP_FOLDER'],
                 os.path.basename(session['counter_graph'])))):
                 return {
                         "text": "Here's an example where the provided property is false:",
-                        "graph": os.path.join('static','tmp', os.path.basename(session['counter_graph']))
+                        "graph": os.path.join('static','tmp',
+                            os.path.basename(session['counter_graph']))
                         }, 200
             else:
                 return {'text': 'No counter example graph available'}, 404
