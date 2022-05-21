@@ -4,3 +4,7 @@ venv
 src/static/*.svg
 *.swp
 tests/dot/*.png
+*.pdf
+*.txt
+*.sh
+*.backup
