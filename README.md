@@ -60,7 +60,7 @@ For Windows:
 # With Graphviz's dot in C:\Program Files\Graphviz\bin\
 $ set PATH=%PATH%;C:\Program Files\Graphviz\bin\
 ```
-### Virtual environment and Python's dependencies###
+### Virtual environment and Python's dependencies ###
 
 **WARNING: This project requires specific version of packages installed through pip
 for reproducibility purpose, it is highly reccomended to use a Python's virtual
