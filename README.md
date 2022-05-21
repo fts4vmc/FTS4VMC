@@ -5,12 +5,18 @@
 
 FTS4VMC is a tool to verify properties using family-based model checking taking as input featured transition system (FTS).  
 It also provides detection and removal of ambiguities inside the FTS, written mostly in Python it uses Flask as web framework.  
-More details on how to use the tool can be found [here](https://github.com/fts4vmc/FTS4VMC/blob/master/MANUAL.md "User manual").
+
+### Models
+
+Inside the [test/dot](https://github.com/fts4vmc/FTS4VMC/tree/master/tests/dot, "models")
+folder there are some examples of FTS written in dot compatible with FTS4VMC.
 
 ## Tutorials
 
 + FTS4VMC Quickstart [Video][tutorial]
 + Complete tutorial from SPLC 2021 [Video][SPLC2021]
+
+# Install
 
 ## Dependencies ##
 
@@ -168,6 +174,12 @@ For running the image hosted on docker hub:
 ```bash
 $ docker run -p <host port>:5000 gior26/fts4vmc
 ```
+
+### Manual
+
+More details on how to use the deployed tool can be found
+[here](https://github.com/fts4vmc/FTS4VMC/blob/master/MANUAL.md "User manual").
+
 ## Testing ##
 
 From the root directory of FTS4VMC use the following command to launch all tests.
