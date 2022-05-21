@@ -172,7 +172,7 @@ class Disambiguator(object):
                         transition['constraint'] == str(self.__ctran.c_translate(tmp[-1]))):
                     edge.obj_dict['attributes']['color'] = color
                     edge.obj_dict['attributes']['style'] = 'bold'
-                    edge.obj_dict['attributes']['fontcolor'] = color 
+                    edge.obj_dict['attributes']['fontcolor'] = color
 
 
     def highlight_ambiguities(self, dead =[], false =[], hidden=[]):

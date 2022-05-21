@@ -9,7 +9,7 @@ def main(source, target):
     with open(target, 'w') as out:
         out.write(t.get_output())
 
-if len(sys.argv) < 2 or len(sys.argv) >= 2 and sys.argv[1] == None:
+if len(sys.argv) < 2 or len(sys.argv) >= 2 and sys.argv[1] is None:
     print ("Usage: python3 translate.py [source file] [output file]")
     print ("Usage: python3 translate.py [source file]")
     print ("Output file will be saved in the same directory of source file,\n"+
@@ -26,7 +26,7 @@ else:
 if len(sys.argv) == 2:
     path, base = os.path.split(source)
     target = os.path.join(path, 'vmc-'+base+'.txt')
-elif len(sys.argv) >= 2 and sys.argv[2] != None:
+elif len(sys.argv) >= 2 and sys.argv[2] is not None:
     target = sys.argv[2]
 
 main(source, target)
