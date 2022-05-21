@@ -65,7 +65,7 @@ def upload_file():
                 return payload, 200
             except:
                 return {"text": "Unable to locate Graphviz dot, check"+
-                        " https://github.com/fts4vmc/FTS4VMC for more details"}, 400
+                        " https://github.com/fts4vmc/FTS4VMC#graphviz for more details"}, 400
         else:
             return {"text": "Incompatible file format"}, 400
     return {"text": "Invalid request"}, 400

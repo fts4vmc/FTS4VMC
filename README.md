@@ -33,7 +33,22 @@ Source code can be obtained by either downloading the repository as ZIP file or 
 $ git clone https://github.com/fts4vmc/FTS4VMC.git
 ```
 
+### Graphviz
+
 A path to the dot binaries must be present in the environment variable PATH for graph rendering.  
+
+On Windows be sure to click on **Add Graphviz to system PATH** during the installation process.
+
+On Mac installing Graphviz using brew adds the program to the PATH automatically.
+
+On Linux if installed with a package manager it should be already available in
+the PATH variable.
+
+#### Add Graphviz to the PATH manually
+
+If you'already installed Graphviz, but it is not available inside the PATH
+variable, you have to locate where the executable is installed and then
+add the program using the following command.
 
 For Linux and Mac:
 ```bash
@@ -45,17 +60,16 @@ For Windows:
 # With Graphviz's dot in C:\Program Files\Graphviz\bin\
 $ set PATH=%PATH%;C:\Program Files\Graphviz\bin\
 ```
-If you don't want to install these module system-wides read the next [section](#virtual-environment) for creating and activating a virtual environment before executing the next command.
+### Virtual environment and Python's dependencies###
 
-Necessary python modules can be installed with the following command:
+**WARNING: This project requires specific version of packages installed through pip
+for reproducibility purpose, it is highly reccomended to use a Python's virtual
+environment to prevent downgrade of system-wide libraries.**
+
+To install the required packages under a virtual environment use the following
+commands:
 ```bash
-$ pip install -r requirements.txt
-```
-
-### Virtual environment ###
-
-To prevent damaging user's libraries it is suggested to install the required packages under a virtual environment using:
-```bash
+$ pip install virtualenv
 $ python -m venv venv
 ```
 
@@ -65,6 +79,11 @@ To activate the environment:
 $ . venv/bin/activate
 #On Windows
 $ venv\Scripts\activate.bat
+```
+
+Necessary python modules can be installed with the following command:
+```bash
+$ pip install -r requirements.txt
 ```
 
 To deactivate:
