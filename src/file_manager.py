@@ -55,13 +55,17 @@ def upload_file():
                 return {"text":"The given file is not a FTS or contains errors"}, 400
             with open(file_path, 'r') as source:
                 dot = source.read()
-            graph = graphviz.Graph(dot)
-            payload['mts'] = graph.get_mts()
-            graph.draw_graph(session['graph'])
-            payload['graph'] = dot
-            payload['edges'], payload['nodes'] = graph.get_graph_number()
-            payload['text'] = "Model loaded"
-            return payload, 200
+            try:
+                graph = graphviz.Graph(dot)
+                payload['mts'] = graph.get_mts()
+                graph.draw_graph(session['graph'])
+                payload['graph'] = dot
+                payload['edges'], payload['nodes'] = graph.get_graph_number()
+                payload['text'] = "Model loaded"
+                return payload, 200
+            except:
+                return {"text": "Unable to locate Graphviz dot, check"+
+                        " https://github.com/fts4vmc/FTS4VMC for more details"}, 400
         else:
             return {"text": "Incompatible file format"}, 400
     return {"text": "Invalid request"}, 400
