@@ -2,8 +2,7 @@
   overflow: hidden;
 }
 
-/* Style the buttons that are used to open the tab content */
-#message, .tab button {
+#message {
   background-color: inherit;
   float: left;
   border: none;
@@ -13,14 +12,47 @@
   transition: 0.3s;
 }
 
+/* Style the buttons that are used to open the tab content */
+.tab-button {
+  background-color: #cce699;
+  float: left;
+  border-style: solid;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  border-color: #b7c69c;
+  color: black;
+  border-radius: 5px 5px 0px 0px;
+}
+
+#message, .tab > button {
+  font-size:14pt;
+}
+
+
 /* Change background color of buttons on hover */
-.tab button:hover {
+.tab-button:hover {
   background-color: #ddd;
 }
 
+.tab button:disabled{
+  background-color: #f0f8ff;
+  color:grey;
+}
+
 /* Create an active/current tablink class */
-.tab button.active {
-  background-color: #ccc;
+.selected-tab {
+  border-style: solid;
+  border-color: #008000;
+  background-color: #008000;
+  color: white;
+  float: left;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  border-radius: 5px 5px 0px 0px;
 }
 
 .tabcontent {
