@@ -39,6 +39,7 @@ function upload_file(event)
             $("#verify_properties").prop("disabled", true);
             $("#load").prop("disabled", true);
             $("#fts").prop("disabled", true);
+            $("#fts-label").removeClass("command").addClass("fts-label-disabled");
         };
         request['error'] = function(response) {
           if(response.responseJSON && response.responseJSON['text'])

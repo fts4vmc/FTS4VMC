@@ -90,6 +90,7 @@ function delete_textarea(show, response)
 {
   $("main > h2").text("FTS4VMC");
   update_textarea(show, response);
+  $("#fts-label").removeClass("fts-label-disabled").addClass("command");
 }
 
 function update_textarea_graph(show, response)

@@ -60,6 +60,21 @@ body {
   box-shadow:black 3px 3px;
 }
 
+.fts-label-disabled {
+  background-color:aliceblue;
+  border-style: hidden;
+  border-width: 3px;
+  border-left-width: 5px;
+  border-left-style: solid;
+  border-left-color: black;
+  color: grey;
+  padding: 5px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow:black 3px 3px;
+}
+
 #stop:disabled, .command:disabled {
   background-color: aliceblue;
   color: grey;
