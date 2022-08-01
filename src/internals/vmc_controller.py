@@ -53,6 +53,11 @@ class VmcController:
             raise ValueError('Invalid model file')
         if(not os.path.isfile(properties)):
             raise ValueError('Invalid properties file')
+        with open(properties, 'r') as source:
+            text = source.read()
+        prop_text = text.replace('(','_').replace(')','_')
+        with open(properties, 'w') as out:
+            out.write(prop_text)
         #Running vmc
         self.output = subprocess.check_output(os.path.abspath(self.vmc_path) +
                 ' ' + model + ' ' + properties + ' +z',stderr=subprocess.STDOUT,
@@ -71,7 +76,7 @@ class VmcController:
 
         formula = ''
         with open(properties,"r") as prop_file:
-            formula = prop_file.read()
+            formula = text
             if '\n' in formula:
                 formula = formula.split('\n')[0]
         if(self._check_formula(formula)):
