@@ -147,6 +147,9 @@ $ flask run
  * Running on http://127.0.0.1:5000/
 ```
 
+You can now use FTS4VMC by visiting http://localhost:5000 with a web
+browser.
+
 ## Docker ##
 
 An alternative deployment method is building the Docker image or using the compiled one from Docker hub, this option works for all operative systems supported by Docker.  
@@ -174,6 +177,9 @@ For running the image hosted on docker hub:
 ```bash
 $ docker run -p <host port>:5000 gior26/fts4vmc
 ```
+
+You can now use FTS4VMC by visiting http://localhost:\<host port\> with a web
+browser.
 
 ### Manual
 
