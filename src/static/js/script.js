@@ -145,7 +145,6 @@ function show_graph()
     };
     $.ajax(request);
     $(".hideme").hide();
-    $("#legend").show();
     $("#image").show();
     tab1("#graph_tab");
 }

@@ -57,7 +57,7 @@ class Graph():
         subgraph = pydot.graph_from_dot_data(' '.join((
             'digraph G {subgraph legend',
             '{rank=max legend [shape=none, margin=0, label=< <TABLE BORDER="0"',
-            'CELLBORDER="0" CELLSPACING="0" CELLPADDING="4">  <TR><TD>Legenda:</TD></TR>',
+            'CELLBORDER="0" CELLSPACING="0" CELLPADDING="4">  <TR><TD>Legend:</TD></TR>',
             '<TR><TD BORDER="1" ><FONT COLOR="blue">dead transition</FONT></TD></TR>',
             '<TR><TD BORDER="1" ><FONT COLOR="darkgreen">false optional transition',
             '</FONT></TD></TR><TR><TD BORDER="1"  BGCOLOR="red">hidden deadlock',
