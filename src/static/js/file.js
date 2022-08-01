@@ -87,5 +87,15 @@ function download()
     request['data']['target'] = 'summary';
     request['data']['main'] = $("#summary").html();
   }
+
+  if($("#counter_image:visible").length){
+    var a = $("<a>")
+      .attr("href", $("#counter_image")[0].src)
+      .attr("download", "img.png")
+      .appendTo("body");
+    a[0].click();
+    a.remove();
+    return;
+  }
   $.ajax(request);
 }
