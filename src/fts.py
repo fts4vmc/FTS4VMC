@@ -200,7 +200,9 @@ def disambiguate():
         pm.delete_queue(session['id'])
         graph = graphviz.Graph(dis.get_graph())
         payload['mts'] = graph.get_mts()
-        payload['text'] = "Removed ambiguities"
+        payload['text'] = "\n".join(("Preview of the FTS with removed ambiguities",
+                "available under the Source tab and Graph tab.",
+                "To update the current FTS click on Apply transformation."))
         payload['graph'] = graph.get_graph()
         payload['edges'], payload['nodes'] = graph.get_graph_number()
         graph.draw_graph(session['graph'])
@@ -244,7 +246,10 @@ def solve_fopt():
         pm.delete_queue(session['id'])
         graph = graphviz.Graph(dis.get_graph())
         payload['mts'] = graph.get_mts()
-        payload['text'] = "Removed false optional transitions"
+        payload['text'] = "\n".join(
+                ("Preview of the FTS with removed false optional transitions",
+                "available under the Source tab and Graph tab.",
+                "To update the current FTS click on Apply transformation."))
         payload['graph'] = graph.get_graph()
         payload['edges'], payload['nodes'] = graph.get_graph_number()
         graph.draw_graph(session['graph'])
@@ -286,7 +291,10 @@ def solve_hdd():
         pm.delete_queue(session['id'])
         graph = graphviz.Graph(dis.get_graph())
         payload['mts'] = graph.get_mts()
-        payload['text'] = "Removed hidden deadlocks and dead transitions"
+        payload['text'] = "\n".join(
+                ("Preview of the FTS with removed hidden deadlocks and dead transitions",
+                "available under the Source tab and Graph tab.",
+                "To update the current FTS click on Apply transformation."))
         payload['graph'] = graph.get_graph()
         payload['edges'], payload['nodes'] = graph.get_graph_number()
         graph.draw_graph(session['graph'])
