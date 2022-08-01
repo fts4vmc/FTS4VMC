@@ -105,7 +105,7 @@ def get_output():
                     dis.highlight_ambiguities(tmp['dead'], tmp['false'],
                             tmp['hidden'])
                     payload['graph'] = dis.get_graph()
-                    graphviz.Graph(dis.get_graph()).draw_graph(session['graph'])
+                    graphviz.Graph(dis.get_graph()).draw_ambiguity_graph(session['graph'])
                     return payload, 200
                 except:
                     return payload, 200

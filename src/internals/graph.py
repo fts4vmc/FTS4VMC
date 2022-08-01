@@ -53,6 +53,20 @@ class Graph():
                     return True
         return False
 
+    def draw_ambiguity_graph(self, target):
+        subgraph = pydot.graph_from_dot_data(' '.join((
+            'digraph G {subgraph legend',
+            '{rank=max legend [shape=none, margin=0, label=< <TABLE BORDER="0"',
+            'CELLBORDER="0" CELLSPACING="0" CELLPADDING="4">  <TR><TD>Legenda:</TD></TR>',
+            '<TR><TD BORDER="1" ><FONT COLOR="blue">dead transition</FONT></TD></TR>',
+            '<TR><TD BORDER="1" ><FONT COLOR="darkgreen">false optional transition',
+            '</FONT></TD></TR><TR><TD BORDER="1"  BGCOLOR="red">hidden deadlock',
+            'state</TD></TR> </TABLE>>]; }}')))[0]
+        tmp = self.__graph
+        self.__graph.add_subgraph(subgraph.get_subgraph("legend")[0])
+        self.draw_graph(target)
+        self.__graph = tmp
+
     def get_mts(self):
         """Return a string containing the MTS expressed in dot format."""
         mts = pydot.graph_from_dot_data(self.__graph.to_string())[0]
