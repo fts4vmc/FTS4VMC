@@ -9,3 +9,8 @@ function tab() {
   $(this).removeClass("tab-button");
   $(this).addClass("selected-tab");
 }
+
+function tab1(elem) {
+  $(".tab button").removeClass("selected-tab").addClass("tab-button");
+  $(elem).removeClass("tab-button").addClass("selected-tab");
+}

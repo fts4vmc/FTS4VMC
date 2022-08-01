@@ -84,6 +84,15 @@ function show_tab(target)
       target = target.data.target;
     }
     $(target).show();
+    if (target == ".console") {
+      tab1("#console_tab");
+    }
+    if (target == "#summary") {
+      tab1("#summary_tab");
+    }
+    if (target == ".source") {
+      tab1("#source_tab");
+    }
 }
 
 function delete_textarea(show, response)
@@ -138,6 +147,7 @@ function show_graph()
     $(".hideme").hide();
     $("#legend").show();
     $("#image").show();
+    tab1("#graph_tab");
 }
 
 function show_command(show)
@@ -405,6 +415,7 @@ function apply_transform()
     request['success'] = function(response){
       $("#console").text(response['text']);
       $("#apply").prop('disabled', true);
+      show_tab(".console");
     };
     request['error'] = function(response) {
       $("#console").text(response.responseJSON['text']);
@@ -458,5 +469,6 @@ function show_counter_graph()
         $("#counter_image").attr('src', '').hide();
     };
     $.ajax(request);
+    tab1("#counter_graph_tab");
     $(".hideme").hide();
 }
