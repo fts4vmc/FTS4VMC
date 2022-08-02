@@ -113,7 +113,12 @@ def get_output():
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template("main.html")
+    data = {
+            'max_size': Config.MAX_CONTENT_LENGTH / (2 * 1024 * 1024),
+            'unit': 'MB',
+            'max_edge': Config.RENDER_GRAPH_EDGE_LIMIT
+            }
+    return render_template("main.html", data=data)
 
 @app.route('/full_analysis', methods=['POST'])
 def full_analyser():
@@ -415,9 +420,11 @@ def verify_property():
 
 @app.route('/graph', methods=['POST'])
 def get_graph():
-    message = """No graph data available, the graph may be too big render.
-        You can render it locally by downloading the graph source code and use
-        the following command: dot -Tsvg model.dot -o output.svg"""
+    message = " ".join(("No graph image available, graph with more than",
+        str(Config.RENDER_GRAPH_EDGE_LIMIT), "won't be rendered,",
+        "you can render it locally by downloading the graph source code under",
+        "the Source tab and use",
+        "the following command: dot -Tsvg model.dot -o output.svg"))
     if 'src' in request.form and request.form['src']:
         graphviz.Graph(request.form['src']).draw_graph(session['graph'])
     if sessions.check_session():
