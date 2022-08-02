@@ -12,6 +12,7 @@ class Config(object):
     VMC_WINDOWS = os.path.relpath('vmc-win7.exe')
 #Maximum uploaded file size 1MB
     MAX_CONTENT_LENGTH = 2 * 1024 * 1024
+    MAX_CONTENT_UNIT = 'MB'
 #Maximum number of edges for rendering graph using dot
     RENDER_GRAPH_EDGE_LIMIT = 300
 #Define the direction used to render dot graphs

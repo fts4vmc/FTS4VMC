@@ -115,7 +115,7 @@ def get_output():
 def index():
     data = {
             'max_size': Config.MAX_CONTENT_LENGTH / (2 * 1024 * 1024),
-            'unit': 'MB',
+            'unit': Config.MAX_CONTENT_UNIT,
             'max_edge': Config.RENDER_GRAPH_EDGE_LIMIT
             }
     return render_template("main.html", data=data)
