@@ -19,6 +19,20 @@ aside > * {
     overflow: auto;
 }
 
+.title {
+  display: flex;
+  align-items: center;
+}
+
+#aside-title {
+  height: 45px;
+  justify-content: space-evenly;
+}
+
+#main-title > h1 {
+  margin-right: 10px;
+}
+
 div.console, div.source{
   height: 80%;
 }

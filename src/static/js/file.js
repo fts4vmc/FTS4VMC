@@ -7,9 +7,9 @@ $(function(){
 
 function alter_title() 
 {
-    $("main > h3").text('FTS')
+    $("#main-title h3").text('FTS')
     let name = $("#fts").val().replace(/.*[\/\\]/, '');
-    $("main > h2").text("Analysis of "+name);
+    $("main h1").text("Analysis of "+name);
     $("#console").text(name+" selected, click load model to"+
         " upload the file");
     $(".operation").prop("disabled", true);
@@ -19,7 +19,7 @@ function alter_title()
 
 function upload_file(event)
 {
-    $("main > h3").text('FTS')
+    $("#main-title h3").text('FTS')
     if($("#fts")[0].files[0]) {
         var file = new FormData();
         file.append('file', $("#fts")[0].files[0]);
@@ -40,6 +40,8 @@ function upload_file(event)
             $("#load").prop("disabled", true);
             $("#fts").prop("disabled", true);
             $("#fts-label").removeClass("command").addClass("fts-label-disabled");
+            let name = $("#fts").val().replace(/.*[\/\\]/, '');
+            $("main h1").text("Analysis of "+name);
         };
         request['error'] = function(response) {
           if(response.responseJSON && response.responseJSON['text'])

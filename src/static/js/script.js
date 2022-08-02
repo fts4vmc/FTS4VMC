@@ -53,10 +53,10 @@ function load_mts()
   var tmp = $("#tmp-source").val();
   $("#tmp-source").val($("#source").text())
   $("#source").text(tmp);
-  if($("main > h3").text() == 'FTS')
-    $("main > h3").text('MTS');
-  else if($("main > h3").text() == 'MTS')
-    $("main > h3").text('FTS');
+  if($("#main-title h3").text() == 'FTS')
+    $("#main-title h3").text('MTS');
+  else if($("#main-title h3").text() == 'MTS')
+    $("#main-title h3").text('FTS');
   if($("#tmp-source").attr('name') == "MTS") {
     $("#mts").text("View featured transition system");
     $("#tmp-source").attr('name', 'FTS')
@@ -97,7 +97,7 @@ function show_tab(target)
 
 function delete_textarea(show, response)
 {
-  $("main > h2").text("FTS4VMC");
+  $("main h1").text("");
   update_textarea(show, response);
   $("#fts-label").removeClass("fts-label-disabled").addClass("command");
 }
@@ -184,7 +184,7 @@ function modal_command(event)
 
 function command(event)
 {
-    $("main > h3").text('FTS')
+    $("#main-title h3").text('FTS')
     if($("#fts")[0].files[0]) {
         var request = {url: full_url(event.data.url), data: {
           name: $("#fts")[0].files[0].name}, type: 'POST'};
@@ -217,7 +217,7 @@ function command(event)
 
 function solve(event)
 {
-    $("main > h3").text('FTS');
+    $("#main-title h3").text('FTS');
     var request = {};
     request['url'] = full_url(event.data.url);
     request['type'] = 'POST';
@@ -278,7 +278,7 @@ function process_update(show, wait)
         setTimeout(process_update.bind(null, show, wait), wait);
     };
     statusCode['200'] = function(resp) {
-        $("main > h3").text('FTS')
+        $("#main-title h3").text('FTS')
         $("#console").append(resp['text']);
         $("#source").text(resp['graph']);
         $("#tmp-source").val(resp['mts']);
@@ -400,7 +400,7 @@ function verify_property()
 
 function apply_transform()
 {
-    $("main > h3").text('FTS')
+    $("#main-title h3").text('FTS')
     var request = {};
     if($("#apply").attr('value') == 'all')
       request['url'] = full_url('/apply_all');

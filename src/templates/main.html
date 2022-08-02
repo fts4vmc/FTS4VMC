@@ -17,6 +17,10 @@
     </head>
     <body>
         <aside>
+          <div class="title" id="aside-title">
+            <h1>FTS4VMC</h1>
+            <p> v1.0 (2022)</p>
+          </div>
             <!-- File handling -->
             <label class="command operation" for="fts" id="fts-label">Select FTS Model
                 <input type="file" name="fts" id="fts" class="command operation">
@@ -77,8 +81,10 @@
               class="command operation" id="show_explanation" type="button" disabled>Show explanation</button>
         </aside>
         <main>
-            <h2>FTS4VMC</h2>
-            <h3>FTS</h3>
+            <div class="title" id="main-title">
+              <h1></h1>
+              <h3>FTS</h3>
+            </div>
             <div class="tab">
                 <button class="selected-tab" title="Console log" type="button" id="console_tab">Console</button>
                 <button class="tab-button" title="FTS/MTS source code" type="button" id="source_tab">Source</button>
