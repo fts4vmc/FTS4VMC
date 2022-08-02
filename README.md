@@ -241,3 +241,24 @@ From the root directory of FTS4VMC use the following command to launch all tests
 $ pip install pytest
 $ python -m pytest
 ```
+
+## Server-side configuration ##
+
+Editing the src/config.py we can edit some server-side options, currently the
+following options are available:
+
+* Path to the folder used for storing uploaded files
+  * UPLOAD_FOLDER
+* Path to the folder used for storing temporary files
+  * TMP_FOLDER
+* Path to the VMC binaries
+  * VMC_LINUX
+  * VMC_MAC
+  * VMC_WINDOWS
+* Maximum uploaded file size
+  * MAX_CONTENT_LENGTH = 2 * 1024 * 1024
+  * MAX_CONTENT_UNIT = 'MB'
+* Maximum number of edges for rendering graph using dot
+  * RENDER_GRAPH_EDGE_LIMIT = 300
+* Define the direction used to render dot graphs, accepted value are: TB, BT, LR, RL
+  * RENDER_GRAPH_DIRECTION = 'TB'
