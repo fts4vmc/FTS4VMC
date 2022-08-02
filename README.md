@@ -129,7 +129,11 @@ The source code is organized with the following structure:
 
 ## Usage ##
 
+### Flask ###
+
 **WARNING**: Currently it is used the flask web server to deploy the application and it should be used only on localhost.
+
+This deployment option has been tested on Windows 10, macOS Big Sur and Debian Bullseye.
 
 Launch app on Flask web server on Linux and Mac:
 ```bash
@@ -150,13 +154,17 @@ $ flask run
 You can now use FTS4VMC by visiting http://localhost:5000 with a web
 browser.
 
-## Docker ##
+### Docker ###
 
-An alternative deployment method is building the Docker image or using the compiled one from Docker hub, this option works for all operative systems supported by Docker.  
+An alternative deployment method is building the Docker image or using the
+compiled one from Docker hub, this option works for all operative systems
+supported by Docker and it is easier to set up.  
 
-For Windows and Mac is required [Docker Desktop](https://www.docker.com/products/docker-desktop), for Linux it can be installed through the packet manager of your distribution or by building manually the program.
+For Windows and Mac is required [Docker Desktop](https://www.docker.com/products/docker-desktop),
+for Linux it can be installed through the packet manager of your distribution or by building
+manually the program.
 
-### Building the docker image ###
+#### Building the docker image ####
 
 From root of the repository execute the following command:
 
@@ -164,7 +172,7 @@ From root of the repository execute the following command:
 $ docker build -t fts4vmc -f docker/Dockerfile .
 ```
 
-## Running the docker container ##
+#### Running the docker container ####
 
 For manually built image:
 
@@ -178,10 +186,49 @@ For running the image hosted on docker hub:
 $ docker run -p <host port>:5000 gior26/fts4vmc
 ```
 
-You can now use FTS4VMC by visiting http://localhost:\<host port\> with a web
+You can now use FTS4VMC by visiting http://localhost: \<host port\> with a web
 browser.
 
-### Manual
+### Command-line interface ###
+
+FTS4VMC's disambiguator and translator modules can also be used from the command
+line.
+
+#### Disambiguation ####
+
+After installing the required dependencies you can obtain a FTS with all the
+ambiguities removed given a source FTS using the following command from the
+root of the repository:
+
+```bash
+# Using vendingnew.dot as an example
+$ python3 disambiguator.py vendingnew.dot vendingnew-fixed.dot
+```
+
+#### Translation ####
+
+The translator output files compatible with the Variability Model Checker
+in txt format, using the output from the previous command we can perform the
+translation using the following command from the root of the repository:
+
+```bash
+$ python3 translator.py vendingnew-fixed.dot vendingnew-vmc.txt
+```
+
+#### Verification of properties ####
+
+Verification of properties is done using VMC, from the root of the repository
+use the following commands:
+
+```bash
+# With property.txt containing: [pay] AF {take}
+$ ./vmc65-linux vendingnew-vmc.txt property.txt
+
+# To obtain the counterexample
+$ ./vmc65-linux vendingnew-vmc.txt property.txt +z
+```
+
+## Manual
 
 More details on how to use the deployed tool can be found
 [here](https://github.com/fts4vmc/FTS4VMC/blob/master/MANUAL.md "User manual").
