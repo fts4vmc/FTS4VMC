@@ -1,5 +1,5 @@
 # FTS4VMC User Guide #
-[VMC]: http://fmtlab.isti.cnr.it/vmc/V6.4/vmc.html
+[VMC]: https://fmt.isti.cnr.it/vmc
 [UI-START]: ./manual_images/ui_start.png
 [UI-SELECT]: ./manual_images/ui_select.png
 [CONSOLE-TAB]: ./manual_images/console_tab.png
