@@ -202,7 +202,7 @@ root of the repository:
 
 ```bash
 # Using vendingnew.dot as an example
-$ python3 disambiguator.py vendingnew.dot vendingnew-fixed.dot
+$ python3 disambiguator.py tests/dot/vendingnew.dot vendingnew-fixed.dot
 ```
 
 #### Translation ####
