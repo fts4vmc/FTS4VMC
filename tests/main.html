@@ -3,6 +3,11 @@
     <head>
         <title>FTS4VMC</title>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script type="text/javascript">
+          var unit = 'MB';
+          var max_size = 1.0;
+          var max_edge = 300;
+        </script>
         <script src="/static/js/script.js"></script>
         <script src="/static/js/file.js"></script>
         <script src="/static/js/tab.js"></script>
@@ -12,6 +17,10 @@
     </head>
     <body>
         <aside>
+          <div class="title" id="aside-title">
+            <h1>FTS4VMC</h1>
+            <p> v1.0 (2022)</p>
+          </div>
             <!-- File handling -->
             <label class="command operation" for="fts" id="fts-label">Select FTS Model
                 <input type="file" name="fts" id="fts" class="command operation">
@@ -67,19 +76,15 @@
             </button>
             <button title="Verify a property expressed as a v-ACTL formula using VMC"
               class="command operation" id="verify_properties" type="button" disabled>Verify property</button>
-            <textarea disabled id="property_text_area" name="property_text_area" rows="20" cols="50" placeholder="Insert an v-ACTL formula to verify"></textarea>
+            <textarea disabled id="property_text_area" name="property_text_area" rows="8" cols="50" placeholder="Insert a v-ACTL formula to verify"></textarea>
             <button title="Shows a counterexample explaining why the given formula is false for the current MTS"
               class="command operation" id="show_explanation" type="button" disabled>Show explanation</button>
-            <table class="hideme" id="legend">
-              <caption>Legend</caption>
-              <tr><td id="dead">dead transition</td></tr>
-              <tr><td id="false">false optional transition</td></tr>
-              <tr><td id="hidden">hidden deadlock state</td></tr>
-            </table>
         </aside>
         <main>
-            <h2>FTS4VMC</h2>
-            <h3>FTS</h3>
+            <div class="title" id="main-title">
+              <h1></h1>
+              <h3>FTS</h3>
+            </div>
             <div class="tab">
                 <button class="selected-tab" title="Console log" type="button" id="console_tab">Console</button>
                 <button class="tab-button" title="FTS/MTS source code" type="button" id="source_tab">Source</button>
