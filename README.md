@@ -1,5 +1,6 @@
 [tutorial]: <https://www.youtube.com/watch?v=nck8vyk3JuA> "FTS4VMC setup and usage tutorial"
 [SPLC2021]: <https://www.youtube.com/watch?v=OEuZ8BC-43U> "Static Analysis and Family based Model Checking with VMC"
+[models]: ./fts_models
 
 # FTS4VMC #
 
@@ -8,7 +9,7 @@ It also provides detection and removal of ambiguities inside the FTS, written mo
 
 ## Models
 
-Inside the [tests/dot](https://github.com/fts4vmc/FTS4VMC/tree/master/tests/dot "models")
+Inside the [fts_models][models]
 folder there are some examples of FTS written in dot compatible with FTS4VMC.
 
 ## Tutorials
@@ -210,7 +211,7 @@ root of the repository:
 
 ```bash
 # Using vendingnew.dot as an example
-$ python3 disambiguator.py tests/dot/vendingnew.dot vendingnew-fixed.dot
+$ python3 disambiguator.py fts_models/vendingnew/vendingnew.dot vendingnew-fixed.dot
 ```
 
 #### Translation ####
