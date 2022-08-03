@@ -6,6 +6,8 @@
 [SOURCE-TAB]: ./manual_images/source_tab.png
 [GRAPH-TAB]: ./manual_images/graph_tab.png
 [SUMMARY-TAB]: ./manual_images/summary_tab.png
+[COUNTER-TAB]: ./manual_images/counter_tab.png
+[MTS]: ./manual_images/mts_view.png
 
 FTS4VMC is a tool to analyze featured transition system, detect and remove ambiguities,
 display transformed modal transition systems and verify properties expressed in a logic accepted by the Variability Model Checker [VMC][VMC].
@@ -126,6 +128,8 @@ This summary can also be downloaded by pressing **Download displayed result** in
 
 This tab is used to render the counterexample, obtained with the **Show explanation** button, as a graph(See VMC section below)
 
+![Counter-example tab][COUNTER-TAB]
+
 ### Analysis ###
 
 #### Full ambiguities analysis ####
@@ -153,23 +157,32 @@ While faster than a full analysis it is also possible to stop a running liveness
 For ambiguities removal there are three possible options.  
 Every command of this section will updated the code inside the source tab and the image present in the graph tab.
 
-#### Remove false optional transitions #####
+To apply this transformation click on "Apply transformation".
+
+#### PREVIEW: Remove false optional transitions #####
 
 This command will remove false optional transition by replacing the transition's feature expression with True converting it into a must transition.  
 This operation won't add or delete transition in the FTS.
 
-#### Remove dead transitions and hidden deadlocks ####
+#### PREVIEW: Remove dead transitions and hidden deadlocks ####
 
 This command alters the graph by deleting unreachable transitions if present, then it solves hidden deadlocks by adding an explicit deadlock state called DEAD and creating special transitions to this newly created state starting from every state marked as hidden deadlock with feature expression equivalent to the disjunction of every feature expression starting from a hidden deadlock state negated.  
 
-#### Remove all ambiguities #####
+#### PREVIEW: Remove all ambiguities #####
 
 This command combines the two types of ambiguities removal inside a single command.
+
+#### Apply transformation #####
+
+This command updates the uploaded FTS to be the same as the last preview shown
+after clicking one of the 3 previous commands.
 
 ### Modal transition system ###
 
 FTS can quickly be converted into MTS by replacing transition with feature expression True into MTS's must transition and every other transition into an admissible one.  
 By clicking on **View modal transition system** the user can quickly pass to an MTS view updating both the source code tab and the image inside the graph tab.
+
+![Modal transition system view][MTS]
 
 ### <a name="vmc-section"></a> VMC ###
 
