@@ -76,6 +76,11 @@ To install the required packages under a virtual environment use the following
 commands:
 ```bash
 $ pip install virtualenv
+
+# If administrator rights are required
+$ sudo pip install virtualenv
+
+# Create virtual environment in venv directory
 $ python -m venv venv
 ```
 
