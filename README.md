@@ -136,9 +136,10 @@ The source code is organized with the following structure:
 
 ### Flask ###
 
+#### Tested on Windows 10, macOS Big Sur and Debian Bullseye ####
+
 **WARNING**: Currently it is used the flask web server to deploy the application and it should be used only on localhost.
 
-This deployment option has been tested on Windows 10, macOS Big Sur and Debian Bullseye.
 
 Launch app on Flask web server on Linux and Mac:
 ```bash
@@ -160,6 +161,8 @@ You can now use FTS4VMC by visiting http://localhost:5000 with a web
 browser.
 
 ### Docker ###
+
+#### Compatible with every OS capable of running Docker #####
 
 An alternative deployment method is building the Docker image or using the
 compiled one from Docker hub, this option works for all operative systems
