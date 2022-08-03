@@ -45,6 +45,17 @@ class VmcController:
         return not ('Nothing to explain!' in self.output or
                 '### Error found at line' in self.output)
 
+    def _rewrite_input_formula(self, properties):
+        text = ''
+        with open(properties, 'r') as source:
+            for line in source.readlines():
+                if not line.strip().startswith('--'):
+                    text = ''.join((text,line))
+        prop_text = text.replace('(','_').replace(')','_')
+        with open(properties, 'w') as out:
+            out.write(prop_text)
+        return text
+
     #model: file containing an FTS
     #properties: file containing a formula
     def run_vmc(self, model, properties):
@@ -53,11 +64,7 @@ class VmcController:
             raise ValueError('Invalid model file')
         if(not os.path.isfile(properties)):
             raise ValueError('Invalid properties file')
-        with open(properties, 'r') as source:
-            text = source.read()
-        prop_text = text.replace('(','_').replace(')','_')
-        with open(properties, 'w') as out:
-            out.write(prop_text)
+        text = self._rewrite_input_formula(properties)
         #Running vmc
         self.output = subprocess.check_output(os.path.abspath(self.vmc_path) +
                 ' ' + model + ' ' + properties + ' +z',stderr=subprocess.STDOUT,
@@ -67,8 +74,8 @@ class VmcController:
         if SEPARATOR_WIN in decoded:
             separator = SEPARATOR_WIN
         if separator in decoded:
-            self.output, self.explanation = decoded.split(separator,1) 
-            self.explanation = separator +'\n' + self.explanation 
+            self.output, self.explanation = decoded.split(separator,1)
+            self.explanation = separator +'\n' + self.explanation
             if(self._is_true()):
                 self.explanation = 'Nothing to show: the formula is TRUE'
         else:
