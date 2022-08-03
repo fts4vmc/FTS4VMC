@@ -1,0 +1,9 @@
+This FTS is the Vending Machine example depicted in Figure 8 in Section 6.1 of the following paper: 
+
+M.H. ter Beek, F. Damiani, M. Lienhardt, F. Mazzanti, and L. Paolini, Efficient static analysis and verification of featured transition systems. Empirical Software Engineering 22, 1 (2022), 10:1 - 10:43. https://doi.org/10.1007/s10664-020-09930-8
+
+It originates from the following paper and thesis, where a number of properties are verified on this FTS:
+
+A. Classen, P. Heymans, P.-Y. Schobbens, A. Legay, J.-F. Raskin, Model checking lots of systems: efficient verification of temporal properties in software product lines. In Proceedings of the 32nd International Conference on Software Engineering (ICSE’10), ACM, 2010, 335–344. https://doi.org/10.1145/1806799.1806850
+
+A. Classen, Modelling and model checking variability-intensive systems. Ph.D. thesis, University of Namur, 2011.

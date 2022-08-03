@@ -1,0 +1,7 @@
+This composed FTS is the Minepump (controller) example separately depicted in Figures 11 and 12 in Section 6.1 of the following paper: 
+
+M.H. ter Beek, F. Damiani, M. Lienhardt, F. Mazzanti, and L. Paolini, Efficient static analysis and verification of featured transition systems. Empirical Software Engineering 22, 1 (2022), 10:1 - 10:43. https://doi.org/10.1007/s10664-020-09930-8
+
+It originates from the following thesis, where a number of properties are verified on this composed FTS:
+
+A. Classen, Modelling and model checking variability-intensive systems. Ph.D. thesis, University of Namur, 2011.

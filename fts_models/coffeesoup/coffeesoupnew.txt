@@ -1,0 +1,7 @@
+This composed FTS is the Coffee/Soup Machine example separately depicted in Figures 9 and 10 in Section 6.1 of the following paper: 
+
+M.H. ter Beek, F. Damiani, M. Lienhardt, F. Mazzanti, and L. Paolini, Efficient static analysis and verification of featured transition systems. Empirical Software Engineering 22, 1 (2022), 10:1 - 10:43. https://doi.org/10.1007/s10664-020-09930-8
+
+It originates from the following paper, where a number of properties are verified on this composed FTS:
+
+T. Belder, M.H. ter Beek, and E.P. de Vink, Coherent branching feature bisimulation. In Proceedings of the 6th International Workshop on Formal Methods and Analysis for Software Product Line Engineering (FMSPLE'15), London, UK (J.M. Atlee and S. Gnesi, eds.), Electronic Proceedings in Theoretical Computer Science 182, arXiv:1504.03474v1 [cs.LO], 2015, 14 - 30. http://arxiv.org/abs/1504.03474v1

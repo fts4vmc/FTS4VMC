@@ -1,0 +1,5 @@
+This FTS is a variant of the FTSs (in particular of the FTS F' in Figure 6) of Example 4 in Section 4.1 of the following paper: 
+
+M.H. ter Beek, F. Damiani, M. Lienhardt, F. Mazzanti, and L. Paolini, Efficient static analysis and verification of featured transition systems. Empirical Software Engineering 22, 1 (2022), 10:1 - 10:43. https://doi.org/10.1007/s10664-020-09930-8
+
+It is an ambiguous FTS model; transforming it unto an unambiguous FTS model results in test_fts_disambiguato.
