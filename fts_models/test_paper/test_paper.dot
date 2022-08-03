@@ -1,0 +1,12 @@
+digraph TEST{
+FM="f1 xor f2";
+name="TEST";
+rankdir=LR;
+node [shape=circle];
+FeatureModel [color=yellow, label="FM = f1 xor f2", shape=plaintext, style=filled];
+C0 [initial=True];
+C0 -> C0  [label="a | f2"];
+C0 -> C1  [label="a | True"];
+C1 -> C2  [label="a | f1"];
+C2 -> C2  [label="a | f2"];
+}
