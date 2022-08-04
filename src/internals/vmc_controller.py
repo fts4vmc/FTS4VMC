@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess
 
 #Separator used while evaluating VMC's output
@@ -45,13 +46,18 @@ class VmcController:
         return not ('Nothing to explain!' in self.output or
                 '### Error found at line' in self.output)
 
+    #Replace parenthesis inside action labels
+    def _replace(self, obj):
+        return obj.group(0).replace('(','_').replace(')','_')
+
     def _rewrite_input_formula(self, properties):
+        pat = re.compile("[\d\w]+\([\d\w_]*\)")
         text = ''
         with open(properties, 'r') as source:
             for line in source.readlines():
                 if not line.strip().startswith('--'):
                     text = ''.join((text,line))
-        prop_text = text.replace('(','_').replace(')','_')
+        prop_text = pat.sub(self._replace, text)
         with open(properties, 'w') as out:
             out.write(prop_text)
         return text
